@@ -99,10 +99,10 @@ function piece(
   photos: string[],
   title: L10n,
   description: L10n,
-  extra: Partial<Piece> & { sizes?: number[] } = {},
+  extra: Partial<Piece> & { sizes?: number[]; worn?: string } = {},
 ): Piece {
   const pid = PIECE(n);
-  const { sizes, ...rest } = extra;
+  const { sizes, worn, ...rest } = extra;
   const urls = [...photos.map((p) => photo(p, 'white')), photo(photos[0], 'black')];
   return {
     id: pid,
@@ -123,7 +123,14 @@ function piece(
     seo_title: {},
     seo_description: {},
     published_at: '2026-01-01T09:00:00Z',
-    piece_images: urls.map((url, i) => ({ id: `${pid.slice(0, -4)}${String(i + 1).padStart(4, '0')}`, piece_id: pid, url, alt: title, position: i })),
+    piece_images: [...urls, ...(worn ? [worn] : [])].map((url, i) => ({
+      id: `${pid.slice(0, -4)}${String(i + 1).padStart(4, '0')}`,
+      piece_id: pid,
+      url,
+      alt: title,
+      position: i,
+      worn: url === worn,
+    })),
     piece_variants: sizes
       ? RING_SIZES.map((label, i) => ({ id: `${pid.slice(0, -4)}${String(100 + i).padStart(4, '0')}`, piece_id: pid, label, stock: sizes[i] ?? 0, position: i }))
       : [],
@@ -154,7 +161,7 @@ export const DEMO_PIECES: Piece[] = [
   piece(6, 1, 'rose-ring', ['06'],
     L('Rose ring', 'Roosring', 'Bague rose'),
     L('A full-bloom rose, every petal set with pavé diamonds.', 'Een roos in volle bloei, elk blaadje gezet met pavé diamanten.', 'Une rose épanouie, chaque pétale serti de diamants pavés.'),
-    { ...onRequest, position: 4, published_at: '2026-07-11T10:00:00Z' }),
+    { worn: '/home/tile-rose-ring.jpg', ...onRequest, position: 4, published_at: '2026-07-11T10:00:00Z' }),
   piece(7, 1, 'feather-ring', ['07'],
     L('Feather ring', 'Veerring', 'Bague plume'),
     L('A pavé diamond feather across two fingers.', 'Een veer in pavé diamanten over twee vingers.', 'Une plume pavée de diamants sur deux doigts.'),
@@ -170,7 +177,7 @@ export const DEMO_PIECES: Piece[] = [
   piece(10, 1, 'yellow-pear-halo-ring', ['10'],
     L('Yellow pear halo ring', 'Gele peer halo ring', 'Bague poire jaune halo'),
     L('A fancy yellow pear diamond in a double halo of yellow and white diamonds.', 'Een fancy gele peervormige diamant in een dubbele halo van gele en witte diamanten.', 'Un diamant poire jaune dans un double halo de diamants jaunes et blancs.'),
-    { ...onRequest, position: 8, published_at: '2026-04-20T10:00:00Z' }),
+    { worn: '/home/tile-pear-ring.jpg', ...onRequest, position: 8, published_at: '2026-04-20T10:00:00Z' }),
   piece(11, 1, 'heart-halo-ring', ['11'],
     L('Heart halo ring', 'Hart halo ring', 'Bague cœur halo'),
     L('A heart-shaped diamond in a double halo, on a split pavé band.', 'Een hartvormige diamant in een dubbele halo, op een gesplitste pavé band.', 'Un diamant cœur dans un double halo, sur un anneau pavé fendu.'),
@@ -184,7 +191,7 @@ export const DEMO_PIECES: Piece[] = [
   piece(22, 2, 'rainbow-tennis-necklace', ['22', '22b'],
     L('Rainbow tennis necklace', 'Regenboog tennisketting', 'Collier rivière arc-en-ciel'),
     L('Sapphires in every colour of the rainbow, all the way round.', 'Saffieren in alle kleuren van de regenboog, helemaal rond.', 'Des saphirs de toutes les couleurs de l’arc-en-ciel, tout autour du cou.'),
-    { price: 12500, metal_id: ATTR(3), stone_id: ATTR(12), featured: true, position: 0, published_at: '2026-09-10T10:00:00Z' }),
+    { worn: '/home/tile-necklace.jpg', price: 12500, metal_id: ATTR(3), stone_id: ATTR(12), featured: true, position: 0, published_at: '2026-09-10T10:00:00Z' }),
   piece(21, 2, 'diamond-tennis-necklace', ['21'],
     L('Diamond tennis necklace', 'Diamanten tennisketting', 'Collier rivière diamants'),
     L('A single line of brilliant-cut diamonds in white gold.', 'Een enkele lijn briljant geslepen diamanten in witgoud.', 'Une ligne de diamants taille brillant en or blanc.'),
@@ -198,7 +205,7 @@ export const DEMO_PIECES: Piece[] = [
   piece(14, 3, 'wing-earrings', ['14'],
     L('Wing earrings', 'Vleugeloorbellen', "Boucles d'oreilles ailes"),
     L('Marquise and pear diamonds that climb the ear like wings.', 'Marquise- en peervormige diamanten die als vleugels langs het oor klimmen.', 'Des diamants marquise et poire qui montent le long de l’oreille comme des ailes.'),
-    { price: 9800, featured: true, position: 0, published_at: '2026-09-25T10:00:00Z' }),
+    { worn: '/home/tile-earrings.jpg', price: 9800, featured: true, position: 0, published_at: '2026-09-25T10:00:00Z' }),
   piece(15, 3, 'doorknocker-earrings', ['15'],
     L('Doorknocker earrings', 'Doorknocker oorbellen', "Boucles d'oreilles heurtoir"),
     L('Rings of baguette and round diamonds that swing from an emerald-cut top.', 'Ringen van baguette en ronde diamanten die bewegen onder een top in smaragdslijpsel.', 'Des anneaux de diamants baguette et ronds qui se balancent sous un motif taille émeraude.'),
@@ -206,7 +213,7 @@ export const DEMO_PIECES: Piece[] = [
   piece(13, 3, 'paisley-earrings', ['13'],
     L('Paisley earrings', 'Paisley oorbellen', "Boucles d'oreilles paisley"),
     L('An open paisley of diamonds, edged in rose gold.', 'Een open paisley van diamanten, afgewerkt in roségoud.', 'Un motif paisley ajouré de diamants, bordé d’or rose.'),
-    { price: 7900, metal_id: ATTR(3), position: 2, published_at: '2026-06-27T10:00:00Z' }),
+    { worn: '/home/tile-hoops.jpg', price: 7900, metal_id: ATTR(3), position: 2, published_at: '2026-06-27T10:00:00Z' }),
   piece(16, 3, 'inside-out-hoops', ['16'],
     L('Inside-out hoops', 'Inside-out creolen', 'Créoles intérieur-extérieur'),
     L('Oval hoops set with diamonds inside and out.', 'Ovale creolen, binnen en buiten gezet met diamanten.', 'Des créoles ovales serties de diamants à l’intérieur et à l’extérieur.'),
@@ -216,7 +223,7 @@ export const DEMO_PIECES: Piece[] = [
   piece(17, 4, 'tennis-bracelet', ['17'],
     L('Tennis bracelet', 'Tennisarmband', 'Bracelet rivière'),
     L('A line of brilliant-cut diamonds in white gold.', 'Een lijn briljant geslepen diamanten in witgoud.', 'Une ligne de diamants taille brillant en or blanc.'),
-    { price: 4650, featured: true, position: 0, stock: 3, published_at: '2026-09-15T10:00:00Z' }),
+    { worn: '/home/tile-bracelets.jpg', price: 4650, featured: true, position: 0, stock: 3, published_at: '2026-09-15T10:00:00Z' }),
   piece(18, 4, 'halo-tennis-bracelet', ['18'],
     L('Halo tennis bracelet', 'Halo tennisarmband', 'Bracelet rivière halo'),
     L('Each diamond framed by its own halo of brilliants.', 'Elke diamant omringd door een eigen halo van briljanten.', 'Chaque diamant entouré de son propre halo de brillants.'),

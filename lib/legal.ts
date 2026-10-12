@@ -15,7 +15,7 @@ const terms: LegalPage = {
   title: { en: 'Terms of sale', nl: 'Verkoopsvoorwaarden', fr: 'Conditions de vente' },
   body: {
     en: `## Who we are
-This shop is run by {company_name}, {company_address}, VAT {vat_number}. You can reach us at {email}.
+This shop is run by {company_name} (a trade name of {legal_name}, sole trader), {company_address}, VAT {vat_number}. You can reach us at {email}.
 
 ## Prices
 All prices are in euro and include VAT: Belgian VAT, or the VAT of your EU country where the law requires it. Orders shipped outside the EU are exports, without EU VAT. Shipping costs are shown in your bag before you pay.
@@ -35,7 +35,7 @@ Every piece carries the legal two-year guarantee against defects. Normal wear, k
 ## Disputes
 Belgian law applies. If we cannot find a solution together, you can turn to the European online dispute resolution platform: https://ec.europa.eu/consumers/odr.`,
     nl: `## Wie zijn we
-Deze winkel wordt uitgebaat door {company_name}, {company_address}, btw {vat_number}. U bereikt ons via {email}.
+Deze winkel wordt uitgebaat door {company_name} (handelsnaam van {legal_name}, eenmanszaak), {company_address}, btw {vat_number}. U bereikt ons via {email}.
 
 ## Prijzen
 Alle prijzen zijn in euro en inclusief btw: Belgische btw, of de btw van uw EU-land waar de wet dat vereist. Bestellingen buiten de EU zijn uitvoer, zonder Europese btw. De verzendkosten ziet u in uw winkeltas voor u betaalt.
@@ -55,7 +55,7 @@ Elk juweel heeft de wettelijke garantie van twee jaar op gebreken. Normale slijt
 ## Geschillen
 Het Belgisch recht is van toepassing. Vinden we samen geen oplossing, dan kunt u terecht bij het Europese platform voor onlinegeschillenbeslechting: https://ec.europa.eu/consumers/odr.`,
     fr: `## Qui sommes-nous
-Cette boutique est exploitée par {company_name}, {company_address}, TVA {vat_number}. Vous pouvez nous joindre à {email}.
+Cette boutique est exploitée par {company_name} (nom commercial de {legal_name}, entreprise individuelle), {company_address}, TVA {vat_number}. Vous pouvez nous joindre à {email}.
 
 ## Prix
 Tous les prix sont en euros, TVA comprise : TVA belge, ou TVA de votre pays de l'UE lorsque la loi l'exige. Les commandes livrées hors de l'UE sont des exportations, sans TVA européenne. Les frais de livraison sont indiqués dans votre panier avant le paiement.
@@ -119,7 +119,7 @@ const privacy: LegalPage = {
   title: { en: 'Privacy', nl: 'Privacy', fr: 'Confidentialité' },
   body: {
     en: `## Who is responsible
-{company_name}, {company_address}, VAT {vat_number}, {email}.
+{company_name} (a trade name of {legal_name}, sole trader), {company_address}, VAT {vat_number}, {email}.
 
 ## What we keep and why
 - Your name, email, phone and address, to deliver your order, send your invoice and answer your requests.
@@ -132,7 +132,7 @@ Only the companies that help us serve you: Stripe for payments, our carrier for 
 ## Your rights
 You can ask to see, correct or delete your data at {email}. You can also file a complaint with the Belgian Data Protection Authority (www.dataprotectionauthority.be).`,
     nl: `## Wie is verantwoordelijk
-{company_name}, {company_address}, btw {vat_number}, {email}.
+{company_name} (handelsnaam van {legal_name}, eenmanszaak), {company_address}, btw {vat_number}, {email}.
 
 ## Wat we bewaren en waarom
 - Uw naam, e-mail, telefoon en adres, om uw bestelling te leveren, uw factuur te sturen en uw vragen te beantwoorden.
@@ -145,7 +145,7 @@ Enkel de bedrijven die ons helpen u te bedienen: Stripe voor betalingen, onze ve
 ## Uw rechten
 U kunt uw gegevens inkijken, laten verbeteren of wissen via {email}. U kunt ook klacht indienen bij de Gegevensbeschermingsautoriteit (www.gegevensbeschermingsautoriteit.be).`,
     fr: `## Responsable
-{company_name}, {company_address}, TVA {vat_number}, {email}.
+{company_name} (nom commercial de {legal_name}, entreprise individuelle), {company_address}, TVA {vat_number}, {email}.
 
 ## Ce que nous conservons et pourquoi
 - Vos nom, e-mail, téléphone et adresse, pour livrer votre commande, envoyer votre facture et répondre à vos demandes.

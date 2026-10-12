@@ -31,7 +31,7 @@ const out = [
   '  where id = 1 and hero_image_url is null;',
   `update settings set home_tiles = ${lit(JSON.stringify(s.home_tiles))}::jsonb`,
   "  where id = 1 and home_tiles = '[]'::jsonb;",
-  `update settings set company_name = ${lit(s.company_name)}, company_address = ${lit(s.company_address)}, vat_number = ${lit(s.vat_number)}`,
+  `update settings set company_name = ${lit(s.company_name)}, legal_name = ${lit(s.legal_name)}, company_address = ${lit(s.company_address)}, vat_number = ${lit(s.vat_number)}`,
   '  where id = 1 and company_name is null;',
   '',
   insert('sections', ['id', 'slug', 'name', 'description', 'cover_url', 'position', 'visible', 'show_prices'], DEMO_SECTIONS),

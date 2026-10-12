@@ -61,6 +61,7 @@ export default function SettingsAdmin() {
           gift_wrap_enabled: v.gift_wrap_enabled,
           gift_wrap_price: v.gift_wrap_price ?? 0,
           company_name: v.company_name?.trim() || null,
+          legal_name: v.legal_name?.trim() || null,
           company_address: v.company_address?.trim() || null,
           vat_number: v.vat_number?.trim() || null,
           vat_rate: v.vat_rate ?? 21,
@@ -140,6 +141,7 @@ export default function SettingsAdmin() {
           </Help>
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField label="Company name" value={s.company_name ?? ''} onChange={(company_name) => set({ company_name })} />
+            <TextField label="Legal name (as in KBO)" value={s.legal_name ?? ''} onChange={(legal_name) => set({ legal_name })} hint="The registered owner of the VAT number. Invoices and legal pages say the company name is a trade name of this." />
             <TextField label="VAT number" value={s.vat_number ?? ''} onChange={(vat_number) => set({ vat_number })} placeholder="BE0123.456.789" />
             <TextField label="Registered address" value={s.company_address ?? ''} onChange={(company_address) => set({ company_address })} multiline rows={3} />
             <NumberField label="Belgian VAT rate (%)" value={s.vat_rate} onChange={(v) => set({ vat_rate: v ?? 0 })} step={0.01} hint="Prices on the site include VAT." />

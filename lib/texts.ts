@@ -35,6 +35,7 @@ export const TEXTS = {
   'footer.appointment': t('Header and footer', 'Footer appointment note', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
   'footer.contact': t('Header and footer', 'Footer contact heading', 'Contact', 'Contact', 'Contact'),
   'footer.follow': t('Header and footer', 'Footer social heading', 'Follow', 'Volg ons', 'Suivez-nous'),
+  'footer.trade_name': t('Header and footer', 'Copyright line: trade name ({name} is the legal name)', 'a trade name of {name}', 'een handelsnaam van {name}', 'un nom commercial de {name}'),
   'footer.rights': t('Header and footer', 'Copyright line', 'All rights reserved.', 'Alle rechten voorbehouden.', 'Tous droits réservés.'),
   'footer.vat': t('Header and footer', 'VAT label before the number', 'VAT', 'BTW', 'TVA'),
 
@@ -229,6 +230,7 @@ export const TEXTS = {
   'newsletter.thanks': t('Newsletter', 'Thank you', 'Thank you, you are on the list.', 'Dank u, u staat op de lijst.', 'Merci, vous êtes inscrit(e).'),
   'newsletter.error': t('Newsletter', 'Error', 'That did not work. Please check your email and try again.', 'Dat lukte niet. Controleer uw e-mailadres en probeer opnieuw.', "Cela n'a pas fonctionné. Vérifiez votre e-mail et réessayez."),
   'newsletter.unsubscribed': t('Newsletter', 'Unsubscribed message', 'You have been unsubscribed.', 'U bent uitgeschreven.', 'Vous êtes désinscrit(e).'),
+  'invoice.trade_name': t('Invoice', 'Bottom line ({company}, {name}, {vat} come from Settings)', '{company} is a trade name of {name}, sole trader · Enterprise no. / VAT {vat}', '{company} is een handelsnaam van {name}, eenmanszaak · Ondernemingsnr. / btw {vat}', "{company} est un nom commercial de {name}, entreprise individuelle · N° d'entreprise / TVA {vat}"),
   'invoice.title': t('Invoices', 'Invoice heading', 'Invoice', 'Factuur', 'Facture'),
   'invoice.download': t('Invoices', 'Download link', 'Download invoice (PDF)', 'Factuur downloaden (PDF)', 'Télécharger la facture (PDF)'),
   'invoice.vat_included': t('Invoices', 'VAT line', 'of which VAT', 'waarvan btw', 'dont TVA'),

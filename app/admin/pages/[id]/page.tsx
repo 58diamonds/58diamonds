@@ -10,7 +10,7 @@ import { RESERVED_SLUGS } from '@/lib/routes';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, Page } from '@/lib/types';
 
-const PLACEHOLDERS = '{company_name}, {company_address}, {vat_number} and {email} are filled in from Settings.';
+const PLACEHOLDERS = '{company_name}, {legal_name}, {company_address}, {vat_number} and {email} are filled in from Settings.';
 
 /** Edit one page: text, photo, address, search engine text, menus. */
 export default function PageEditor() {

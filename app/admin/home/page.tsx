@@ -22,7 +22,7 @@ const BLOCKS: Record<HomeBlock, { name: string; about: string }> = {
 const LOGOS: { value: HeaderLogo; label: string; src: string }[] = [
   { value: 'ink', label: 'As it is', src: '/brand/logo-ink.svg' },
   { value: 'black', label: 'Black', src: '/brand/logo-black.svg' },
-  { value: 'brown-gold', label: 'Brown and gold', src: '/brand/logo-brown-gold.svg' },
+  { value: 'brown-gold', label: 'Gold', src: '/brand/logo-brown-gold.svg' },
 ];
 
 /** The homepage: the logo on top, its photos, the squares, which blocks show and in which order. */

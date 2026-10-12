@@ -12,7 +12,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-09: Real logo and product photos in. Company details set. Not live yet: waiting for Sacha's go before loading Supabase and pushing.
 - 2026-10-12: Rebuilt in the ivory look with the first idea's menus. Shop built but hidden (`NEXT_PUBLIC_SHOP` unset). Admin sign-in is username + password only.
 - 2026-10-12: LIVE on https://58diamonds.vercel.app. Supabase loaded (22 pieces, pages, menu), admins farah and sacha created, Vercel env vars set. Vercel framework preset set to Next.js. The first deploy was done with the Vercel CLI because the Git link failed ("Git information retrieval failed"). The Git link was then reconnected so pushes to main deploy again.
-- Piece prices are still placeholders and are visible on the site.
+- 2026-10-12: All pieces set to "Price on request" and placeholder prices cleared. Farah enters real prices and turns "Show the price" on per piece.
 
 ## Facts
 
@@ -33,7 +33,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - Prices: a piece shows its price only if it has one, its "show price" switch is on and its section allows prices. Otherwise "Price on request". Sold pieces say "Sold".
 - Hiding a section hides its pieces too. Deleting a section keeps its pieces ("Not in a section").
 - Photos are resized to 2000px in the browser before upload.
-- Style: the ivory look Farah chose (ivory, ink, gold; Cormorant Garamond + Montserrat), with the menus and features of the first idea. Header logo has three options (as is, black, brown and gold), chosen in Admin > Homepage; the header stays ivory. All colours and fonts are tokens in `app/globals.css` and `app/layout.tsx`.
+- Style: the ivory look Farah chose (ivory, ink, gold; Cormorant Garamond + Montserrat), with the menus and features of the first idea. Header logo has three options (as is, black, gold; the "58 DIAMONDS" text always takes the same colour as the diamond), chosen in Admin > Homepage; the header stays ivory. All colours and fonts are tokens in `app/globals.css` and `app/layout.tsx`.
 - Never use em dashes anywhere.
 
 - Shop from day one, own build with Stripe (no Shopify). Sections All, Rings, Necklaces, Earrings, Bracelets; sort by price and by date, both directions.

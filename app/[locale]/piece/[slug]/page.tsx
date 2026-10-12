@@ -11,7 +11,7 @@ import { paragraphs } from '@/lib/format';
 import { tr } from '@/lib/i18n';
 import { pieceView } from '@/lib/piece-view';
 import { href } from '@/lib/routes';
-import { pieceStock, priceVisible } from '@/lib/shop';
+import { pieceStock, priceVisible, stonesOf } from '@/lib/shop';
 import { alternates, site } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -43,7 +43,11 @@ export default async function PiecePage({ params }: Props) {
   const description = tr(piece.description, locale);
   const details = tr(piece.details, locale);
   const metal = attributes.find((a) => a.id === piece.metal_id);
-  const stone = attributes.find((a) => a.id === piece.stone_id);
+  const stones = stonesOf(piece)
+    .map((id) => attributes.find((a) => a.id === id))
+    .filter((a) => a != null)
+    // The longer name ("Laboratory Grown Diamond") wins, in this language first.
+    .map((a) => a.full_label?.[locale]?.trim() || a.label[locale]?.trim() || tr(a.full_label, locale) || tr(a.label, locale));
   const related = all
     .filter((p) => p.id !== piece.id && p.section_id === piece.section_id)
     .slice(0, 4)
@@ -116,12 +120,12 @@ export default async function PiecePage({ params }: Props) {
               variants={piece.piece_variants.map((v) => ({ id: v.id, label: v.label, stock: v.stock }))}
             />
 
-            {(details || metal || stone) && (
+            {(details || metal || stones.length > 0) && (
               <div className="mt-12">
                 <h2 className="eyebrow mb-3">{t('piece.details')}</h2>
                 <ul className="border-t border-[var(--color-line)] text-sm">
                   {metal && <li className="border-b border-[var(--color-line)] py-3">{t('shop.metal')}: {tr(metal.label, locale)}</li>}
-                  {stone && <li className="border-b border-[var(--color-line)] py-3">{t('shop.stone')}: {tr(stone.label, locale)}</li>}
+                  {stones.length > 0 && <li className="border-b border-[var(--color-line)] py-3">{t('shop.stone')}: {stones.join(', ')}</li>}
                   {details
                     .split('\n')
                     .map((l) => l.trim())

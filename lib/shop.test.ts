@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, vatIncluded } from './shop';
+import { activeFilterCount, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
 import type { Piece, Section } from './types';
 
 const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, cover_url: null, position: 0, visible: true, show_prices: true };
@@ -76,5 +76,20 @@ describe('money', () => {
   it('finds the VAT inside a VAT-inclusive price', () => {
     expect(vatIncluded(121, 21)).toBe(21);
     expect(vatIncluded(1000, 21)).toBe(173.55);
+  });
+
+  it('filters by size and lists sizes in a natural order', () => {
+    const v = (id: string, label: string) => ({ id, piece_id: id, label, stock: 1, position: 0 });
+    const rings = [
+      piece('r1', { piece_variants: [v('a', '52'), v('b', '54')] }),
+      piece('r2', { piece_variants: [v('c', '9'), v('d', '54 ')] }),
+      piece('plain'),
+    ];
+    expect(sizesOf(rings)).toEqual(['9', '52', '54']);
+    const ids = (qs: Record<string, string>) => filterPieces(rings, parseShopQuery(qs), attrs, sectionOf).map((p) => p.id);
+    expect(ids({ size: '54' })).toEqual(['r1', 'r2']);
+    expect(ids({ size: '52,9' })).toEqual(['r1', 'r2']);
+    expect(ids({ size: '60' })).toEqual([]);
+    expect(activeFilterCount(parseShopQuery({ size: '52,54' }))).toBe(2);
   });
 });

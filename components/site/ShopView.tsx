@@ -3,7 +3,7 @@ import { getAttributes, getPieces } from '@/lib/data';
 import { tr, type Locale } from '@/lib/i18n';
 import { pieceView } from '@/lib/piece-view';
 import { href } from '@/lib/routes';
-import { filterPieces, parseShopQuery, shopQueryString } from '@/lib/shop';
+import { filterPieces, parseShopQuery, shopQueryString, sizesOf } from '@/lib/shop';
 import type { T } from '@/lib/t';
 import type { Section, Settings } from '@/lib/types';
 import { PieceCard } from './PieceCard';
@@ -68,6 +68,7 @@ export async function ShopView({
         query={query}
         metals={used('metal')}
         stones={used('stone')}
+        sizes={sizesOf(inSection).map((s) => ({ slug: s, label: s }))}
         count={views.length}
         currency={settings.currency}
       />

@@ -82,6 +82,7 @@ export const TEXTS = {
   'shop.filter': t('Shop', 'Filter button', 'Filter', 'Filter', 'Filtrer'),
   'shop.metal': t('Shop', 'Filter: metal', 'Metal', 'Metaal', 'Métal'),
   'shop.stone': t('Shop', 'Filter: stone', 'Stone', 'Steen', 'Pierre'),
+  'shop.size': t('Shop', 'Filter: size', 'Size', 'Maat', 'Taille'),
   'shop.price': t('Shop', 'Filter: price', 'Price', 'Prijs', 'Prix'),
   'shop.price_min': t('Shop', 'Filter: minimum price', 'Min', 'Min', 'Min'),
   'shop.price_max': t('Shop', 'Filter: maximum price', 'Max', 'Max', 'Max'),

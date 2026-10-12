@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, SelectField, UpDown, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, UpDown, show, useSave } from '@/components/admin/ui';
 import { move } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { HeaderLogo, HomeBlock, HomeTile, Piece, Section, Settings } from '@/lib/types';
@@ -30,13 +30,21 @@ export default function HomeAdmin() {
   const db = getAdminDb();
   const [s, setS] = useState<Settings | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
-  const [pieces, setPieces] = useState<Pick<Piece, 'id' | 'title' | 'section_id'>[]>([]);
+  const [pieces, setPieces] = useState<TilePiece[]>([]);
+  const [picking, setPicking] = useState<number | null>(null);
   const { state, run } = useSave();
 
   useEffect(() => {
     db.from('settings').select('*').eq('id', 1).maybeSingle().then(({ data }) => setS(data as Settings));
     db.from('sections').select('*').order('position').then(({ data }) => setSections((data ?? []) as Section[]));
-    db.from('pieces').select('id, title, section_id').order('position').then(({ data }) => setPieces((data ?? []) as Pick<Piece, 'id' | 'title' | 'section_id'>[]));
+    db.from('pieces')
+      .select('id, title, section_id, piece_images(url, position)')
+      .order('position')
+      .then(({ data }) =>
+        setPieces(
+          ((data ?? []) as TilePiece[]).map((p) => ({ ...p, piece_images: [...(p.piece_images ?? [])].sort((a, b) => a.position - b.position) })),
+        ),
+      );
   }, [db]);
   if (!s) return <Loading />;
   const tiles = s.home_tiles ?? [];
@@ -84,36 +92,82 @@ export default function HomeAdmin() {
         </Card>
 
         <Card title="Squares">
-          <Help>Up to six squares under the heading. Pick a piece: its name shows under the square, and a click opens its part of the collection (a ring opens Rings). Add a photo, or leave it empty to use the piece's own photo.</Help>
+          <Help>
+            Up to six squares under the heading, each one a piece from the collection. The name under the square is the piece&apos;s name, and a click opens its
+            part of the collection (a ring opens Rings). The photo is one of the piece&apos;s own photos; to show another one, add it to the piece first.
+          </Help>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {tiles.map((tile, i) => (
-              <li key={i} className="border border-[var(--color-line)] p-4">
-                <SelectField
-                  label={`Square ${i + 1}: piece`}
-                  value={tile.piece_id ?? ''}
-                  onChange={(v) => setTile(i, { piece_id: v || null, section_id: pieces.find((x) => x.id === v)?.section_id ?? null })}
-                  options={[
-                    { value: '', label: 'Choose a piece' },
-                    ...pieces.map((x) => {
-                      const sec = sections.find((y) => y.id === x.section_id);
-                      return { value: x.id, label: sec ? `${show(x.title)} (${show(sec.name)})` : show(x.title) };
-                    }),
-                  ]}
-                />
-                <div className="mt-3">
-                  <ImageField label="Photo" value={tile.image_url} onChange={(image_url) => setTile(i, { image_url })} folder="home" aspect="aspect-square" />
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <UpDown index={i} count={tiles.length} onMove={(d) => setTiles(move(tiles, i, d))} />
-                  <Button tone="danger" onClick={() => setTiles(tiles.filter((_, j) => j !== i))}>Remove square</Button>
-                </div>
-              </li>
-            ))}
+            {tiles.map((tile, i) => {
+              const piece = pieces.find((x) => x.id === tile.piece_id);
+              const sec = sections.find((y) => y.id === (piece?.section_id ?? tile.section_id));
+              const photos = piece?.piece_images.map((im) => im.url) ?? [];
+              // Squares made before this kept their own photo; it stays until another is picked.
+              const choices = tile.image_url && !photos.includes(tile.image_url) ? [tile.image_url, ...photos] : photos;
+              const current = tile.image_url ?? photos[0] ?? null;
+              return (
+                <li key={i} className="border border-[var(--color-line)] p-4">
+                  <p className="label mb-2">Square {i + 1}</p>
+                  <div className="aspect-square overflow-hidden bg-white">
+                    {current ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={current} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="flex h-full items-center justify-center text-sm text-[var(--color-stone)]">No piece yet</span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm">
+                    {piece ? show(piece.title) : 'No piece chosen'}
+                    {sec && <span className="text-[var(--color-stone)]"> · opens {show(sec.name)}</span>}
+                  </p>
+                  {choices.length > 1 && (
+                    <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Photo">
+                      {choices.map((url) => (
+                        <button
+                          key={url}
+                          type="button"
+                          role="radio"
+                          aria-checked={url === current}
+                          onClick={() => setTile(i, { image_url: url })}
+                          className={`h-12 w-12 overflow-hidden border bg-white ${url === current ? 'border-[var(--color-gold)]' : 'border-[var(--color-line)]'}`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={url} alt="" className="h-full w-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Button onClick={() => setPicking(picking === i ? null : i)}>{piece ? 'Change piece' : 'Choose a piece'}</Button>
+                    <UpDown index={i} count={tiles.length} onMove={(d) => setTiles(move(tiles, i, d))} />
+                    <Button tone="danger" onClick={() => setTiles(tiles.filter((_, j) => j !== i))}>Remove</Button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           {tiles.length < 6 && (
             <div className="mt-4">
-              <Button onClick={() => setTiles([...tiles, { image_url: null, section_id: null, piece_id: null }])}>Add a square</Button>
+              <Button
+                onClick={() => {
+                  setTiles([...tiles, { image_url: null, section_id: null, piece_id: null }]);
+                  setPicking(tiles.length);
+                }}
+              >
+                Add a square
+              </Button>
             </div>
+          )}
+          {picking != null && tiles[picking] && (
+            <PiecePicker
+              pieces={pieces}
+              sections={sections}
+              title={`Choose the piece for square ${picking + 1}`}
+              onClose={() => setPicking(null)}
+              onPick={(p) => {
+                setTile(picking, { piece_id: p.id, section_id: p.section_id, image_url: p.piece_images[0]?.url ?? null });
+                setPicking(null);
+              }}
+            />
           )}
         </Card>
 
@@ -151,6 +205,59 @@ export default function HomeAdmin() {
         state={state}
         onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, hero_image_url: s.hero_image_url, about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
       />
+    </div>
+  );
+}
+
+type TilePiece = Pick<Piece, 'id' | 'title' | 'section_id'> & { piece_images: { url: string; position: number }[] };
+
+/** The collection as photos, by section, to pick the piece for a square. */
+function PiecePicker({
+  pieces,
+  sections,
+  title,
+  onPick,
+  onClose,
+}: {
+  pieces: TilePiece[];
+  sections: Section[];
+  title: string;
+  onPick: (p: TilePiece) => void;
+  onClose: () => void;
+}) {
+  const [section, setSection] = useState<string>('');
+  const shown = section ? pieces.filter((p) => p.section_id === section) : pieces;
+  return (
+    <div className="mt-6 border border-[var(--color-gold-soft)] bg-[var(--color-ivory)] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm">{title}</p>
+        <Button onClick={onClose}>Cancel</Button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" className="chip" aria-pressed={section === ''} onClick={() => setSection('')}>
+          All
+        </button>
+        {sections.map((x) => (
+          <button key={x.id} type="button" className="chip" aria-pressed={section === x.id} onClick={() => setSection(x.id)}>
+            {show(x.name)}
+          </button>
+        ))}
+      </div>
+      <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        {shown.map((p) => (
+          <li key={p.id}>
+            <button type="button" onClick={() => onPick(p)} className="group block w-full text-left">
+              <span className="block aspect-square overflow-hidden border border-[var(--color-line)] bg-white group-hover:border-[var(--color-gold)]">
+                {p.piece_images[0] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.piece_images[0].url} alt="" className="h-full w-full object-cover" />
+                )}
+              </span>
+              <span className="mt-1 block text-xs">{show(p.title)}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

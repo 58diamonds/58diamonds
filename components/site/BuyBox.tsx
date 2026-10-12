@@ -79,6 +79,12 @@ export function BuyBox({
           {needSize && <p className="mt-3 text-sm text-red-800" role="alert">{t('piece.choose_size')}</p>}
         </fieldset>
       )}
+      {!purchasable && variants.length > 0 && (
+        <p className="mb-8">
+          <span className="eyebrow mr-3">{t('piece.size')}</span>
+          {variants.map((v) => v.label).join(' · ')}
+        </p>
+      )}
 
       {purchasable && left != null && left > 0 && left <= 2 && (
         <p className="mb-4 text-sm text-[var(--color-gold)]">{t('piece.left', { n: left })}</p>

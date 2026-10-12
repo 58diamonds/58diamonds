@@ -225,24 +225,37 @@ export default function PieceEditor() {
               {SHOP_LIVE ? (
                 <Toggle label="Can be bought online" checked={piece.for_sale} onChange={(v) => set({ for_sale: v })} hint="Off: only “Book a viewing”." />
               ) : (
-                <Toggle label="Sold" checked={piece.stock === 0 && variants.length === 0} onChange={(v) => set({ stock: v ? 0 : 1 })} hint="The piece stays on the site, marked “Sold”." />
+                <Toggle
+                  label="Sold"
+                  checked={variants.length ? sizeStock === 0 : piece.stock === 0}
+                  onChange={(v) => {
+                    set({ stock: v ? 0 : 1 });
+                    setVariants(variants.map((x) => ({ ...x, stock: v ? 0 : 1 })));
+                  }}
+                  hint="The piece stays on the site, marked “Sold”."
+                />
               )}
             </div>
           </div>
 
-          {SHOP_LIVE && (
           <div className="mt-6 border-t border-[var(--color-line)] pt-5">
             <p className="text-sm">Sizes</p>
-            <p className="mb-3 text-xs text-[var(--color-stone)]">For rings (or chain lengths). Each size has its own stock. Without sizes, the stock below is used.</p>
+            <p className="mb-3 text-xs text-[var(--color-stone)]">
+              {SHOP_LIVE
+                ? 'For rings (or chain lengths). Each size has its own stock. Without sizes, the stock below is used. Visitors can filter the collection by size.'
+                : 'For rings (or chain lengths). Visitors can filter the collection by these sizes.'}
+            </p>
             {variants.length > 0 && (
               <ul className="mb-3 space-y-2">
                 {variants.map((v, i) => (
                   <li key={v.id} className="flex flex-wrap items-center gap-2">
                     <input value={v.label} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, label: e.target.value } : x)))} className={`${inputCls} !mt-0 w-24`} aria-label="Size" />
-                    <label className="flex items-center gap-2 text-sm">
-                      in stock
-                      <input type="number" min={0} value={v.stock} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, stock: Number(e.target.value) } : x)))} className={`${inputCls} !mt-0 w-20`} />
-                    </label>
+                    {SHOP_LIVE && (
+                      <label className="flex items-center gap-2 text-sm">
+                        in stock
+                        <input type="number" min={0} value={v.stock} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, stock: Number(e.target.value) } : x)))} className={`${inputCls} !mt-0 w-20`} />
+                      </label>
+                    )}
                     <UpDown index={i} count={variants.length} onMove={(d) => setVariants(move(variants, i, d))} />
                     <button
                       type="button"
@@ -261,18 +274,18 @@ export default function PieceEditor() {
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', stock: 1, position: variants.length, isNew: true }])}>Add a size</Button>
               {variants.length === 0 && (
-                <Button onClick={() => setVariants(RING_SIZES.map((label, position) => ({ id: crypto.randomUUID(), label, stock: 0, position, isNew: true })))}>Add ring sizes 48 to 60</Button>
+                <Button onClick={() => setVariants(RING_SIZES.map((label, position) => ({ id: crypto.randomUUID(), label, stock: SHOP_LIVE ? 0 : 1, position, isNew: true })))}>Add ring sizes 48 to 60</Button>
               )}
             </div>
-            {variants.length > 0 ? (
-              <p className="mt-3 text-sm text-[var(--color-stone)]">Total in stock: {sizeStock}</p>
-            ) : (
-              <div className="mt-4 max-w-40">
-                <NumberField label="In stock" value={piece.stock} onChange={(v) => set({ stock: v ?? 0 })} />
-              </div>
-            )}
+            {SHOP_LIVE &&
+              (variants.length > 0 ? (
+                <p className="mt-3 text-sm text-[var(--color-stone)]">Total in stock: {sizeStock}</p>
+              ) : (
+                <div className="mt-4 max-w-40">
+                  <NumberField label="In stock" value={piece.stock} onChange={(v) => set({ stock: v ?? 0 })} />
+                </div>
+              ))}
           </div>
-          )}
         </Card>
 
         <Card title="Search engines and address">

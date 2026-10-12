@@ -6,11 +6,11 @@ const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, co
 
 const piece = (id: string, extra: Partial<Piece> = {}): Piece => ({
   id, section_id: 's', slug: id, title: { en: id }, description: {}, details: {}, price: 1000, show_price: true,
-  for_sale: true, stock: 1, metal_id: null, stone_id: null, visible: true, featured: false, position: 0,
+  for_sale: true, stock: 1, metal_id: null, stone_id: null, stone_ids: [], visible: true, featured: false, position: 0,
   seo_title: {}, seo_description: {}, published_at: '2026-01-01T00:00:00Z', piece_images: [], piece_variants: [], ...extra,
 });
 
-const attrs = { metal: new Map([['m1', 'yellow-gold'], ['m2', 'white-gold']]), stone: new Map([['s1', 'diamond']]) };
+const attrs = { metal: new Map([['m1', 'yellow-gold'], ['m2', 'white-gold']]), stone: new Map([['s1', 'diamond'], ['s2', 'ruby']]) };
 const sectionOf = () => section;
 
 describe('stock and buying', () => {
@@ -91,5 +91,15 @@ describe('money', () => {
     expect(ids({ size: '52,9' })).toEqual(['r1', 'r2']);
     expect(ids({ size: '60' })).toEqual([]);
     expect(activeFilterCount(parseShopQuery({ size: '52,54' }))).toBe(2);
+  });
+});
+
+describe('stones', () => {
+  it('finds a piece by any of its stones', () => {
+    const both = piece('both', { stone_id: 's1', stone_ids: ['s1', 's2'] });
+    const old = piece('old', { stone_id: 's1' });
+    const run = (stone: string) => filterPieces([both, old], parseShopQuery({ stone }), attrs, sectionOf).map((p) => p.id);
+    expect(run('ruby')).toEqual(['both']);
+    expect(run('diamond')).toEqual(['both', 'old']);
   });
 });

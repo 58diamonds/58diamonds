@@ -10,7 +10,8 @@ function lit(v: unknown): string {
   if (typeof v === 'boolean') return v ? 'true' : 'false';
   if (typeof v === 'number') return String(v);
   if (typeof v === 'string') return `'${v.replace(/'/g, "''")}'`;
-  if (Array.isArray(v)) return `array[${v.map(lit).join(', ')}]::text[]`;
+  // An untyped array literal, so it fits text[] and uuid[] columns alike.
+  if (Array.isArray(v)) return lit(`{${v.map((x) => JSON.stringify(String(x))).join(',')}}`);
   return `${lit(JSON.stringify(v))}::jsonb`;
 }
 
@@ -34,10 +35,10 @@ const out = [
   '  where id = 1 and company_name is null;',
   '',
   insert('sections', ['id', 'slug', 'name', 'description', 'cover_url', 'position', 'visible', 'show_prices'], DEMO_SECTIONS),
-  insert('attributes', ['id', 'kind', 'slug', 'label', 'position'], DEMO_ATTRIBUTES),
+  insert('attributes', ['id', 'kind', 'slug', 'label', 'full_label', 'position'], DEMO_ATTRIBUTES),
   insert(
     'pieces',
-    ['id', 'section_id', 'slug', 'title', 'description', 'details', 'price', 'show_price', 'for_sale', 'stock', 'metal_id', 'stone_id', 'visible', 'featured', 'position', 'seo_title', 'seo_description', 'published_at'],
+    ['id', 'section_id', 'slug', 'title', 'description', 'details', 'price', 'show_price', 'for_sale', 'stock', 'metal_id', 'stone_id', 'stone_ids', 'visible', 'featured', 'position', 'seo_title', 'seo_description', 'published_at'],
     DEMO_PIECES,
   ),
   // The demo reuses image and size ids across pieces; the database needs one id per row.

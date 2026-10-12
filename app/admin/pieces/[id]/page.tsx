@@ -23,6 +23,7 @@ import {
   useSave,
 } from '@/components/admin/ui';
 import { freeSlug, move, publish, uploadImage } from '@/lib/admin-client';
+import { stonesOf } from '@/lib/shop';
 import { isPlaceholderSlug } from '@/lib/slug';
 import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
@@ -99,7 +100,8 @@ export default function PieceEditor() {
           details: p.details,
           section_id: p.section_id,
           metal_id: p.metal_id,
-          stone_id: p.stone_id,
+          stone_ids: stonesOf(p),
+          stone_id: stonesOf(p)[0] ?? null,
           price: p.price,
           show_price: p.show_price,
           for_sale: p.for_sale,
@@ -224,7 +226,12 @@ export default function PieceEditor() {
               options={[{ value: '', label: 'No section' }, ...sections.map((s) => ({ value: s.id, label: show(s.name) }))]}
             />
             <SelectField label="Metal (filter)" value={piece.metal_id ?? ''} onChange={(v) => set({ metal_id: v || null })} options={[{ value: '', label: '-' }, ...metals.map((m) => ({ value: m.id, label: show(m.label) }))]} />
-            <SelectField label="Stone (filter)" value={piece.stone_id ?? ''} onChange={(v) => set({ stone_id: v || null })} options={[{ value: '', label: '-' }, ...stones.map((m) => ({ value: m.id, label: show(m.label) }))]} />
+            <StonePicker
+              stones={stones}
+              value={stonesOf(piece)}
+              onChange={(ids) => set({ stone_ids: ids, stone_id: ids[0] ?? null })}
+              onAdded={(a) => setAttrs((xs) => [...xs, a])}
+            />
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             <Toggle label="Visible on the site" checked={piece.visible} onChange={(v) => set({ visible: v })} />
@@ -335,6 +342,91 @@ export default function PieceEditor() {
           Delete
         </Button>
       </SaveBar>
+    </div>
+  );
+}
+
+/**
+ * The piece's stones: a drop-down of tick boxes, since a piece can have
+ * several, with a box at the bottom to add a stone that is not in the list.
+ */
+function StonePicker({
+  stones,
+  value,
+  onChange,
+  onAdded,
+}: {
+  stones: Attribute[];
+  value: string[];
+  onChange: (ids: string[]) => void;
+  onAdded: (a: Attribute) => void;
+}) {
+  const [name, setName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const chosen = stones.filter((s) => value.includes(s.id));
+
+  async function add() {
+    const label = name.trim();
+    if (!label) return;
+    const existing = stones.find((s) => show(s.label).toLowerCase() === label.toLowerCase());
+    if (existing) {
+      if (!value.includes(existing.id)) onChange([...value, existing.id]);
+      return setName('');
+    }
+    setBusy(true);
+    const { data, error } = await getAdminDb()
+      .from('attributes')
+      .insert({ kind: 'stone', slug: slugify(label) || `stone-${Date.now().toString(36)}`, label: { en: label }, position: stones.length })
+      .select('*')
+      .single();
+    setBusy(false);
+    if (error || !data) return window.alert(error?.message ?? 'Could not add the stone.');
+    onAdded(data as Attribute);
+    onChange([...value, (data as Attribute).id]);
+    setName('');
+  }
+
+  return (
+    <div>
+      <span className="text-sm">Stones (filter)</span>
+      <details className="group relative mt-1">
+        <summary className={`${inputCls} !mt-0 cursor-pointer list-none truncate`}>{chosen.length ? chosen.map((s) => show(s.label)).join(', ') : '-'}</summary>
+        <div className="absolute z-10 mt-1 w-full min-w-56 border border-[var(--color-line)] bg-white p-3 shadow-sm">
+          <ul className="space-y-1">
+            {stones.map((s) => (
+              <li key={s.id}>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={value.includes(s.id)}
+                    onChange={(e) => onChange(e.target.checked ? stones.filter((x) => x.id === s.id || value.includes(x.id)).map((x) => x.id) : value.filter((id) => id !== s.id))}
+                  />
+                  {show(s.label)}
+                </label>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex gap-2 border-t border-[var(--color-line)] pt-3">
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  add();
+                }
+              }}
+              placeholder="New stone, e.g. Tanzanite"
+              aria-label="New stone"
+              className={`${inputCls} !mt-0 !py-1.5 text-sm`}
+            />
+            <Button onClick={add} disabled={busy || !name.trim()}>
+              Add
+            </Button>
+          </div>
+          <p className="mt-2 text-xs text-[var(--color-stone)]">Translations and the longer name are in Sections &gt; Stones.</p>
+        </div>
+      </details>
     </div>
   );
 }

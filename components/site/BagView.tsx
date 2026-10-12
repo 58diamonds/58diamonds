@@ -30,6 +30,7 @@ export function BagView({
   const cancelled = useSearchParams().get('cancelled') === '1';
   const [wrap, setWrap] = useState(false);
   const [message, setMessage] = useState('');
+  const [accepted, setAccepted] = useState(false);
   const [state, setState] = useState<'idle' | 'busy' | 'unavailable' | 'error' | 'off'>('idle');
   const money = (n: number) => formatPrice(n, currency, locale);
 
@@ -59,7 +60,7 @@ export function BagView({
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message }),
+      body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message, acceptTerms: accepted }),
     }).catch(() => null);
     const json = (await res?.json().catch(() => ({}))) as { url?: string; error?: string; fixed?: typeof lines };
     if (res?.ok && json.url) {
@@ -187,7 +188,23 @@ export function BagView({
           </dl>
           <p className="mt-2 text-xs text-[var(--color-stone)]">{t('cart.vat')}</p>
 
-          <button type="button" onClick={checkout} disabled={!buyable.length || state === 'busy' || !features.shop} className="btn btn-dark mt-7 w-full disabled:opacity-50">
+          <label className="mt-7 flex cursor-pointer items-start gap-3 text-sm">
+            <input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} required className="mt-1 h-4 w-4 shrink-0 accent-[var(--color-ink)]" />
+            <span>
+              {t('cart.accept')
+                .split(/(\{terms\}|\{returns\})/)
+                .map((part, i) =>
+                  part === '{terms}' || part === '{returns}' ? (
+                    <Link key={i} href={href.page(locale, part === '{terms}' ? 'terms' : 'returns')} target="_blank" className="underline underline-offset-4 hover:text-[var(--color-gold)]">
+                      {t(part === '{terms}' ? 'cart.accept_terms' : 'cart.accept_returns')}
+                    </Link>
+                  ) : (
+                    part
+                  ),
+                )}
+            </span>
+          </label>
+          <button type="button" onClick={checkout} disabled={!buyable.length || !accepted || state === 'busy' || !features.shop} className="btn btn-dark mt-5 w-full disabled:opacity-50">
             {state === 'busy' ? t('common.loading') : t('cart.checkout')}
           </button>
           {state === 'unavailable' && <p className="mt-4 text-sm text-red-800" role="alert">{t('cart.unavailable')}</p>}

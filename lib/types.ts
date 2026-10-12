@@ -248,6 +248,12 @@ export interface Order {
   invoice_number: string | null;
   invoiced_at: string | null;
   created_at: string;
+  /** When the buyer ticked "I accept the terms" in the bag. */
+  terms_accepted_at?: string | null;
+  /** The invoice goes here; empty on orders from before it was stored. */
+  billing_address?: Address;
+  /** A business buyer's VAT number, typed on the Stripe page. */
+  buyer_vat?: string | null;
   order_items?: OrderItem[];
 }
 

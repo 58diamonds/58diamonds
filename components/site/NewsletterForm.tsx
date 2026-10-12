@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { PrivacyNote } from './PrivacyNote';
 import { useSite } from './SiteProvider';
 
-export function NewsletterForm({ dark = false }: { dark?: boolean }) {
+/** Signup; the address only counts once its owner confirms it from the email we send (double opt-in). */
+export function NewsletterForm({ dark = false, source = 'home' }: { dark?: boolean; source?: string }) {
   const { locale, t } = useSite();
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
 
@@ -15,12 +17,12 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
     const res = await fetch('/api/newsletter', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: form.get('email'), locale }),
+      body: JSON.stringify({ email: form.get('email'), locale, source }),
     }).catch(() => null);
     setState(res?.ok ? 'done' : 'error');
   }
 
-  if (state === 'done') return <p className={`text-sm ${dark ? 'text-[var(--color-gold-soft)]' : 'text-[var(--color-gold)]'}`}>{t('newsletter.thanks')}</p>;
+  if (state === 'done') return <p className={`text-sm ${dark ? 'text-[var(--color-gold-soft)]' : 'text-[var(--color-gold)]'}`}>{t('newsletter.check_email')}</p>;
 
   return (
     <form onSubmit={submit}>
@@ -47,6 +49,8 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
           {t('newsletter.error')}
         </p>
       )}
+      <p className={`mt-3 text-xs leading-relaxed ${dark ? 'text-white/60' : 'text-[var(--color-stone)]'}`}>{t('newsletter.consent')}</p>
+      <PrivacyNote dark={dark} className="mt-1" />
     </form>
   );
 }

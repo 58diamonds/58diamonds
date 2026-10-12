@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { whatsappLink } from '@/lib/format';
+import { enterpriseNumber, whatsappLink } from '@/lib/format';
 import type { NavLink } from '@/lib/routes';
 import type { Settings } from '@/lib/types';
 import { useSite } from './SiteProvider';
@@ -28,7 +28,12 @@ export function SiteFooter({ links, settings }: { links: (NavLink & { text: stri
         </nav>
         <div className="flex flex-wrap justify-between gap-x-7 gap-y-2.5">
           <span>{company}</span>
-          {settings.vat_number && <span>{t('footer.vat')} {settings.vat_number}</span>}
+          {settings.vat_number && (
+            <span>
+              {enterpriseNumber(settings.vat_number) && <>{t('footer.enterprise')} {enterpriseNumber(settings.vat_number)} · </>}
+              {t('footer.vat')} {settings.vat_number}
+            </span>
+          )}
           <span className="flex flex-wrap gap-x-7 gap-y-2.5">
             {settings.email && <a href={`mailto:${settings.email}`} className={`normal-case tracking-[0.06em] ${hover}`}>{settings.email}</a>}
             {settings.phone && <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className={hover}>{settings.phone}</a>}

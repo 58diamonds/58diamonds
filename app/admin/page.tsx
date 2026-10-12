@@ -30,7 +30,7 @@ function SiteOverview() {
       db.from('appointment_requests').select('id', { count: 'exact', head: true }).eq('handled', false),
       db.from('events').select('id', { count: 'exact', head: true }).eq('published', true).gte('starts_at', new Date().toISOString()),
       db.from('pieces').select('id', { count: 'exact', head: true }).eq('visible', true),
-      db.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).is('unsubscribed_at', null),
+      db.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).is('unsubscribed_at', null).not('confirmed_at', 'is', null),
       db.auth.getUser().then(async ({ data: u }) => (u.user ? (await db.from('admins').select('username').eq('user_id', u.user.id).maybeSingle()).data?.username : null)),
     ]).then(([r, o, e, p, n, me]) =>
       setData({ requests: (r.data ?? []) as AppointmentRequest[], open: o.count ?? 0, events: e.count ?? 0, pieces: p.count ?? 0, subscribers: n.count ?? 0, me: (me as string | null) ?? '' }),
@@ -107,7 +107,7 @@ function ShopOverview() {
       db.from('appointment_requests').select('id', { count: 'exact', head: true }).eq('handled', false),
       db.from('pieces').select('*, piece_variants(*)').eq('visible', true),
       db.from('settings').select('*').eq('id', 1).maybeSingle(),
-      db.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).is('unsubscribed_at', null),
+      db.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).is('unsubscribed_at', null).not('confirmed_at', 'is', null),
     ]).then(([o, r, p, s, n]) =>
       setData({ orders: (o.data ?? []) as Order[], requests: r.count ?? 0, pieces: (p.data ?? []) as Piece[], settings: s.data as Settings | null, subscribers: n.count ?? 0 }),
     );

@@ -49,16 +49,39 @@ function address(order: Order): string {
   return [order.name, a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country].filter(Boolean).map((x) => esc(String(x))).join('<br>');
 }
 
-export function orderConfirmation(order: Order, items: OrderItem[], t: T, locale: Locale) {
+/**
+ * What the law asks to confirm on a durable medium after a sale: the
+ * withdrawal right and its exceptions, the guarantee, links to the terms, and
+ * the model withdrawal form itself (the "withdrawal" page, filled in).
+ */
+export interface OrderLegal {
+  email: string;
+  withdrawalForm: string;
+}
+
+const plain = (md: string) => md.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*#]/g, '');
+
+function withdrawalBlock(legal: OrderLegal, t: T, locale: Locale) {
+  const vars = { email: legal.email, terms: `${SITE_URL}${href.page(locale, 'terms')}`, returns: `${SITE_URL}${href.page(locale, 'returns')}` };
+  const body = t('email.withdrawal', vars);
+  const form = plain(legal.withdrawalForm).trim();
+  const html = `<h2 style="margin:30px 0 10px;font-family:Georgia,serif;font-weight:normal;font-size:19px">${esc(t('email.withdrawal_title'))}</h2>
+<p style="margin:0;font-size:14px">${nl2br(body)}</p>${form ? `<div style="margin:16px 0 0;padding:16px;background:#f8f5ef;font-size:13px;color:#6f675c">${nl2br(form)}</div>` : ''}`;
+  const text = `${t('email.withdrawal_title')}\n${body}${form ? `\n\n${form}` : ''}`;
+  return { html, text };
+}
+
+export function orderConfirmation(order: Order, items: OrderItem[], t: T, locale: Locale, legal: OrderLegal) {
   const subject = t('email.order_subject', { number: order.number });
   const url = `${SITE_URL}${href.order(locale, order.number)}`;
+  const withdrawal = withdrawalBlock(legal, t, locale);
   const gift = order.gift_wrap || order.gift_message
     ? `<p style="margin:18px 0 0">${esc(t('cart.gift_wrap'))}${order.gift_message ? `<br><em>“${nl2br(order.gift_message)}”</em>` : ''}</p>`
     : '';
   const html = layout(subject, `<p>${nl2br(t('email.order_intro'))}</p>${itemsTable(order, items, t, locale)}${gift}
 <p style="margin:22px 0 0"><strong>${esc(t('account.delivery'))}</strong><br>${address(order)}</p>
-<p style="margin:22px 0 0">${nl2br(t('email.order_next'))}</p>${button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>`);
-  const text = `${subject}\n\n${t('email.order_intro')}\n\n${items.map((i) => `- ${i.title}${i.variant ? ` (${i.variant})` : ''} x${i.quantity}`).join('\n')}\n\n${t('cart.total')}: ${formatPrice(order.total, order.currency, locale)}\n\n${t('email.order_next')}\n${url}\n\n${t('email.sign_off')}`;
+<p style="margin:22px 0 0">${nl2br(t('email.order_next'))}</p>${button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>${withdrawal.html}`);
+  const text = `${subject}\n\n${t('email.order_intro')}\n\n${items.map((i) => `- ${i.title}${i.variant ? ` (${i.variant})` : ''} x${i.quantity}`).join('\n')}\n\n${t('cart.total')}: ${formatPrice(order.total, order.currency, locale)}\n\n${t('email.order_next')}\n${url}\n\n${t('email.sign_off')}\n\n${withdrawal.text}`;
   return { subject, html, text };
 }
 
@@ -71,6 +94,13 @@ export function orderShipped(order: Order, t: T, locale: Locale) {
   const html = layout(subject, `<p>${nl2br(t('email.shipped_intro'))}</p>${tracking}${order.tracking_url ? button(order.tracking_url, t('account.track')) : button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>`);
   const text = `${subject}\n\n${t('email.shipped_intro')}\n\n${order.carrier ?? ''} ${order.tracking_number ?? ''}\n${order.tracking_url ?? url}\n\n${t('email.sign_off')}`;
   return { subject, html, text };
+}
+
+/** Double opt-in: the link that turns a signup into a subscription. */
+export function newsletterConfirm(confirmUrl: string, t: T) {
+  const subject = t('email.newsletter_subject');
+  const html = layout(subject, `<p>${nl2br(t('email.newsletter_intro'))}</p>${button(confirmUrl, t('email.newsletter_button'))}<p>${nl2br(t('email.sign_off'))}</p>`);
+  return { subject, html, text: `${subject}\n\n${t('email.newsletter_intro')}\n\n${confirmUrl}\n\n${t('email.sign_off')}` };
 }
 
 /** To Farah. Always in English: it is her own notification. */

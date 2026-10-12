@@ -41,7 +41,7 @@ const out = [
     DEMO_PIECES,
   ),
   // The demo reuses image and size ids across pieces; the database needs one id per row.
-  insert('piece_images', ['id', 'piece_id', 'url', 'alt', 'position'], DEMO_PIECES.flatMap((p) => p.piece_images.map((i) => ({ ...i, id: rowId('1a6e0000', p.id, i.position) })))),
+  insert('piece_images', ['id', 'piece_id', 'url', 'alt', 'position', 'worn'], DEMO_PIECES.flatMap((p) => p.piece_images.map((i) => ({ ...i, id: rowId('1a6e0000', p.id, i.position) })))),
   insert('piece_variants', ['id', 'piece_id', 'label', 'stock', 'position'], DEMO_PIECES.flatMap((p) => p.piece_variants.map((v) => ({ ...v, id: rowId('fa770000', p.id, v.position) })))),
   insert('pages', ['id', 'slug', 'title', 'body', 'image_url', 'seo_title', 'seo_description', 'published'], DEMO_PAGES),
   insert('menu_items', ['id', 'menu', 'kind', 'target', 'page_id', 'section_id', 'url', 'label', 'position', 'visible'], DEMO_MENU),

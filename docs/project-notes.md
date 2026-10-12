@@ -12,7 +12,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-09: Real logo and product photos in. Company details set. Not live yet: waiting for Sacha's go before loading Supabase and pushing.
 - 2026-10-12: Rebuilt in the ivory look with the first idea's menus. Shop built but hidden (`NEXT_PUBLIC_SHOP` unset). Admin sign-in is username + password only.
 - 2026-10-12: LIVE on https://58diamonds.vercel.app. Supabase loaded (22 pieces, pages, menu), admins farah and sacha created, Vercel env vars set. Vercel framework preset set to Next.js. The first deploy was done with the Vercel CLI because the Git link failed ("Git information retrieval failed"). The Git link was then reconnected so pushes to main deploy again.
-- 2026-10-12: Homepage squares name the piece in the photo (tile `piece_id`, picked in Admin > Homepage) and open that piece. WhatsApp number +32 485 94 09 11 set, so the floating button shows.
+- 2026-10-12: Homepage squares: each square picks a piece (tile `piece_id`, Admin > Homepage). The piece gives the name under the square, and a click opens that piece's section of the collection (a ring opens Rings). The square photo is optional; without it the piece's own photo is used. WhatsApp number +32 485 94 09 11 set, so the floating button shows.
 - 2026-10-12: Collection can be filtered by size (`?size=52`). Sizes are the piece sizes Farah enters in Admin > Pieces (shown even while the shop is hidden, without stock).
 - 2026-10-12: All pieces set to "Price on request" and placeholder prices cleared. Farah enters real prices and turns "Show the price" on per piece.
 

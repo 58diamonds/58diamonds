@@ -55,7 +55,8 @@ function line(text: string, j: number, locale: Locale) {
   );
 }
 
-const TOKEN = /\*\*(.+?)\*\*|\*(.+?)\*|\[([^\]]+)\]\(([^)\s]+)\)|(https?:\/\/[^\s)]+[^\s).,;])/g;
+// *italic* needs a word right inside the stars, so the legal "(*)" marks stay as typed.
+const TOKEN = /\*\*(.+?)\*\*|\*(?![\s)])(.+?)(?<![\s(])\*(?!\))|\[([^\]]+)\]\(([^)\s]+)\)|(https?:\/\/[^\s)]+[^\s).,;])/g;
 
 export function inline(text: string, locale: Locale): ReactNode[] {
   const out: ReactNode[] = [];

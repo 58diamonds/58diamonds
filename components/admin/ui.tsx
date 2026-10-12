@@ -3,7 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import { uploadFile, uploadImage } from '@/lib/admin-client';
+import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
+import { slugify } from '@/lib/format';
 import { LOCALES, LOCALE_NAMES, type L10n, type Locale } from '@/lib/i18n';
 
 /**
@@ -148,6 +149,7 @@ export function L10nField({
     <div>
       <div className="flex items-end justify-between gap-3">
         <span className="text-sm">{label}</span>
+        <TranslateButton value={v} from={lang} onChange={onChange} className="ml-auto" />
         <div className="flex" role="tablist" aria-label={`${label}: language`}>
           {LOCALES.map((l) => (
             <button
@@ -184,6 +186,80 @@ export function L10nField({
         />
       )}
       {hint && <span className="mt-1 block text-xs text-[var(--color-stone)]">{hint}</span>}
+    </div>
+  );
+}
+
+const LANGUAGE: Record<Locale, string> = { en: 'English', nl: 'Dutch', fr: 'French' };
+
+/**
+ * Fills the other two languages from the one Farah wrote in. The result lands
+ * in the normal boxes, so it can be corrected before saving.
+ */
+export function TranslateButton({ value, from, onChange, className = '' }: { value: L10n; from: Locale; onChange: (v: L10n) => void; className?: string }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const text = value[from]?.trim();
+  if (!text) return null;
+  const others = LOCALES.filter((l) => l !== from);
+  async function go() {
+    const filled = others.filter((l) => value[l]?.trim());
+    if (filled.length && !window.confirm(`Replace the ${filled.map((l) => LANGUAGE[l]).join(' and ')} with a new translation of the ${LANGUAGE[from]}?`)) return;
+    setBusy(true);
+    setError('');
+    try {
+      onChange({ ...value, ...(await translateText(text!, from)) });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Translation failed.');
+    }
+    setBusy(false);
+  }
+  return (
+    <span className={`text-xs ${className}`}>
+      {error && <span className="mr-2 text-red-800">{error}</span>}
+      <button type="button" onClick={go} disabled={busy} className="underline underline-offset-2 hover:text-[var(--color-gold)] disabled:opacity-50">
+        {busy ? 'Translating...' : `Translate from ${LANGUAGE[from]}`}
+      </button>
+    </span>
+  );
+}
+
+/**
+ * The web address of a piece, page or event. While `auto` is on it is made
+ * from the name; "Change" lets Farah type her own.
+ */
+export function AddressField({
+  prefix,
+  slug,
+  auto,
+  onChange,
+  onAuto,
+}: {
+  prefix: string;
+  slug: string;
+  auto: boolean;
+  onChange: (v: string) => void;
+  onAuto: (on: boolean) => void;
+}) {
+  return (
+    <div>
+      <div className="flex items-end justify-between gap-3">
+        <span className="text-sm">Web address</span>
+        <button type="button" onClick={() => onAuto(!auto)} className="text-xs underline underline-offset-2 hover:text-[var(--color-gold)]">
+          {auto ? 'Change' : 'Make it from the name'}
+        </button>
+      </div>
+      {auto ? (
+        <p className="mt-1 break-all border border-transparent py-2.5 text-[0.95rem]">
+          {prefix}
+          {slug || '...'}
+        </p>
+      ) : (
+        <input value={slug} onChange={(e) => onChange(e.target.value)} className={inputCls} />
+      )}
+      <span className="mt-1 block text-xs text-[var(--color-stone)]">
+        {auto ? 'Made from the English name. A number is added if another one already has it.' : `${prefix}${slugify(slug) || '...'}`}
+      </span>
     </div>
   );
 }

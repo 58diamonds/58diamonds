@@ -2,9 +2,10 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, show, useSave } from '@/components/admin/ui';
-import { publish } from '@/lib/admin-client';
+import { AddressField, Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, show, useSave } from '@/components/admin/ui';
+import { freeSlug, publish } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
+import { isPlaceholderSlug } from '@/lib/slug';
 import { RESERVED_SLUGS } from '@/lib/routes';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, Page } from '@/lib/types';
@@ -17,30 +18,36 @@ export default function PageEditor() {
   const router = useRouter();
   const db = getAdminDb();
   const [page, setPage] = useState<Page | null>(null);
+  // The address follows the name until the page is first published.
+  const [autoAddr, setAutoAddr] = useState(false);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const { state, run, setState } = useSave();
 
   useEffect(() => {
     Promise.all([db.from('pages').select('*').eq('id', id).maybeSingle(), db.from('menu_items').select('*').eq('page_id', id)]).then(([p, m]) => {
       if (!p.data) return router.replace('/admin/pages');
-      setPage(p.data as Page);
+      const row = p.data as Page;
+      setPage(row);
+      setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
       setMenu((m.data ?? []) as MenuItem[]);
     });
   }, [db, id, router]);
 
   if (!page) return <Loading />;
   const set = (patch: Partial<Page>) => setPage({ ...page, ...patch });
-  const slug = slugify(page.slug) || slugify(show(page.title));
+  const slug = (autoAddr ? slugify(show(page.title)) : slugify(page.slug)) || slugify(show(page.title));
   const inMenu = (m: MenuItem['menu']) => menu.some((i) => i.menu === m);
 
   async function save() {
     if (!slug) return setState({ error: 'Give the page a web address.' });
     if (RESERVED_SLUGS.includes(slug)) return setState({ error: `“${slug}” is used by the site itself. Choose another web address.` });
-    const ok = await run(async () =>
-      db
+    let free = slug;
+    const ok = await run(async () => {
+      free = await freeSlug('pages', slug, id);
+      return db
         .from('pages')
         .update({
-          slug,
+          slug: free,
           title: page!.title,
           body: page!.body,
           image_url: page!.image_url,
@@ -49,9 +56,9 @@ export default function PageEditor() {
           published: page!.published,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', id),
-    );
-    if (ok) set({ slug });
+        .eq('id', id);
+    });
+    if (ok) set({ slug: free });
   }
 
   async function toggleMenu(m: MenuItem['menu'], on: boolean) {
@@ -97,7 +104,16 @@ export default function PageEditor() {
         <Card title="On the site">
           <div className="grid gap-5">
             <Toggle label="Published" checked={page.published} onChange={(published) => set({ published })} hint="Off: only you can see it here; visitors get “page not found”." />
-            <TextField label="Web address" value={page.slug} onChange={(v) => set({ slug: v })} hint={`58diamonds.com/en/${slug || '...'}`} />
+            <AddressField
+              prefix="58diamonds.com/en/"
+              slug={autoAddr ? slug : page.slug}
+              auto={autoAddr}
+              onChange={(v) => set({ slug: v })}
+              onAuto={(on) => {
+                if (!on) set({ slug });
+                setAutoAddr(on);
+              }}
+            />
             <Toggle label="In the top menu" checked={inMenu('header')} onChange={(v) => toggleMenu('header', v)} />
             <Toggle label="In the footer" checked={inMenu('footer')} onChange={(v) => toggleMenu('footer', v)} />
           </div>

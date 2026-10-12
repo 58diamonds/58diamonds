@@ -5,6 +5,7 @@ import { SHOP_LIVE } from '@/lib/config';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import {
+  AddressField,
   Badge,
   Button,
   Card,
@@ -21,7 +22,8 @@ import {
   show,
   useSave,
 } from '@/components/admin/ui';
-import { move, publish, uploadImage } from '@/lib/admin-client';
+import { freeSlug, move, publish, uploadImage } from '@/lib/admin-client';
+import { isPlaceholderSlug } from '@/lib/slug';
 import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
 import type { Attribute, Piece, PieceImage, PieceVariant, Section } from '@/lib/types';
@@ -40,6 +42,8 @@ export default function PieceEditor() {
   const [sections, setSections] = useState<Section[]>([]);
   const [attrs, setAttrs] = useState<Attribute[]>([]);
   const [uploading, setUploading] = useState(false);
+  // The address follows the name until the piece is first shown on the site.
+  const [autoAddr, setAutoAddr] = useState(false);
   const removed = useRef<{ images: string[]; variants: string[] }>({ images: [], variants: [] });
   const file = useRef<HTMLInputElement>(null);
   const { state, run, setState } = useSave();
@@ -54,6 +58,7 @@ export default function PieceEditor() {
       if (!p.data) return router.replace('/admin/pieces');
       const row = p.data as Piece;
       setPiece({ ...row, price: row.price == null ? null : Number(row.price) });
+      setAutoAddr(isPlaceholderSlug(row.slug) || (!row.visible && row.slug === slugify(row.title.en ?? '')));
       setImages([...row.piece_images].sort((x, y) => x.position - y.position));
       setVariants([...row.piece_variants].sort((x, y) => x.position - y.position));
       setSections((s.data ?? []) as Section[]);
@@ -81,8 +86,10 @@ export default function PieceEditor() {
 
   async function save() {
     const p = piece!;
-    const slug = slugify(p.slug) || slugify(show(p.title)) || `piece-${Date.now().toString(36)}`;
+    let slug = p.slug;
     const ok = await run(async () => {
+      const base = (autoAddr ? slugify(show(p.title)) : slugify(p.slug)) || slugify(show(p.title)) || `piece-${Date.now().toString(36)}`;
+      slug = await freeSlug('pieces', base, p.id);
       const { error } = await db
         .from('pieces')
         .update({
@@ -298,7 +305,16 @@ export default function PieceEditor() {
 
         <Card title="Search engines and address">
           <div className="grid gap-5">
-            <TextField label="Web address" value={piece.slug} onChange={(v) => set({ slug: v })} hint={`58diamonds.com/en/piece/${slugify(piece.slug) || '...'}`} />
+            <AddressField
+              prefix="58diamonds.com/en/piece/"
+              slug={autoAddr ? slugify(show(piece.title)) : piece.slug}
+              auto={autoAddr}
+              onChange={(v) => set({ slug: v })}
+              onAuto={(on) => {
+                if (!on) set({ slug: slugify(show(piece.title)) || piece.slug });
+                setAutoAddr(on);
+              }}
+            />
             <L10nField label="Title in Google (optional)" value={piece.seo_title} onChange={(v) => set({ seo_title: v })} hint="Leave empty to use the name." />
             <L10nField label="Description in Google (optional)" value={piece.seo_description} onChange={(v) => set({ seo_description: v })} multiline rows={2} hint="About 150 characters. Leave empty to use the start of the story." />
             <label className="block max-w-56">

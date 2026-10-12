@@ -36,10 +36,7 @@ export function SiteFooter({ links, settings }: { links: (NavLink & { text: stri
             <a href={ig} target="_blank" rel="noreferrer" className={hover}>Instagram</a>
           </span>
         </div>
-        <p>
-          © {new Date().getFullYear()} {settings.company_name || '58 Diamonds'}
-          {settings.legal_name && settings.legal_name !== settings.company_name ? `, ${t('footer.trade_name', { name: settings.legal_name })}` : ''}. {t('footer.rights')}
-        </p>
+        <p>© {new Date().getFullYear()} {settings.company_name || '58 Diamonds'}. {t('footer.rights')}</p>
       </div>
     </footer>
   );

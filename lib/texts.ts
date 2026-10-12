@@ -35,7 +35,6 @@ export const TEXTS = {
   'footer.appointment': t('Header and footer', 'Footer appointment note', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
   'footer.contact': t('Header and footer', 'Footer contact heading', 'Contact', 'Contact', 'Contact'),
   'footer.follow': t('Header and footer', 'Footer social heading', 'Follow', 'Volg ons', 'Suivez-nous'),
-  'footer.trade_name': t('Header and footer', 'Copyright line: trade name ({name} is the legal name)', 'a trade name of {name}', 'een handelsnaam van {name}', 'un nom commercial de {name}'),
   'footer.rights': t('Header and footer', 'Copyright line', 'All rights reserved.', 'Alle rechten voorbehouden.', 'Tous droits réservés.'),
   'footer.vat': t('Header and footer', 'VAT label before the number', 'VAT', 'BTW', 'TVA'),
 

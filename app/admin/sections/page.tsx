@@ -108,7 +108,7 @@ function AttributeList({ kind, title, all, reload }: { kind: 'metal' | 'stone'; 
   async function save() {
     const a = edit!;
     const slug = slugify(a.slug || show(a.label));
-    const row = { kind, slug, label: a.label };
+    const row = { kind, slug, label: a.label, full_label: a.full_label ?? {} };
     const r = a.id ? await db.from('attributes').update(row).eq('id', a.id) : await db.from('attributes').insert({ ...row, position: list.length });
     if (r.error) return window.alert(r.error.message);
     setEdit(null);
@@ -148,14 +148,22 @@ function AttributeList({ kind, title, all, reload }: { kind: 'metal' | 'stone'; 
       </ul>
       {edit ? (
         <div className="space-y-3">
-          <L10nField label="Name" value={edit.label} onChange={(v) => setEdit({ ...edit, label: v })} />
+          <L10nField label="Name" value={edit.label} onChange={(v) => setEdit({ ...edit, label: v })} hint={kind === 'stone' ? 'As shown in the filter, e.g. LG Diamond.' : undefined} />
+          {kind === 'stone' && (
+            <L10nField
+              label="Name on the piece page (optional)"
+              value={edit.full_label ?? {}}
+              onChange={(v) => setEdit({ ...edit, full_label: v })}
+              hint="For example Laboratory Grown Diamond. Leave empty to use the name above."
+            />
+          )}
           <div className="flex gap-2">
             <Button tone="dark" onClick={save}>Save</Button>
             <Button onClick={() => setEdit(null)}>Cancel</Button>
           </div>
         </div>
       ) : (
-        <Button onClick={() => setEdit({ id: '', kind, slug: '', label: {}, position: 0 })}>Add</Button>
+        <Button onClick={() => setEdit({ id: '', kind, slug: '', label: {}, full_label: {}, position: 0 })}>Add</Button>
       )}
     </Card>
   );

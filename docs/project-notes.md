@@ -18,6 +18,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-12: All pieces set to "Price on request" and placeholder prices cleared. Farah enters real prices and turns "Show the price" on per piece.
 - 2026-10-12: Worn photos. A piece photo can be ticked as the worn photo (Admin > Pieces > Photos). The collection shows it when a card is hovered, and the homepage squares pick it first. The six worn photos from the homepage were added to their pieces.
 - 2026-10-12: Web addresses of pieces, pages and events are made from the English name until first published (`lib/slug.ts`), and kept unique by adding -2, -3. "Change" lets Farah type her own. Every multilingual box in the admin, and Admin > Texts, has "Translate from English/Dutch/French": DeepL fills the other two languages into the normal boxes, which stay editable. Needs `DEEPL_API_KEY` in Vercel (DeepL API Free, 500,000 characters a month).
+- 2026-10-12: Stones: Ruby, LG Diamond, LG Sapphire, LG Emerald added (in that order). A piece can have several stones (`pieces.stone_ids`, migration 0004; `stone_id` kept as the first). Admin > Pieces has a drop-down of tick boxes with "Add" for a new stone. A stone can have a longer name for the piece page ("Laboratory Grown Diamond"), set in Sections > Stones. The collection filter only lists stones that pieces in view use, so lab grown stones stay off this site until a piece has one (they are meant for a possible later shop sharing this admin).
 
 ## Facts
 

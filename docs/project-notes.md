@@ -21,6 +21,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-12: Stones: Ruby, LG Diamond, LG Sapphire, LG Emerald added (in that order). A piece can have several stones (`pieces.stone_ids`, migration 0004; `stone_id` kept as the first). Admin > Pieces has a drop-down of tick boxes with "Add" for a new stone. A stone can have a longer name for the piece page ("Laboratory Grown Diamond"), set in Sections > Stones. The collection filter only lists stones that pieces in view use, so lab grown stones stay off this site until a piece has one (they are meant for a possible later shop sharing this admin).
 - 2026-10-12: Piece specs (migration 0005): gold karat (18kt by default, 14kt or 10kt; none for platinum), weight in grams, and total carats per chosen stone, set in Admin > Pieces and shown in the piece details in EN/NL/FR (`lib/specs.ts`). The 22 existing gold pieces were set to 18kt. Translation calls try the other DeepL host if a key is refused, since new free keys may not end in ":fx".
 - 2026-10-12: Silver added as a metal (no karat), for later use with lab grown stones. Like them, it stays off the collection filter until a piece uses it.
+- 2026-10-12: Vercel builds only production (main): `ignoreCommand` in vercel.json skips preview builds of branches, which were queueing ahead of production on the one-build-at-a-time plan.
 
 ## Facts
 

@@ -7,6 +7,8 @@ import { isLocale, type Locale } from './i18n';
 import { invoicePdf } from './invoice';
 import { getServiceDb } from './supabase';
 import { makeT } from './t';
+import { HOME_COUNTRY, vatForSale } from './vat';
+import { vatIncluded } from './shop';
 import type { Address, Order, OrderItem } from './types';
 
 /** Order work done on the server with full rights: after payment, on shipping, for invoices. */
@@ -22,6 +24,7 @@ export async function loadOrder(id: string): Promise<(Order & { order_items: Ord
     shipping: num(o.shipping),
     tax: num(o.tax),
     total: num(o.total),
+    vat_rate: o.vat_rate == null ? null : num(o.vat_rate),
     order_items: o.order_items.map((i) => ({ ...i, unit_price: num(i.unit_price) })),
   };
 }
@@ -57,13 +60,16 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
   const db = getServiceDb();
   const shipping = session.collected_information?.shipping_details;
   const details = session.customer_details;
+  const address = addressFrom(shipping?.address ?? details?.address);
+  const vat = await vatForOrder(orderId, address.country);
   await db
     .from('orders')
     .update({
       email: details?.email ?? undefined,
       name: shipping?.name || details?.name || undefined,
       phone: details?.phone ?? undefined,
-      shipping_address: addressFrom(shipping?.address ?? details?.address),
+      shipping_address: address,
+      ...vat,
       updated_at: new Date().toISOString(),
     })
     .eq('id', orderId)
@@ -91,6 +97,45 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
   });
   const admin = adminAddress(settings.email);
   if (admin) await sendEmail({ to: admin, ...adminNewOrder(order, order.order_items, result.oversold) });
+}
+
+/**
+ * The VAT a pending order is sold with, from the country it ships to and the
+ * year's sales to private buyers in other EU countries (lib/vat.ts).
+ */
+async function vatForOrder(orderId: string, country: string | undefined) {
+  const db = getServiceDb();
+  const [{ data: order }, settings] = await Promise.all([
+    db.from('orders').select('total, status').eq('id', orderId).maybeSingle(),
+    getSettings(),
+  ]);
+  if (!order || order.status !== 'pending') return {};
+  const year = new Date().getUTCFullYear();
+  const [soldThisYear, soldLastYear] = await Promise.all([euSalesNet(year), euSalesNet(year - 1)]);
+  const gross = Number(order.total);
+  const choice = vatForSale({
+    country,
+    gross,
+    soldThisYear,
+    soldLastYear,
+    ossRegistered: settings.oss_registered,
+    homeRate: Number(settings.vat_rate),
+    overrides: settings.eu_vat_rates,
+  });
+  return { vat_rate: choice.rate, vat_country: choice.country, vat_scheme: choice.scheme, tax: vatIncluded(gross, choice.rate) };
+}
+
+/** Net sales (VAT out) to private buyers in other EU countries, in one calendar year. */
+export async function euSalesNet(year: number): Promise<number> {
+  const { data } = await getServiceDb()
+    .from('orders')
+    .select('total, tax')
+    .in('status', ['paid', 'processing', 'shipped', 'delivered'])
+    .in('vat_scheme', ['belgium', 'oss'])
+    .neq('vat_country', HOME_COUNTRY)
+    .gte('paid_at', `${year}-01-01T00:00:00Z`)
+    .lt('paid_at', `${year + 1}-01-01T00:00:00Z`);
+  return Math.round((data ?? []).reduce((sum, o) => sum + Number(o.total) - Number(o.tax), 0) * 100) / 100;
 }
 
 /** The checkout was abandoned or the payment failed: release what it was holding. */

@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { Button, Help, Loading, PageTitle, inputCls } from '@/components/admin/ui';
+import { Button, Help, Loading, PageTitle, TranslateButton, inputCls } from '@/components/admin/ui';
 import { publish } from '@/lib/admin-client';
 import { LOCALES, LOCALE_NAMES, type L10n } from '@/lib/i18n';
 import { getAdminDb } from '@/lib/supabase';
@@ -105,14 +105,20 @@ function Texts() {
               </div>
               <div className="grid gap-3 md:grid-cols-3">
                 {LOCALES.map((l) => (
-                  <label key={l} className="block">
-                    <span className="text-[0.65rem] uppercase tracking-[0.16em] text-[var(--color-stone)]">{LOCALE_NAMES[l]}</span>
+                  <div key={l}>
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="text-[0.65rem] uppercase tracking-[0.16em] text-[var(--color-stone)]">{LOCALE_NAMES[l]}</span>
+                      {/* Only once that language has been rewritten here: every text already comes in all three. */}
+                      {draft[k] && draft[k][l] !== { ...TEXTS[k].value, ...strip(saved[k]) }[l] && (
+                        <TranslateButton value={v} from={l} onChange={(t) => setDraft({ ...draft, [k]: t })} />
+                      )}
+                    </span>
                     {d.multiline ? (
-                      <textarea lang={l} rows={3} value={v[l] ?? ''} onChange={(e) => setDraft({ ...draft, [k]: { ...v, [l]: e.target.value } })} className={`${inputCls} resize-y text-sm`} />
+                      <textarea lang={l} aria-label={`${d.label} (${LOCALE_NAMES[l]})`} rows={3} value={v[l] ?? ''} onChange={(e) => setDraft({ ...draft, [k]: { ...v, [l]: e.target.value } })} className={`${inputCls} resize-y text-sm`} />
                     ) : (
-                      <input lang={l} value={v[l] ?? ''} onChange={(e) => setDraft({ ...draft, [k]: { ...v, [l]: e.target.value } })} className={`${inputCls} text-sm`} />
+                      <input lang={l} aria-label={`${d.label} (${LOCALE_NAMES[l]})`} value={v[l] ?? ''} onChange={(e) => setDraft({ ...draft, [k]: { ...v, [l]: e.target.value } })} className={`${inputCls} text-sm`} />
                     )}
-                  </label>
+                  </div>
                 ))}
               </div>
             </li>

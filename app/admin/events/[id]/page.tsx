@@ -2,9 +2,10 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, inputCls, show, useSave } from '@/components/admin/ui';
-import { publish } from '@/lib/admin-client';
+import { AddressField, Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, inputCls, show, useSave } from '@/components/admin/ui';
+import { freeSlug, publish } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
+import { isPlaceholderSlug } from '@/lib/slug';
 import { getAdminDb } from '@/lib/supabase';
 import type { EventItem } from '@/lib/types';
 
@@ -21,27 +22,33 @@ export default function EventEditor() {
   const router = useRouter();
   const db = getAdminDb();
   const [ev, setEv] = useState<EventItem | null>(null);
+  // The address follows the name until the event is first published.
+  const [autoAddr, setAutoAddr] = useState(false);
   const { state, run, setState } = useSave();
 
   useEffect(() => {
     db.from('events').select('*').eq('id', id).maybeSingle().then(({ data }) => {
       if (!data) return router.replace('/admin/events');
-      setEv(data as EventItem);
+      const row = data as EventItem;
+      setEv(row);
+      setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
     });
   }, [db, id, router]);
 
   if (!ev) return <Loading />;
   const set = (patch: Partial<EventItem>) => setEv({ ...ev, ...patch });
-  const slug = slugify(ev.slug) || slugify(show(ev.title));
+  const slug = (autoAddr ? slugify(show(ev.title)) : slugify(ev.slug)) || slugify(show(ev.title));
 
   async function save() {
     if (!slug) return setState({ error: 'Give the event a web address.' });
     if (ev!.ends_at && ev!.ends_at < ev!.starts_at) return setState({ error: 'The end is before the start.' });
-    const ok = await run(async () =>
-      db
+    let free = slug;
+    const ok = await run(async () => {
+      free = await freeSlug('events', slug, id);
+      return db
         .from('events')
         .update({
-          slug,
+          slug: free,
           title: ev!.title,
           starts_at: ev!.starts_at,
           ends_at: ev!.ends_at,
@@ -52,9 +59,9 @@ export default function EventEditor() {
           link_url: ev!.link_url || null,
           published: ev!.published,
         })
-        .eq('id', id),
-    );
-    if (ok) set({ slug });
+        .eq('id', id);
+    });
+    if (ok) set({ slug: free });
   }
 
   async function remove() {
@@ -91,7 +98,16 @@ export default function EventEditor() {
         <Card title="On the site">
           <div className="grid gap-5">
             <Toggle label="Published" checked={ev.published} onChange={(published) => set({ published })} />
-            <TextField label="Web address" value={ev.slug} onChange={(v) => set({ slug: v })} hint={`/events/${slug || '...'}`} />
+            <AddressField
+              prefix="/events/"
+              slug={autoAddr ? slug : ev.slug}
+              auto={autoAddr}
+              onChange={(v) => set({ slug: v })}
+              onAuto={(on) => {
+                if (!on) set({ slug });
+                setAutoAddr(on);
+              }}
+            />
           </div>
         </Card>
       </div>

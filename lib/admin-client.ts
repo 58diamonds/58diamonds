@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { LOCALES, type L10n, type Locale } from './i18n';
+import { nextFreeSlug } from './slug';
 import { getAdminDb } from './supabase';
 
 /**
@@ -122,4 +124,16 @@ export function useNewFromLink(create: () => void, ready: boolean) {
     window.history.replaceState(null, '', window.location.pathname);
     create();
   }, [create, ready]);
+}
+
+/** The other two languages for a text, to check and edit before saving. */
+export async function translateText(text: string, from: Locale): Promise<L10n> {
+  const r = await adminFetch('/api/admin/translate', { text, from });
+  return Object.fromEntries(LOCALES.filter((l) => l !== from).map((l) => [l, String(r[l] ?? '')]));
+}
+
+/** A web address for this row that no other row in the table uses. */
+export async function freeSlug(table: 'pieces' | 'pages' | 'events', base: string, id: string): Promise<string> {
+  const { data } = await getAdminDb().from(table).select('slug').like('slug', `${base}%`).neq('id', id);
+  return nextFreeSlug(base, (data ?? []).map((r: { slug: string }) => r.slug));
 }

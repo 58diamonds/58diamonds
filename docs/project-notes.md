@@ -10,6 +10,9 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-08: Contract signed. Repo moved to github.com/58diamonds/58diamonds (public, Vercel Hobby deploys on push).
 - 2026-10-09: Full build: shop from day one (sections, filters, sorting), Stripe checkout, client accounts, admin for nearly everything, EN/NL/FR, SEO.
 - 2026-10-09: Real logo and product photos in. Company details set. Not live yet: waiting for Sacha's go before loading Supabase and pushing.
+- 2026-10-12: Rebuilt in the ivory look with the first idea's menus. Shop built but hidden (`NEXT_PUBLIC_SHOP` unset). Admin sign-in is username + password only.
+- 2026-10-12: LIVE on https://58diamonds.vercel.app. Supabase loaded (22 pieces, pages, menu), admins farah and sacha created, Vercel env vars set. Vercel framework preset set to Next.js. The first deploy was done with the Vercel CLI because the Git link failed ("Git information retrieval failed"). The Git link was then reconnected so pushes to main deploy again.
+- Piece prices are still placeholders and are visible on the site.
 
 ## Facts
 

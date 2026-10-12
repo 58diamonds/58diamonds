@@ -38,7 +38,7 @@ const out = [
   insert('attributes', ['id', 'kind', 'slug', 'label', 'full_label', 'position'], DEMO_ATTRIBUTES),
   insert(
     'pieces',
-    ['id', 'section_id', 'slug', 'title', 'description', 'details', 'price', 'show_price', 'for_sale', 'stock', 'metal_id', 'stone_id', 'stone_ids', 'visible', 'featured', 'position', 'seo_title', 'seo_description', 'published_at'],
+    ['id', 'section_id', 'slug', 'title', 'description', 'details', 'price', 'show_price', 'for_sale', 'stock', 'metal_id', 'karat', 'weight_g', 'stone_id', 'stone_ids', 'stone_carats', 'visible', 'featured', 'position', 'seo_title', 'seo_description', 'published_at'],
     DEMO_PIECES,
   ),
   // The demo reuses image and size ids across pieces; the database needs one id per row.

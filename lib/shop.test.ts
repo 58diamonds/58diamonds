@@ -6,7 +6,7 @@ const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, co
 
 const piece = (id: string, extra: Partial<Piece> = {}): Piece => ({
   id, section_id: 's', slug: id, title: { en: id }, description: {}, details: {}, price: 1000, show_price: true,
-  for_sale: true, stock: 1, metal_id: null, stone_id: null, stone_ids: [], visible: true, featured: false, position: 0,
+  for_sale: true, stock: 1, metal_id: null, stone_id: null, stone_ids: [], karat: null, weight_g: null, stone_carats: {}, visible: true, featured: false, position: 0,
   seo_title: {}, seo_description: {}, published_at: '2026-01-01T00:00:00Z', piece_images: [], piece_variants: [], ...extra,
 });
 

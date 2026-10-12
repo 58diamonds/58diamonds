@@ -6,13 +6,19 @@ import { getAdminDb } from '@/lib/supabase';
 
 /** Admin sign-in: username and password. */
 export function AdminLogin({ onDone }: { onDone: () => void }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function signIn(e: React.FormEvent) {
+  // Values are read from the form itself, so Enter works and so do passwords the
+  // browser filled in (autofill does not always tell React it changed a field).
+  async function signIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy) return;
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const username = String(data.get('username') ?? '').trim();
+    const password = String(data.get('password') ?? '');
+    if (!username || !password) return setError('Enter your username and password.');
     setBusy(true);
     setError(null);
     const res = await fetch('/api/admin/login', {
@@ -28,7 +34,7 @@ export function AdminLogin({ onDone }: { onDone: () => void }) {
     }
     await getAdminDb().auth.setSession({ access_token: json.access_token, refresh_token: json.refresh_token });
     setBusy(false);
-    setPassword('');
+    form.reset();
     onDone();
   }
 
@@ -44,11 +50,11 @@ export function AdminLogin({ onDone }: { onDone: () => void }) {
         <form onSubmit={signIn} className="mt-8 space-y-5">
           <label className="block">
             <span className="label">Username</span>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" autoCapitalize="none" spellCheck={false} className={field} />
+            <input name="username" required autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" autoFocus className={field} />
           </label>
           <label className="block">
             <span className="label">Password</span>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" className={field} />
+            <input name="password" type="password" required autoComplete="current-password" enterKeyHint="go" className={field} />
           </label>
           {error && <p className="text-sm text-red-800" role="alert">{error}</p>}
           <button type="submit" disabled={busy} className="btn btn-dark w-full">

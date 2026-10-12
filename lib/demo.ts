@@ -58,12 +58,12 @@ export const DEMO_SETTINGS: Settings = {
   og_image_url: '/pieces/14-black.jpg',
   home_blocks: ['tiles', 'house', 'story', 'events', 'instagram', 'newsletter', 'contact'],
   home_tiles: [
-    { image_url: '/home/tile-earrings.jpg', section_id: SECTION(3) },
-    { image_url: '/home/tile-bracelets.jpg', section_id: SECTION(4) },
-    { image_url: '/home/tile-pear-ring.jpg', section_id: SECTION(1) },
-    { image_url: '/home/tile-rose-ring.jpg', section_id: SECTION(1) },
-    { image_url: '/home/tile-necklace.jpg', section_id: SECTION(2) },
-    { image_url: '/home/tile-hoops.jpg', section_id: SECTION(3) },
+    { image_url: '/home/tile-earrings.jpg', section_id: SECTION(3), piece_id: PIECE(14) },
+    { image_url: '/home/tile-bracelets.jpg', section_id: SECTION(4), piece_id: PIECE(17) },
+    { image_url: '/home/tile-pear-ring.jpg', section_id: SECTION(1), piece_id: PIECE(10) },
+    { image_url: '/home/tile-rose-ring.jpg', section_id: SECTION(1), piece_id: PIECE(6) },
+    { image_url: '/home/tile-necklace.jpg', section_id: SECTION(2), piece_id: PIECE(22) },
+    { image_url: '/home/tile-hoops.jpg', section_id: SECTION(3), piece_id: PIECE(13) },
   ],
   header_logo: 'ink',
 };

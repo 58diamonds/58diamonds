@@ -4,13 +4,14 @@ import type { L10n } from './i18n';
 
 export type HomeBlock = 'tiles' | 'featured' | 'sections' | 'house' | 'story' | 'events' | 'instagram' | 'newsletter' | 'contact';
 
-/** One square under the homepage photo: a photo that opens a collection section. */
+/** One square under the homepage photo: a photo that opens a piece (named under the photo) or a collection section. */
 export interface HomeTile {
   image_url: string | null;
   section_id: string | null;
+  piece_id?: string | null;
 }
 
-/** Colour of the header logo: as drawn (dark brown), black, or a gold diamond with brown letters. */
+/** Colour of the header logo: as drawn (dark brown), black, or gold (diamond and letters). */
 export type HeaderLogo = 'ink' | 'black' | 'brown-gold';
 
 export interface Settings {

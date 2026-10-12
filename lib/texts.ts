@@ -230,6 +230,7 @@ export const TEXTS = {
   'invoice.title': t('Invoices', 'Invoice heading', 'Invoice', 'Factuur', 'Facture'),
   'invoice.download': t('Invoices', 'Download link', 'Download invoice (PDF)', 'Factuur downloaden (PDF)', 'Télécharger la facture (PDF)'),
   'invoice.vat_included': t('Invoices', 'VAT line', 'of which VAT', 'waarvan btw', 'dont TVA'),
+  'invoice.vat_export': t('Invoices', 'VAT line for sales outside the EU', 'VAT 0%, export outside the EU', 'Btw 0%, uitvoer buiten de EU', 'TVA 0 %, exportation hors UE'),
 
   // Emails
   'email.order_subject': t('Emails', 'Order email: subject ({number})', 'Your order {number} at 58 Diamonds', 'Uw bestelling {number} bij 58 Diamonds', 'Votre commande {number} chez 58 Diamonds'),

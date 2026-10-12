@@ -54,7 +54,7 @@ export async function getSettings(): Promise<Settings> {
 const loadSettings = cached('settings', async (): Promise<Settings> => {
   if (!HAS_DATABASE) return DEMO_SETTINGS;
   const row = await rows<Settings | null>(db().from('settings').select('*').eq('id', 1).maybeSingle(), null);
-  return row ? { ...row, shipping_flat: Number(row.shipping_flat), gift_wrap_price: Number(row.gift_wrap_price), vat_rate: Number(row.vat_rate), free_shipping_from: row.free_shipping_from == null ? null : Number(row.free_shipping_from) } : DEMO_SETTINGS;
+  return row ? { ...row, shipping_flat: Number(row.shipping_flat), gift_wrap_price: Number(row.gift_wrap_price), vat_rate: Number(row.vat_rate), oss_registered: Boolean(row.oss_registered), eu_vat_rates: row.eu_vat_rates ?? {}, free_shipping_from: row.free_shipping_from == null ? null : Number(row.free_shipping_from) } : DEMO_SETTINGS;
 });
 
 /** All texts, the client's edits laid over the defaults in texts.ts. */

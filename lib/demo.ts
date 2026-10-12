@@ -52,6 +52,8 @@ export const DEMO_SETTINGS: Settings = {
   company_address: 'Hoveniersstraat 50\n2018 Antwerp\nBelgium',
   vat_number: 'BE0711864093',
   vat_rate: 21,
+  oss_registered: false,
+  eu_vat_rates: {},
   invoice_footer: null,
   hero_image_url: '/home/hero-hand.jpg',
   about_image_url: '/demo/02-farah-at-work-reel-cover.jpg',

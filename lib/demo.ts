@@ -82,6 +82,8 @@ export const DEMO_ATTRIBUTES: Attribute[] = [
   { id: ATTR(2), kind: 'metal', slug: 'white-gold', label: L('White gold', 'Witgoud', 'Or blanc'), full_label: {}, position: 1 },
   { id: ATTR(3), kind: 'metal', slug: 'rose-gold', label: L('Rose gold', 'Roségoud', 'Or rose'), full_label: {}, position: 2 },
   { id: ATTR(4), kind: 'metal', slug: 'platinum', label: L('Platinum', 'Platina', 'Platine'), full_label: {}, position: 3 },
+  // For a possible later shop; the filter only lists metals that pieces use.
+  { id: ATTR(5), kind: 'metal', slug: 'silver', label: L('Silver', 'Zilver', 'Argent'), full_label: {}, position: 4 },
   { id: ATTR(11), kind: 'stone', slug: 'diamond', label: L('Diamond', 'Diamant', 'Diamant'), full_label: {}, position: 0 },
   { id: ATTR(12), kind: 'stone', slug: 'sapphire', label: L('Sapphire', 'Saffier', 'Saphir'), full_label: {}, position: 1 },
   { id: ATTR(13), kind: 'stone', slug: 'emerald', label: L('Emerald', 'Smaragd', 'Émeraude'), full_label: {}, position: 2 },

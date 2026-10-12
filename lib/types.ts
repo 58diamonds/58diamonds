@@ -32,6 +32,8 @@ export interface Settings {
   wishlist_enabled: boolean;
   newsletter_enabled: boolean;
   company_name: string | null;
+  /** Registered name behind the trade name, e.g. Farah De Roeck (sole trader). */
+  legal_name: string | null;
   company_address: string | null;
   vat_number: string | null;
   vat_rate: number;

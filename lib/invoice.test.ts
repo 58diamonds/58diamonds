@@ -16,7 +16,7 @@ describe('invoice PDF', () => {
     } satisfies Order;
     const items = [{ id: 'i', order_id: 'o', piece_id: 'p', variant_id: 'v', title: 'Bague poire halo', variant: '52', image_url: null, unit_price: 6800, quantity: 1 }];
     const t = (k: string) => k;
-    const bytes = await invoicePdf(order, items, { ...DEMO_SETTINGS, company_name: 'Farah BV', company_address: 'Pelikaanstraat 1\n2018 Antwerpen', vat_number: 'BE0123456789' }, t as never, 'fr');
+    const bytes = await invoicePdf(order, items, { ...DEMO_SETTINGS, company_name: '58 Diamonds', legal_name: 'Farah De Roeck', company_address: 'Pelikaanstraat 1\n2018 Antwerpen', vat_number: 'BE0123456789' }, t as never, 'fr');
     expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe('%PDF-');
     expect(bytes.length).toBeGreaterThan(1500);
   });
@@ -34,7 +34,7 @@ describe('invoice PDF', () => {
       { ...base, vat_rate: 0, vat_country: 'CH', vat_scheme: 'export' as const },
       { ...base, vat_rate: null, vat_country: null, vat_scheme: null },
     ] satisfies Order[]) {
-      const bytes = await invoicePdf(order, [], DEMO_SETTINGS, t as never, 'en');
+      const bytes = await invoicePdf(order, [], { ...DEMO_SETTINGS, legal_name: null, vat_number: null }, t as never, 'en');
       expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe('%PDF-');
     }
   });

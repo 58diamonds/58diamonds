@@ -23,6 +23,7 @@ export function alternates(locale: Locale, path: string) {
 export function pageVars(s: Settings): Record<string, string> {
   return {
     company_name: s.company_name || '58 Diamonds',
+    legal_name: s.legal_name || s.company_name || '58 Diamonds',
     company_address: s.company_address || '',
     vat_number: s.vat_number || '',
     email: s.email || '',

@@ -49,6 +49,7 @@ export const DEMO_SETTINGS: Settings = {
   wishlist_enabled: true,
   newsletter_enabled: true,
   company_name: '58 Diamonds',
+  legal_name: 'Farah De Roeck',
   company_address: 'Hoveniersstraat 50\n2018 Antwerp\nBelgium',
   vat_number: 'BE0711864093',
   vat_rate: 21,

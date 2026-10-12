@@ -70,7 +70,7 @@ export default function PieceEditor() {
     try {
       for (const f of Array.from(files)) {
         const url = await uploadImage(f, `pieces/${id}`);
-        setImages((imgs) => [...imgs, { id: crypto.randomUUID(), url, alt: {}, position: imgs.length, isNew: true }]);
+        setImages((imgs) => [...imgs, { id: crypto.randomUUID(), url, alt: {}, position: imgs.length, worn: false, isNew: true }]);
       }
     } catch (e) {
       setState({ error: e instanceof Error ? e.message : 'Upload failed.' });
@@ -113,7 +113,7 @@ export default function PieceEditor() {
         const r = await db.from('piece_variants').delete().in('id', del.variants);
         if (r.error) return r;
       }
-      const imgRows = images.map((im, position) => ({ id: im.id, piece_id: p.id, url: im.url, alt: im.alt, position }));
+      const imgRows = images.map((im, position) => ({ id: im.id, piece_id: p.id, url: im.url, alt: im.alt, position, worn: im.worn }));
       if (imgRows.length) {
         const r = await db.from('piece_images').upsert(imgRows);
         if (r.error) return r;
@@ -178,6 +178,14 @@ export default function PieceEditor() {
                   placeholder="Describe (for Google)"
                   className={`${inputCls} !py-1.5 text-xs`}
                 />
+                <label className="mt-2 flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={im.worn}
+                    onChange={(e) => setImages(images.map((x) => ({ ...x, worn: x.id === im.id ? e.target.checked : e.target.checked ? false : x.worn })))}
+                  />
+                  Worn photo
+                </label>
                 <button
                   type="button"
                   onClick={() => {
@@ -195,7 +203,7 @@ export default function PieceEditor() {
             <Button onClick={() => file.current?.click()} disabled={uploading}>
               {uploading ? 'Uploading...' : 'Add photos'}
             </Button>
-            <span className="text-xs text-[var(--color-stone)]">The first photo is the main one. Large photos are made smaller automatically.</span>
+            <span className="text-xs text-[var(--color-stone)]">The first photo is the main one. Tick the worn photo: the collection shows it on hover and the homepage squares use it. Large photos are made smaller automatically.</span>
           </div>
           <input ref={file} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addPhotos(e.target.files)} />
         </Card>

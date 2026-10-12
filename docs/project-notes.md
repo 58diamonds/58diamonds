@@ -58,3 +58,4 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - Waiting for Farah: Stripe account, sending domain for Resend, shipping price and countries, real piece texts and prices.
 - Legal pages are a starting draft; to be checked by her accountant or lawyer before launch.
 - Possible later: bespoke request form with inspiration photo upload, event RSVP list, bookable time slots.
+- 2026-10-12: Worn photos. A piece photo can be ticked as the worn photo (Admin > Pieces > Photos). The collection shows it when a card is hovered, and the homepage squares pick it first. The six worn photos from the homepage were added to their pieces.

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, UpDown, show, useSave } from '@/components/admin/ui';
 import { move } from '@/lib/admin-client';
+import { wornPhoto } from '@/lib/piece-view';
 import { getAdminDb } from '@/lib/supabase';
 import type { HeaderLogo, HomeBlock, HomeTile, Piece, Section, Settings } from '@/lib/types';
 
@@ -38,7 +39,7 @@ export default function HomeAdmin() {
     db.from('settings').select('*').eq('id', 1).maybeSingle().then(({ data }) => setS(data as Settings));
     db.from('sections').select('*').order('position').then(({ data }) => setSections((data ?? []) as Section[]));
     db.from('pieces')
-      .select('id, title, section_id, piece_images(url, position)')
+      .select('id, title, section_id, piece_images(url, position, worn)')
       .order('position')
       .then(({ data }) =>
         setPieces(
@@ -94,7 +95,7 @@ export default function HomeAdmin() {
         <Card title="Squares">
           <Help>
             Up to six squares under the heading, each one a piece from the collection. The name under the square is the piece&apos;s name, and a click opens its
-            part of the collection (a ring opens Rings). The photo is one of the piece&apos;s own photos; to show another one, add it to the piece first.
+            part of the collection (a ring opens Rings). The photo is one of the piece&apos;s own photos, the worn photo first when the piece has one; to show another one, add it to the piece first.
           </Help>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {tiles.map((tile, i) => {
@@ -103,7 +104,7 @@ export default function HomeAdmin() {
               const photos = piece?.piece_images.map((im) => im.url) ?? [];
               // Squares made before this kept their own photo; it stays until another is picked.
               const choices = tile.image_url && !photos.includes(tile.image_url) ? [tile.image_url, ...photos] : photos;
-              const current = tile.image_url ?? photos[0] ?? null;
+              const current = tile.image_url ?? (piece && (wornPhoto(piece.piece_images) ?? piece.piece_images[0])?.url) ?? null;
               return (
                 <li key={i} className="border border-[var(--color-line)] p-4">
                   <p className="label mb-2">Square {i + 1}</p>
@@ -164,7 +165,7 @@ export default function HomeAdmin() {
               title={`Choose the piece for square ${picking + 1}`}
               onClose={() => setPicking(null)}
               onPick={(p) => {
-                setTile(picking, { piece_id: p.id, section_id: p.section_id, image_url: p.piece_images[0]?.url ?? null });
+                setTile(picking, { piece_id: p.id, section_id: p.section_id, image_url: (wornPhoto(p.piece_images) ?? p.piece_images[0])?.url ?? null });
                 setPicking(null);
               }}
             />
@@ -209,7 +210,7 @@ export default function HomeAdmin() {
   );
 }
 
-type TilePiece = Pick<Piece, 'id' | 'title' | 'section_id'> & { piece_images: { url: string; position: number }[] };
+type TilePiece = Pick<Piece, 'id' | 'title' | 'section_id'> & { piece_images: { url: string; position: number; worn: boolean }[] };
 
 /** The collection as photos, by section, to pick the piece for a square. */
 function PiecePicker({

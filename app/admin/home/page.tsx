@@ -84,26 +84,24 @@ export default function HomeAdmin() {
         </Card>
 
         <Card title="Squares">
-          <Help>Up to six square photos under the heading. Pick the piece in the photo: its name shows under the photo and the square opens it. With no piece picked, the square opens a section and shows the section's name.</Help>
+          <Help>Up to six squares under the heading. Pick a piece: its name shows under the square, and a click opens its part of the collection (a ring opens Rings). Add a photo, or leave it empty to use the piece's own photo.</Help>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {tiles.map((tile, i) => (
               <li key={i} className="border border-[var(--color-line)] p-4">
-                <ImageField label={`Square ${i + 1}`} value={tile.image_url} onChange={(image_url) => setTile(i, { image_url })} folder="home" aspect="aspect-square" />
+                <SelectField
+                  label={`Square ${i + 1}: piece`}
+                  value={tile.piece_id ?? ''}
+                  onChange={(v) => setTile(i, { piece_id: v || null, section_id: pieces.find((x) => x.id === v)?.section_id ?? null })}
+                  options={[
+                    { value: '', label: 'Choose a piece' },
+                    ...pieces.map((x) => {
+                      const sec = sections.find((y) => y.id === x.section_id);
+                      return { value: x.id, label: sec ? `${show(x.title)} (${show(sec.name)})` : show(x.title) };
+                    }),
+                  ]}
+                />
                 <div className="mt-3">
-                  <SelectField
-                    label="Piece in the photo"
-                    value={tile.piece_id ?? ''}
-                    onChange={(v) => setTile(i, { piece_id: v || null, ...(v ? { section_id: pieces.find((x) => x.id === v)?.section_id ?? tile.section_id } : {}) })}
-                    options={[{ value: '', label: 'None' }, ...pieces.map((x) => ({ value: x.id, label: show(x.title) }))]}
-                  />
-                </div>
-                <div className="mt-3">
-                  <SelectField
-                    label={tile.piece_id ? 'Section (if the piece is hidden)' : 'Opens'}
-                    value={tile.section_id ?? ''}
-                    onChange={(v) => setTile(i, { section_id: v || null })}
-                    options={[{ value: '', label: 'The whole collection' }, ...sections.map((x) => ({ value: x.id, label: show(x.name) }))]}
-                  />
+                  <ImageField label="Photo" value={tile.image_url} onChange={(image_url) => setTile(i, { image_url })} folder="home" aspect="aspect-square" />
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <UpDown index={i} count={tiles.length} onMove={(d) => setTiles(move(tiles, i, d))} />
@@ -114,7 +112,7 @@ export default function HomeAdmin() {
           </ul>
           {tiles.length < 6 && (
             <div className="mt-4">
-              <Button onClick={() => setTiles([...tiles, { image_url: null, section_id: sections[0]?.id ?? null, piece_id: null }])}>Add a square</Button>
+              <Button onClick={() => setTiles([...tiles, { image_url: null, section_id: null, piece_id: null }])}>Add a square</Button>
             </div>
           )}
         </Card>
@@ -151,7 +149,7 @@ export default function HomeAdmin() {
 
       <SaveBar
         state={state}
-        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url), header_logo: s.header_logo, hero_image_url: s.hero_image_url, about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
+        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, hero_image_url: s.hero_image_url, about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
       />
     </div>
   );

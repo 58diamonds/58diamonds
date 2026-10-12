@@ -38,7 +38,7 @@ export default async function Home({ params }: Props) {
     .map((p) => pieceView(p, sections, settings, t, locale));
   const upcoming = splitEvents(events).upcoming.slice(0, 3);
   const about = pages.find((p) => p.slug === 'about');
-  const tiles = (settings.home_tiles ?? []).filter((x) => x.image_url).slice(0, 6);
+  const tiles = (settings.home_tiles ?? []).filter((x) => x.image_url || x.piece_id).slice(0, 6);
   const paragraphs = (text: string) => text.split(/\n\s*\n/).map((p, i) => <p key={i} className="mt-4 first:mt-0">{p}</p>);
   const band = 'border-t border-[var(--color-line)] py-16 sm:py-24';
 
@@ -52,13 +52,16 @@ export default async function Home({ params }: Props) {
         </h2>
         <div className="grid grid-cols-2 gap-3 pb-16 sm:grid-cols-3 sm:gap-4 sm:pb-24 lg:grid-cols-6">
           {tiles.map((tile, i) => {
+            // The piece gives the name; a click opens its section of the collection.
             const piece = tile.piece_id ? pieces.find((p) => p.id === tile.piece_id) : undefined;
-            const section = sections.find((s) => s.id === tile.section_id);
+            const section = sections.find((s) => s.id === (piece?.section_id ?? tile.section_id));
             const name = piece ? tr(piece.title, locale) : section ? tr(section.name, locale) : '';
+            const photo = tile.image_url ?? piece?.piece_images[0]?.url ?? null;
+            if (!photo) return null;
             return (
-              <Link key={i} href={piece ? href.piece(locale, piece.slug) : href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-2.5">
+              <Link key={i} href={href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-2.5">
                 <span className="block aspect-square overflow-hidden bg-white">
-                  <Photo src={tile.image_url} alt={name} className="h-full w-full transition duration-700 group-hover:scale-[1.04]" />
+                  <Photo src={photo} alt={name} className="h-full w-full transition duration-700 group-hover:scale-[1.04]" />
                 </span>
                 <span className="label text-center group-hover:text-[var(--color-gold)]">{name}</span>
               </Link>

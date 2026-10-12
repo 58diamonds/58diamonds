@@ -23,6 +23,7 @@ insert into attributes (id, kind, slug, label, full_label, position) values
   ('a7700000-0000-4000-8000-000000000002', 'metal', 'white-gold', '{"en":"White gold","nl":"Witgoud","fr":"Or blanc"}'::jsonb, '{}'::jsonb, 1),
   ('a7700000-0000-4000-8000-000000000003', 'metal', 'rose-gold', '{"en":"Rose gold","nl":"Roségoud","fr":"Or rose"}'::jsonb, '{}'::jsonb, 2),
   ('a7700000-0000-4000-8000-000000000004', 'metal', 'platinum', '{"en":"Platinum","nl":"Platina","fr":"Platine"}'::jsonb, '{}'::jsonb, 3),
+  ('a7700000-0000-4000-8000-000000000005', 'metal', 'silver', '{"en":"Silver","nl":"Zilver","fr":"Argent"}'::jsonb, '{}'::jsonb, 4),
   ('a7700000-0000-4000-8000-000000000011', 'stone', 'diamond', '{"en":"Diamond","nl":"Diamant","fr":"Diamant"}'::jsonb, '{}'::jsonb, 0),
   ('a7700000-0000-4000-8000-000000000012', 'stone', 'sapphire', '{"en":"Sapphire","nl":"Saffier","fr":"Saphir"}'::jsonb, '{}'::jsonb, 1),
   ('a7700000-0000-4000-8000-000000000013', 'stone', 'emerald', '{"en":"Emerald","nl":"Smaragd","fr":"Émeraude"}'::jsonb, '{}'::jsonb, 2),

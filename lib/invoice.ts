@@ -44,9 +44,8 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
 
   // Seller
   text('58 DIAMONDS', left, y, { font: serif, size: 22 });
-  text('Private Jeweler', left, y - 16, { size: 8, color: GOLD });
   let sy = y;
-  for (const l of [settings.company_name, ...(settings.company_address ?? '').split('\n'), settings.vat_number ? `VAT ${settings.vat_number}` : null, settings.email].filter(Boolean) as string[]) {
+  for (const l of [settings.legal_name || settings.company_name, ...(settings.company_address ?? '').split('\n'), settings.vat_number ? `VAT ${settings.vat_number}` : null, settings.email].filter(Boolean) as string[]) {
     text(l, right, sy, { size: 9, color: MUTED, align: 'right' });
     sy -= 13;
   }
@@ -114,13 +113,22 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
       fy += 11;
     }
   }
-  drawFooterLine(page, regular);
+  drawFooterLine(page, regular, tradeNameLine(settings, t));
   return pdf.save();
 }
 
-function drawFooterLine(page: PDFPage, font: PDFFont) {
+/** "58 Diamonds is a trade name of Farah De Roeck, sole trader · VAT ...", when the two names differ. */
+function tradeNameLine(settings: Settings, t: T): string {
+  const company = settings.company_name || '58 Diamonds';
+  const name = settings.legal_name?.trim();
+  if (!name || name === company) return company.toUpperCase();
+  const line = t('invoice.trade_name', { company, name, vat: settings.vat_number || '' });
+  return settings.vat_number ? line : line.split('·')[0].trim();
+}
+
+function drawFooterLine(page: PDFPage, font: PDFFont, line: string) {
   page.drawLine({ start: { x: 56, y: 54 }, end: { x: 595.28 - 56, y: 54 }, thickness: 0.6, color: LINE });
-  const s = '58 DIAMONDS BY FARAH';
+  const s = clean(line);
   page.drawText(s, { x: (595.28 - font.widthOfTextAtSize(s, 7)) / 2, y: 40, size: 7, font, color: MUTED });
 }
 

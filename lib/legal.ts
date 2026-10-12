@@ -18,7 +18,7 @@ const terms: LegalPage = {
 This shop is run by {company_name}, {company_address}, VAT {vat_number}. You can reach us at {email}.
 
 ## Prices
-All prices are in euro and include Belgian VAT. Shipping costs are shown in your bag before you pay.
+All prices are in euro and include VAT: Belgian VAT, or the VAT of your EU country where the law requires it. Orders shipped outside the EU are exports, without EU VAT. Shipping costs are shown in your bag before you pay.
 
 ## Orders and payment
 Your order is confirmed once the payment is received. We accept card, Bancontact, iDEAL, Apple Pay, Google Pay and PayPal. You receive a confirmation email and an invoice, which you can also download from your account.
@@ -38,7 +38,7 @@ Belgian law applies. If we cannot find a solution together, you can turn to the 
 Deze winkel wordt uitgebaat door {company_name}, {company_address}, btw {vat_number}. U bereikt ons via {email}.
 
 ## Prijzen
-Alle prijzen zijn in euro en inclusief Belgische btw. De verzendkosten ziet u in uw winkeltas voor u betaalt.
+Alle prijzen zijn in euro en inclusief btw: Belgische btw, of de btw van uw EU-land waar de wet dat vereist. Bestellingen buiten de EU zijn uitvoer, zonder Europese btw. De verzendkosten ziet u in uw winkeltas voor u betaalt.
 
 ## Bestellen en betalen
 Uw bestelling is bevestigd zodra de betaling ontvangen is. We aanvaarden kaart, Bancontact, iDEAL, Apple Pay, Google Pay en PayPal. U ontvangt een bevestiging per e-mail en een factuur, die u ook in uw account kunt downloaden.
@@ -58,7 +58,7 @@ Het Belgisch recht is van toepassing. Vinden we samen geen oplossing, dan kunt u
 Cette boutique est exploitée par {company_name}, {company_address}, TVA {vat_number}. Vous pouvez nous joindre à {email}.
 
 ## Prix
-Tous les prix sont en euros, TVA belge comprise. Les frais de livraison sont indiqués dans votre panier avant le paiement.
+Tous les prix sont en euros, TVA comprise : TVA belge, ou TVA de votre pays de l'UE lorsque la loi l'exige. Les commandes livrées hors de l'UE sont des exportations, sans TVA européenne. Les frais de livraison sont indiqués dans votre panier avant le paiement.
 
 ## Commande et paiement
 Votre commande est confirmée dès réception du paiement. Nous acceptons la carte, Bancontact, iDEAL, Apple Pay, Google Pay et PayPal. Vous recevez une confirmation par e-mail et une facture, également disponible dans votre compte.

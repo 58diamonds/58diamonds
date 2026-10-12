@@ -13,7 +13,8 @@ const LINE = rgb(0.886, 0.855, 0.804);
 
 /**
  * The invoice for a paid order, as a PDF. Prices include VAT; the VAT they
- * contain is shown at the settings' rate. Only characters the standard PDF
+ * contain is shown at the rate the order was sold with (lib/vat.ts), with the
+ * country whose VAT applies. Only characters the standard PDF
  * fonts can draw are kept (accents and the euro sign are fine).
  */
 export async function invoicePdf(order: Order, items: OrderItem[], settings: Settings, t: T, locale: Locale): Promise<Uint8Array> {
@@ -96,7 +97,13 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
   sum(t('cart.subtotal'), money(order.subtotal));
   sum(t('cart.shipping'), order.shipping ? money(order.shipping) : t('cart.free'));
   sum(t('cart.total'), money(order.total), true);
-  sum(`${t('invoice.vat_included')} (${Number(settings.vat_rate)}%)`, money(vatIncluded(order.total, Number(settings.vat_rate))));
+  const rate = order.vat_rate ?? Number(settings.vat_rate);
+  if (order.vat_scheme === 'export') {
+    sum(t('invoice.vat_export'), money(0));
+  } else {
+    const where = order.vat_country ? `, ${order.vat_country}` : '';
+    sum(`${t('invoice.vat_included')} (${rate}%${where})`, money(order.vat_rate == null ? vatIncluded(order.total, rate) : order.tax));
+  }
   y -= 6;
   text(`${t('invoice.paid')} ${order.paid_at ? formatDate(order.paid_at, locale) : ''}${order.payment_method ? ` · ${order.payment_method}` : ''}`, right, y, { size: 9, color: GOLD, align: 'right' });
 

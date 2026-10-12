@@ -293,6 +293,7 @@ export const DEMO_MENU: MenuItem[] = [
   menu(14, 'footer', 3, { kind: 'page', page_id: pageId('returns'), label: L('Shipping and returns', 'Verzending en retour', 'Livraison et retours') }),
   menu(15, 'footer', 4, { kind: 'page', page_id: pageId('privacy'), label: L('Privacy', 'Privacy', 'Confidentialité') }),
   menu(16, 'footer', 5, { kind: 'page', page_id: pageId('cookies'), label: L('Cookies', 'Cookies', 'Cookies') }),
+  menu(17, 'footer', 6, { kind: 'page', page_id: pageId('withdrawal'), label: L('Withdrawal form', 'Herroepingsformulier', 'Formulaire de rétractation') }),
 ];
 
 export const DEMO_EVENTS: EventItem[] = [

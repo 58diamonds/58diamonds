@@ -8,7 +8,7 @@ import { useNewFromLink } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, Page } from '@/lib/types';
 
-const LEGAL = ['terms', 'returns', 'privacy', 'cookies'];
+const LEGAL = ['terms', 'returns', 'privacy', 'cookies', 'withdrawal'];
 
 /** Her own pages: About, the legal pages, and any page she adds. */
 export default function PagesAdmin() {

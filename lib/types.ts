@@ -130,6 +130,11 @@ export interface Piece {
   /** First of stone_ids, kept for older readers. */
   stone_id: string | null;
   stone_ids: string[];
+  /** Gold only: 18, 14 or 10. */
+  karat: number | null;
+  weight_g: number | null;
+  /** Total carats per stone, by attribute id. */
+  stone_carats: Record<string, number>;
   visible: boolean;
   featured: boolean;
   position: number;

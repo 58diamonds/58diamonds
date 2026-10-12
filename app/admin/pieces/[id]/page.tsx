@@ -24,6 +24,7 @@ import {
 } from '@/components/admin/ui';
 import { freeSlug, move, publish, uploadImage } from '@/lib/admin-client';
 import { stonesOf } from '@/lib/shop';
+import { DEFAULT_KARAT, KARATS, isGold } from '@/lib/specs';
 import { isPlaceholderSlug } from '@/lib/slug';
 import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
@@ -58,7 +59,7 @@ export default function PieceEditor() {
       ]);
       if (!p.data) return router.replace('/admin/pieces');
       const row = p.data as Piece;
-      setPiece({ ...row, price: row.price == null ? null : Number(row.price) });
+      setPiece({ ...row, price: row.price == null ? null : Number(row.price), weight_g: row.weight_g == null ? null : Number(row.weight_g) });
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.visible && row.slug === slugify(row.title.en ?? '')));
       setImages([...row.piece_images].sort((x, y) => x.position - y.position));
       setVariants([...row.piece_variants].sort((x, y) => x.position - y.position));
@@ -102,6 +103,9 @@ export default function PieceEditor() {
           metal_id: p.metal_id,
           stone_ids: stonesOf(p),
           stone_id: stonesOf(p)[0] ?? null,
+          stone_carats: Object.fromEntries(stonesOf(p).filter((sid) => Number(p.stone_carats?.[sid]) > 0).map((sid) => [sid, Number(p.stone_carats[sid])])),
+          karat: isGold(metals.find((m) => m.id === p.metal_id)) ? (p.karat ?? DEFAULT_KARAT) : null,
+          weight_g: p.weight_g != null && p.weight_g > 0 ? p.weight_g : null,
           price: p.price,
           show_price: p.show_price,
           for_sale: p.for_sale,
@@ -225,13 +229,45 @@ export default function PieceEditor() {
               onChange={(v) => set({ section_id: v || null })}
               options={[{ value: '', label: 'No section' }, ...sections.map((s) => ({ value: s.id, label: show(s.name) }))]}
             />
-            <SelectField label="Metal (filter)" value={piece.metal_id ?? ''} onChange={(v) => set({ metal_id: v || null })} options={[{ value: '', label: '-' }, ...metals.map((m) => ({ value: m.id, label: show(m.label) }))]} />
+            <SelectField
+              label="Metal (filter)"
+              value={piece.metal_id ?? ''}
+              onChange={(v) => set({ metal_id: v || null, karat: isGold(metals.find((m) => m.id === v)) ? (piece.karat ?? DEFAULT_KARAT) : null })}
+              options={[{ value: '', label: '-' }, ...metals.map((m) => ({ value: m.id, label: show(m.label) }))]}
+            />
             <StonePicker
               stones={stones}
               value={stonesOf(piece)}
               onChange={(ids) => set({ stone_ids: ids, stone_id: ids[0] ?? null })}
               onAdded={(a) => setAttrs((xs) => [...xs, a])}
             />
+          </div>
+          <div className="mt-5 grid gap-5 sm:grid-cols-3">
+            {isGold(metals.find((m) => m.id === piece.metal_id)) && (
+              <SelectField
+                label="Gold"
+                value={String(piece.karat ?? DEFAULT_KARAT)}
+                onChange={(v) => set({ karat: Number(v) })}
+                options={KARATS.map((k) => ({ value: String(k), label: `${k}kt` }))}
+              />
+            )}
+            <NumberField label="Weight (grams)" value={piece.weight_g} step={0.01} onChange={(v) => set({ weight_g: v })} hint="Shown in the details, e.g. 4.2 g." />
+            {stones
+              .filter((st) => stonesOf(piece).includes(st.id))
+              .map((st) => (
+                <NumberField
+                  key={st.id}
+                  label={`${show(st.label)}, total carats`}
+                  value={piece.stone_carats?.[st.id] ?? null}
+                  step={0.01}
+                  onChange={(v) => {
+                    const next = { ...(piece.stone_carats ?? {}) };
+                    if (v == null) delete next[st.id];
+                    else next[st.id] = v;
+                    set({ stone_carats: next });
+                  }}
+                />
+              ))}
           </div>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             <Toggle label="Visible on the site" checked={piece.visible} onChange={(v) => set({ visible: v })} />

@@ -111,6 +111,8 @@ export const TEXTS = {
   'piece.ask_message': t('Piece page', 'WhatsApp message ({piece} is the name)', 'Hello 58 Diamonds, I would like to know more about {piece}.', 'Hallo 58 Diamonds, ik wil graag meer weten over {piece}.', "Bonjour 58 Diamonds, j'aimerais en savoir plus sur {piece}."),
   'piece.view': t('Piece page', 'Book a viewing button', 'Book a viewing', 'Afspraak om te bekijken', 'Voir sur rendez-vous'),
   'piece.details': t('Piece page', 'Details heading', 'Details', 'Details', 'Détails'),
+  'piece.karat': t('Piece page', 'Gold karat ({k} is the number)', '{k}kt', '{k}kt', '{k} carats'),
+  'piece.weight': t('Piece page', 'Weight', 'Weight', 'Gewicht', 'Poids'),
   'piece.shipping_note': t('Piece page', 'Shipping note', 'Insured shipping with tracking. Prices include VAT.', 'Verzekerde verzending met track & trace. Prijzen inclusief btw.', 'Envoi assuré avec suivi. Prix TVA comprise.'),
   'piece.related': t('Piece page', 'More pieces heading', 'You may also like', 'Misschien ook iets voor u', 'Vous aimerez aussi'),
 

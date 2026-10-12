@@ -35,6 +35,10 @@ export interface Settings {
   company_address: string | null;
   vat_number: string | null;
   vat_rate: number;
+  /** Registered for OSS: other EU buyers always pay their own country's VAT. */
+  oss_registered: boolean;
+  /** Admin overrides of the built-in EU rates (lib/vat.ts), per country code. */
+  eu_vat_rates: Record<string, number>;
   invoice_footer: string | null;
   hero_image_url: string | null;
   about_image_url: string | null;
@@ -213,6 +217,10 @@ export interface Order {
   shipping: number;
   tax: number;
   total: number;
+  /** The VAT the order was sold with, set when it is paid. */
+  vat_rate: number | null;
+  vat_country: string | null;
+  vat_scheme: 'belgium' | 'oss' | 'export' | null;
   payment_method: string | null;
   paid_at: string | null;
   carrier: string | null;

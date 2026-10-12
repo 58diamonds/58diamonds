@@ -23,6 +23,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-12: Silver added as a metal (no karat), for later use with lab grown stones. Like them, it stays off the collection filter until a piece uses it.
 - 2026-10-12: Vercel builds only production (main): `ignoreCommand` in vercel.json skips preview builds of branches, which were queueing ahead of production on the one-build-at-a-time plan.
 - 2026-10-12: Legal name. The VAT number BE0711.864.093 belongs to Farah De Roeck (sole trader); 58 Diamonds is her trade name. New setting `legal_name` (migration 0006, Admin > Settings, placeholder {legal_name}). Invoices keep 58 DIAMONDS as the header, show Farah De Roeck in the seller block and end with "58 Diamonds is a trade name of Farah De Roeck, sole trader" plus the VAT number; the "Private Jeweler" line is gone. The terms and privacy pages (footer menu) say the same; the name is kept off the site-wide footer and homepage (Sacha). Address stays Hoveniersstraat 50, 2018 Antwerp (Sacha); Farah should register it as an establishment unit in KBO.
+- 2026-10-12: DeepL key in progress. The DeepL "Developer" (free) API sign-up is done. Still to confirm: `DEEPL_API_KEY` saved in Vercel (Production, Sensitive), a production build started after it was saved (otherwise Redeploy the latest production deployment), then a test in /admin > Pieces > any piece: "Translate from English" on the Story should fill NL and FR (do not save the piece).
 
 ## Facts
 

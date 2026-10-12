@@ -112,7 +112,7 @@ export function filterPieces(
   const shownPrice = (p: Piece) => (priceVisible(p, sectionOf(p)) ? Number(p.price) : null);
   const out = pieces.filter((p) => {
     if (q.metal.length && !(p.metal_id && q.metal.includes(attrs.metal.get(p.metal_id) ?? ''))) return false;
-    if (q.stone.length && !(p.stone_id && q.stone.includes(attrs.stone.get(p.stone_id) ?? ''))) return false;
+    if (q.stone.length && !stonesOf(p).some((id) => q.stone.includes(attrs.stone.get(id) ?? ''))) return false;
     if (q.size.length && !(p.piece_variants ?? []).some((v) => q.size.includes(v.label.trim()))) return false;
     if (q.min != null || q.max != null) {
       const price = shownPrice(p);
@@ -160,4 +160,9 @@ export function shippingFor(subtotal: number, settings: Pick<Settings, 'shipping
 export function vatIncluded(total: number, ratePercent: number): number {
   if (!ratePercent) return 0;
   return Math.round((total * ratePercent) / (100 + ratePercent) * 100) / 100;
+}
+
+/** A piece's stones; older rows only have stone_id. */
+export function stonesOf(p: Pick<Piece, 'stone_id' | 'stone_ids'>): string[] {
+  return p.stone_ids?.length ? p.stone_ids : p.stone_id ? [p.stone_id] : [];
 }

@@ -78,13 +78,18 @@ export const DEMO_SECTIONS: Section[] = [
 ];
 
 export const DEMO_ATTRIBUTES: Attribute[] = [
-  { id: ATTR(1), kind: 'metal', slug: 'yellow-gold', label: L('Yellow gold', 'Geelgoud', 'Or jaune'), position: 0 },
-  { id: ATTR(2), kind: 'metal', slug: 'white-gold', label: L('White gold', 'Witgoud', 'Or blanc'), position: 1 },
-  { id: ATTR(3), kind: 'metal', slug: 'rose-gold', label: L('Rose gold', 'Roségoud', 'Or rose'), position: 2 },
-  { id: ATTR(4), kind: 'metal', slug: 'platinum', label: L('Platinum', 'Platina', 'Platine'), position: 3 },
-  { id: ATTR(11), kind: 'stone', slug: 'diamond', label: L('Diamond', 'Diamant', 'Diamant'), position: 0 },
-  { id: ATTR(12), kind: 'stone', slug: 'sapphire', label: L('Sapphire', 'Saffier', 'Saphir'), position: 1 },
-  { id: ATTR(13), kind: 'stone', slug: 'emerald', label: L('Emerald', 'Smaragd', 'Émeraude'), position: 2 },
+  { id: ATTR(1), kind: 'metal', slug: 'yellow-gold', label: L('Yellow gold', 'Geelgoud', 'Or jaune'), full_label: {}, position: 0 },
+  { id: ATTR(2), kind: 'metal', slug: 'white-gold', label: L('White gold', 'Witgoud', 'Or blanc'), full_label: {}, position: 1 },
+  { id: ATTR(3), kind: 'metal', slug: 'rose-gold', label: L('Rose gold', 'Roségoud', 'Or rose'), full_label: {}, position: 2 },
+  { id: ATTR(4), kind: 'metal', slug: 'platinum', label: L('Platinum', 'Platina', 'Platine'), full_label: {}, position: 3 },
+  { id: ATTR(11), kind: 'stone', slug: 'diamond', label: L('Diamond', 'Diamant', 'Diamant'), full_label: {}, position: 0 },
+  { id: ATTR(12), kind: 'stone', slug: 'sapphire', label: L('Sapphire', 'Saffier', 'Saphir'), full_label: {}, position: 1 },
+  { id: ATTR(13), kind: 'stone', slug: 'emerald', label: L('Emerald', 'Smaragd', 'Émeraude'), full_label: {}, position: 2 },
+  { id: ATTR(14), kind: 'stone', slug: 'ruby', label: L('Ruby', 'Robijn', 'Rubis'), full_label: {}, position: 3 },
+  // Laboratory grown stones, for a later shop that shares this admin. The filter only lists stones that pieces use.
+  { id: ATTR(15), kind: 'stone', slug: 'lg-diamond', label: L('LG Diamond', 'LG diamant', 'Diamant LG'), full_label: L('Laboratory Grown Diamond', 'In een laboratorium gekweekte diamant', 'Diamant de laboratoire'), position: 4 },
+  { id: ATTR(16), kind: 'stone', slug: 'lg-sapphire', label: L('LG Sapphire', 'LG saffier', 'Saphir LG'), full_label: L('Laboratory Grown Sapphire', 'In een laboratorium gekweekte saffier', 'Saphir de laboratoire'), position: 5 },
+  { id: ATTR(17), kind: 'stone', slug: 'lg-emerald', label: L('LG Emerald', 'LG smaragd', 'Émeraude LG'), full_label: L('Laboratory Grown Emerald', 'In een laboratorium gekweekte smaragd', 'Émeraude de laboratoire'), position: 6 },
 ];
 
 const RING_SIZES = ['48', '50', '52', '54', '56', '58'];
@@ -135,6 +140,7 @@ function piece(
       ? RING_SIZES.map((label, i) => ({ id: `${pid.slice(0, -4)}${String(100 + i).padStart(4, '0')}`, piece_id: pid, label, stock: sizes[i] ?? 0, position: i }))
       : [],
     ...rest,
+    stone_ids: [rest.stone_id === undefined ? ATTR(11) : rest.stone_id].filter((x): x is string => Boolean(x)),
   };
 }
 

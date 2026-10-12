@@ -90,7 +90,10 @@ export interface Attribute {
   id: string;
   kind: 'metal' | 'stone';
   slug: string;
+  /** The name in the filter, e.g. "LG Diamond". */
   label: L10n;
+  /** Optional longer name on the piece page, e.g. "Laboratory Grown Diamond". */
+  full_label: L10n;
   position: number;
 }
 
@@ -124,7 +127,9 @@ export interface Piece {
   for_sale: boolean;
   stock: number;
   metal_id: string | null;
+  /** First of stone_ids, kept for older readers. */
   stone_id: string | null;
+  stone_ids: string[];
   visible: boolean;
   featured: boolean;
   position: number;

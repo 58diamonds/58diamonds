@@ -1,10 +1,11 @@
 import 'server-only';
 import type Stripe from 'stripe';
-import { getSettings, getTexts } from './data';
+import { getPage, getSettings, getTexts } from './data';
 import { adminAddress, sendEmail } from './email';
 import { adminNewOrder, orderConfirmation, orderShipped } from './emails';
-import { isLocale, type Locale } from './i18n';
+import { fill, isLocale, tr, type Locale } from './i18n';
 import { invoicePdf } from './invoice';
+import { pageVars } from './site';
 import { getServiceDb } from './supabase';
 import { makeT } from './t';
 import { HOME_COUNTRY, vatForSale } from './vat';
@@ -69,6 +70,8 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
       name: shipping?.name || details?.name || undefined,
       phone: details?.phone ?? undefined,
       shipping_address: address,
+      billing_address: addressFrom(details?.address),
+      buyer_vat: details?.tax_ids?.[0]?.value ?? null,
       ...vat,
       updated_at: new Date().toISOString(),
     })
@@ -86,9 +89,13 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
 
   const order = await loadOrder(orderId);
   if (!order) return;
-  const [{ t, locale }, settings] = await Promise.all([translatorFor(order.locale), getSettings()]);
+  const [{ t, locale }, settings, form] = await Promise.all([translatorFor(order.locale), getSettings(), getPage('withdrawal')]);
   const pdf = await invoicePdf(order, order.order_items, settings, t, locale);
-  const mail = orderConfirmation(order, order.order_items, t, locale);
+  const vars = pageVars(settings);
+  const mail = orderConfirmation(order, order.order_items, t, locale, {
+    email: vars.email,
+    withdrawalForm: form ? fill(tr(form.body, locale), vars) : '',
+  });
   await sendEmail({
     to: order.email,
     ...mail,

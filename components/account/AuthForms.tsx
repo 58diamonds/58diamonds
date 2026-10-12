@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PrivacyNote } from '@/components/site/PrivacyNote';
 import { useSite } from '@/components/site/SiteProvider';
 import { href } from '@/lib/routes';
 import { getBrowserDb } from '@/lib/supabase';
@@ -84,6 +85,7 @@ export function AuthForms() {
         <button type="submit" disabled={busy} className="btn btn-dark w-full">
           {busy ? t('common.loading') : mode === 'sign-up' ? t('account.sign_up') : mode === 'forgot' ? t('account.reset') : t('account.sign_in')}
         </button>
+        {mode === 'sign-up' && <PrivacyNote />}
       </form>
 
       <div className="mt-8 space-y-3 text-center text-sm">

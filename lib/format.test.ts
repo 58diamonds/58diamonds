@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPrice, slugify, splitEvents, whatsappLink } from './format';
+import { enterpriseNumber, formatPrice, slugify, splitEvents, whatsappLink } from './format';
 
 describe('formatPrice', () => {
   it('formats euros per language', () => {
@@ -32,5 +32,14 @@ describe('splitEvents', () => {
     const { upcoming, past } = splitEvents([e('a', '2026-10-01T10:00:00Z'), e('b', '2026-10-08T10:00:00Z', '2026-10-08T18:00:00Z'), e('c', '2026-11-01T10:00:00Z')], now);
     expect(upcoming.map((x) => x.slug)).toEqual(['b', 'c']);
     expect(past.map((x) => x.slug)).toEqual(['a']);
+  });
+});
+
+describe('enterpriseNumber', () => {
+  it('formats a Belgian VAT number as the enterprise number', () => {
+    expect(enterpriseNumber('BE0711864093')).toBe('0711.864.093');
+    expect(enterpriseNumber('BE 0711.864.093')).toBe('0711.864.093');
+    expect(enterpriseNumber('')).toBe('');
+    expect(enterpriseNumber('NL123')).toBe('');
   });
 });

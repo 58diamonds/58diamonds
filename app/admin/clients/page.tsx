@@ -12,6 +12,8 @@ interface Subscriber {
   email: string;
   locale: string;
   unsubscribed_at: string | null;
+  confirmed_at: string | null;
+  source: string | null;
   created_at: string;
 }
 
@@ -75,7 +77,8 @@ export default function ClientsAdmin() {
   }, [customers, orders, query]);
 
   if (!customers) return <Loading />;
-  const active = subs.filter((s) => !s.unsubscribed_at);
+  // Only confirmed addresses may be emailed (double opt-in).
+  const active = subs.filter((s) => s.confirmed_at && !s.unsubscribed_at);
 
   return (
     <div>
@@ -85,7 +88,7 @@ export default function ClientsAdmin() {
             Download list
           </Button>
         ) : (
-          <Button onClick={() => downloadCsv('58-diamonds-newsletter.csv', [['Email', 'Language', 'Signed up'], ...active.map((s) => [s.email, s.locale, day(s.created_at)])])}>
+          <Button onClick={() => downloadCsv('58-diamonds-newsletter.csv', [['Email', 'Language', 'Signed up', 'Confirmed', 'Form'], ...active.map((s) => [s.email, s.locale, day(s.created_at), day(s.confirmed_at), s.source ?? ''])])}>
             Download list
           </Button>
         )}
@@ -148,7 +151,7 @@ export default function ClientsAdmin() {
                 <span className="flex-1">{s.email}</span>
                 <span className="uppercase text-[var(--color-stone)]">{s.locale}</span>
                 <span className="text-[var(--color-stone)]">{day(s.created_at)}</span>
-                {s.unsubscribed_at && <Badge>Unsubscribed</Badge>}
+                {s.unsubscribed_at ? <Badge>Unsubscribed</Badge> : !s.confirmed_at && <Badge>Waiting for confirmation</Badge>}
               </li>
             ))}
             {subs.length === 0 && <li className="p-4 text-sm text-[var(--color-stone)]">No signups yet.</li>}

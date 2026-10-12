@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { PrivacyNote } from './PrivacyNote';
 import { useSite } from './SiteProvider';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
@@ -83,6 +84,7 @@ export function AppointmentForm() {
           {status === 'sending' ? t('common.loading') : t('form.send')}
         </button>
       </div>
+      <PrivacyNote className="mt-4" />
     </form>
   );
 }

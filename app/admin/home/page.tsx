@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, SelectField, UpDown, show, useSave } from '@/components/admin/ui';
 import { move } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
-import type { HeaderLogo, HomeBlock, HomeTile, Section, Settings } from '@/lib/types';
+import type { HeaderLogo, HomeBlock, HomeTile, Piece, Section, Settings } from '@/lib/types';
 
 const BLOCKS: Record<HomeBlock, { name: string; about: string }> = {
   tiles: { name: 'Squares', about: 'The heading and the photo squares that open a section of the collection.' },
@@ -30,11 +30,13 @@ export default function HomeAdmin() {
   const db = getAdminDb();
   const [s, setS] = useState<Settings | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
+  const [pieces, setPieces] = useState<Pick<Piece, 'id' | 'title' | 'section_id'>[]>([]);
   const { state, run } = useSave();
 
   useEffect(() => {
     db.from('settings').select('*').eq('id', 1).maybeSingle().then(({ data }) => setS(data as Settings));
     db.from('sections').select('*').order('position').then(({ data }) => setSections((data ?? []) as Section[]));
+    db.from('pieces').select('id, title, section_id').order('position').then(({ data }) => setPieces((data ?? []) as Pick<Piece, 'id' | 'title' | 'section_id'>[]));
   }, [db]);
   if (!s) return <Loading />;
   const tiles = s.home_tiles ?? [];
@@ -82,14 +84,22 @@ export default function HomeAdmin() {
         </Card>
 
         <Card title="Squares">
-          <Help>Up to six square photos under the heading. Each opens a section of the collection, whose name shows under the photo.</Help>
+          <Help>Up to six square photos under the heading. Pick the piece in the photo: its name shows under the photo and the square opens it. With no piece picked, the square opens a section and shows the section's name.</Help>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {tiles.map((tile, i) => (
               <li key={i} className="border border-[var(--color-line)] p-4">
                 <ImageField label={`Square ${i + 1}`} value={tile.image_url} onChange={(image_url) => setTile(i, { image_url })} folder="home" aspect="aspect-square" />
                 <div className="mt-3">
                   <SelectField
-                    label="Opens"
+                    label="Piece in the photo"
+                    value={tile.piece_id ?? ''}
+                    onChange={(v) => setTile(i, { piece_id: v || null, ...(v ? { section_id: pieces.find((x) => x.id === v)?.section_id ?? tile.section_id } : {}) })}
+                    options={[{ value: '', label: 'None' }, ...pieces.map((x) => ({ value: x.id, label: show(x.title) }))]}
+                  />
+                </div>
+                <div className="mt-3">
+                  <SelectField
+                    label={tile.piece_id ? 'Section (if the piece is hidden)' : 'Opens'}
                     value={tile.section_id ?? ''}
                     onChange={(v) => setTile(i, { section_id: v || null })}
                     options={[{ value: '', label: 'The whole collection' }, ...sections.map((x) => ({ value: x.id, label: show(x.name) }))]}
@@ -104,7 +114,7 @@ export default function HomeAdmin() {
           </ul>
           {tiles.length < 6 && (
             <div className="mt-4">
-              <Button onClick={() => setTiles([...tiles, { image_url: null, section_id: sections[0]?.id ?? null }])}>Add a square</Button>
+              <Button onClick={() => setTiles([...tiles, { image_url: null, section_id: sections[0]?.id ?? null, piece_id: null }])}>Add a square</Button>
             </div>
           )}
         </Card>

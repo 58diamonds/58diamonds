@@ -57,11 +57,13 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
   text(`${t('invoice.date')}: ${formatDate(order.invoiced_at ?? order.paid_at ?? order.created_at, locale)}`, left, y - 14);
   text(t('account.order', { number: order.number }), left, y - 28);
 
-  // Client
-  const a = order.shipping_address ?? {};
+  // Client, at the billing address (the shipping address on older orders)
+  const billing = order.billing_address ?? {};
+  const a = billing.line1 || billing.country ? billing : order.shipping_address ?? {};
   let cy = y;
   text(t('invoice.to'), right, cy + 14, { size: 8, color: GOLD, align: 'right' });
-  for (const l of [order.name, a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country, order.email].filter(Boolean) as string[]) {
+  const buyerVat = order.buyer_vat ? `${t('invoice.buyer_vat')} ${order.buyer_vat}` : null;
+  for (const l of [order.name, a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country, buyerVat, order.email].filter(Boolean) as string[]) {
     text(l, right, cy, { size: 10, align: 'right' });
     cy -= 13;
   }
@@ -98,10 +100,13 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
   sum(t('cart.total'), money(order.total), true);
   const rate = order.vat_rate ?? Number(settings.vat_rate);
   if (order.vat_scheme === 'export') {
+    sum(t('invoice.excl_vat'), money(order.total));
     sum(t('invoice.vat_export'), money(0));
   } else {
+    const vat = order.vat_rate == null ? vatIncluded(order.total, rate) : order.tax;
     const where = order.vat_country ? `, ${order.vat_country}` : '';
-    sum(`${t('invoice.vat_included')} (${rate}%${where})`, money(order.vat_rate == null ? vatIncluded(order.total, rate) : order.tax));
+    sum(t('invoice.excl_vat'), money(Math.round((order.total - vat) * 100) / 100));
+    sum(`${t('invoice.vat_included')} (${rate}%${where})`, money(vat));
   }
   y -= 6;
   text(`${t('invoice.paid')} ${order.paid_at ? formatDate(order.paid_at, locale) : ''}${order.payment_method ? ` · ${order.payment_method}` : ''}`, right, y, { size: 9, color: GOLD, align: 'right' });

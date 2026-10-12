@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Photo } from '@/components/site/Photo';
 import { getPage } from '@/lib/data';
-import { tr } from '@/lib/i18n';
+import { fill, tr } from '@/lib/i18n';
 import { Markdown } from '@/lib/markdown';
 import { alternates, pageVars, site } from '@/lib/site';
 
@@ -10,16 +10,21 @@ type Props = { params: Promise<{ locale: string; page: string }> };
 
 /** Pages Farah creates in the admin (About, legal pages, anything new). */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await site(params);
+  const { locale, settings } = await site(params);
   const page = await getPage((await params).page);
   if (!page) return {};
   const title = tr(page.seo_title, locale) || tr(page.title, locale);
   return {
     title,
-    description: tr(page.seo_description, locale) || tr(page.body, locale).replace(/[#*\[\]]/g, '').slice(0, 160),
+    description: fill(tr(page.seo_description, locale) || plainText(tr(page.body, locale)), pageVars(settings)).slice(0, 160),
     alternates: alternates(locale, `/${page.slug}`),
     openGraph: page.image_url ? { images: [page.image_url] } : undefined,
   };
+}
+
+/** Markdown to one plain line: links keep their words, marks and headings go. */
+function plainText(md: string): string {
+  return md.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[#*_>]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 export default async function CustomPage({ params }: Props) {

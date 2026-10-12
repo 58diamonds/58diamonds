@@ -86,3 +86,10 @@ export function splitEvents(events: EventItem[], now = new Date()) {
   past.reverse();
   return { upcoming, past };
 }
+
+/** Belgian enterprise number from the VAT number: "BE0711864093" becomes "0711.864.093". */
+export function enterpriseNumber(vat: string | null | undefined): string {
+  const d = (vat ?? '').replace(/^\s*BE/i, '').replace(/\D/g, '');
+  if (d.length !== 10) return '';
+  return `${d.slice(0, 4)}.${d.slice(4, 7)}.${d.slice(7)}`;
+}

@@ -2,6 +2,7 @@ import 'server-only';
 import { notFound } from 'next/navigation';
 import { getSections, getSettings, getTexts } from './data';
 import { isLocale, LOCALES, type Locale } from './i18n';
+import { enterpriseNumber } from './format';
 import { makeT } from './t';
 import type { Settings } from './types';
 
@@ -20,13 +21,20 @@ export function alternates(locale: Locale, path: string) {
 }
 
 /** Settings that pages may quote with {braces}, e.g. {company_name}. */
+/** A multi-line address as one line, for use inside a sentence. */
+function oneLine(address: string | null): string {
+  return (address ?? '').split('\n').map((l) => l.trim()).filter(Boolean).join(', ');
+}
+
 export function pageVars(s: Settings): Record<string, string> {
   return {
     company_name: s.company_name || '58 Diamonds',
     legal_name: s.legal_name || s.company_name || '58 Diamonds',
-    company_address: s.company_address || '',
+    company_address: oneLine(s.company_address),
     vat_number: s.vat_number || '',
-    email: s.email || '',
+    enterprise_number: enterpriseNumber(s.vat_number),
+    // Never leave "reach us at ." when no email is set yet.
+    email: s.email || s.phone || s.whatsapp_number || '',
     phone: s.phone || '',
   };
 }

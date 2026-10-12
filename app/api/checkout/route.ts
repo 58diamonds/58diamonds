@@ -28,10 +28,13 @@ export async function POST(req: Request) {
     locale?: string;
     giftWrap?: boolean;
     giftMessage?: string;
+    acceptTerms?: boolean;
   } | null;
   const locale: Locale = isLocale(body?.locale) ? body.locale : 'en';
   const bag = Array.isArray(body?.lines) ? body.lines.slice(0, 30) : [];
   if (!bag.length) return NextResponse.json({ error: 'empty' }, { status: 400 });
+  // The buyer must have seen the terms, the withdrawal right and its exceptions.
+  if (body?.acceptTerms !== true) return NextResponse.json({ error: 'terms' }, { status: 400 });
 
   const stripe = getStripe();
   if (!stripe) return NextResponse.json({ error: 'not_configured' }, { status: 503 });
@@ -74,6 +77,7 @@ export async function POST(req: Request) {
       total: priced.total,
       gift_wrap: Boolean(body?.giftWrap) && settings.gift_wrap_enabled,
       gift_message: settings.gift_wrap_enabled ? giftMessage : null,
+      terms_accepted_at: new Date().toISOString(),
     })
     .select('id, number')
     .single();
@@ -106,8 +110,10 @@ export async function POST(req: Request) {
       payment_intent_data: { metadata: { order_id: order.id, order_number: String(order.number) } },
       customer_email: user?.email || undefined,
       customer_creation: 'if_required',
-      billing_address_collection: 'auto',
+      billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
+      // Business buyers can add their VAT number; it goes on the invoice.
+      tax_id_collection: { enabled: true },
       shipping_address_collection: {
         allowed_countries: settings.ship_to as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
       },

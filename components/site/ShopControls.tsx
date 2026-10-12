@@ -13,12 +13,14 @@ export function ShopControls({
   query,
   metals,
   stones,
+  sizes,
   count,
   currency,
 }: {
   query: ShopQuery;
   metals: Option[];
   stones: Option[];
+  sizes: Option[];
   count: number;
   currency: string;
 }) {
@@ -32,7 +34,7 @@ export function ShopControls({
   useEffect(() => setDraft(query), [query]);
 
   const go = (q: ShopQuery) => startTransition(() => router.push(`${pathname}${shopQueryString(q)}`, { scroll: false }));
-  const toggle = (key: 'metal' | 'stone', slug: string) =>
+  const toggle = (key: 'metal' | 'stone' | 'size', slug: string) =>
     setDraft((d) => ({ ...d, [key]: d[key].includes(slug) ? d[key].filter((s) => s !== slug) : [...d[key], slug] }));
 
   const active = activeFilterCount(query);
@@ -73,9 +75,9 @@ export function ShopControls({
 
       {active > 0 && !open && (
         <div className="flex flex-wrap gap-2 pb-3">
-          {[...query.metal.map((s) => ['metal', s] as const), ...query.stone.map((s) => ['stone', s] as const)].map(([k, s]) => (
+          {[...query.metal.map((s) => ['metal', s] as const), ...query.stone.map((s) => ['stone', s] as const), ...query.size.map((s) => ['size', s] as const)].map(([k, s]) => (
             <button key={`${k}${s}`} type="button" className="chip" onClick={() => go({ ...query, [k]: query[k].filter((x) => x !== s) })}>
-              {[...metals, ...stones].find((o) => o.slug === s)?.label ?? s} <CloseIcon className="h-3 w-3" />
+              {k === 'size' ? `${t('shop.size')} ${s}` : ([...metals, ...stones].find((o) => o.slug === s)?.label ?? s)} <CloseIcon className="h-3 w-3" />
             </button>
           ))}
           {(query.min != null || query.max != null) && (
@@ -119,6 +121,18 @@ export function ShopControls({
               <div className="flex flex-wrap gap-2">
                 {stones.map((s) => (
                   <button key={s.slug} type="button" className="chip" aria-pressed={draft.stone.includes(s.slug)} onClick={() => toggle('stone', s.slug)}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          )}
+          {sizes.length > 0 && (
+            <fieldset>
+              <legend className="eyebrow mb-3">{t('shop.size')}</legend>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((s) => (
+                  <button key={s.slug} type="button" className="chip" aria-pressed={draft.size.includes(s.slug)} onClick={() => toggle('size', s.slug)}>
                     {s.label}
                   </button>
                 ))}
@@ -173,7 +187,7 @@ export function ShopControls({
               type="button"
               className="btn btn-light"
               onClick={() => {
-                const cleared = { ...query, metal: [], stone: [], min: null, max: null, available: false };
+                const cleared = { ...query, metal: [], stone: [], size: [], min: null, max: null, available: false };
                 setDraft(cleared);
                 go(cleared);
                 setOpen(false);

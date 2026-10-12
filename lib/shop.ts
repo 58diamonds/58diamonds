@@ -36,6 +36,7 @@ export interface ShopQuery {
   section?: string | null;
   metal: string[];
   stone: string[];
+  size: string[];
   min: number | null;
   max: number | null;
   available: boolean;
@@ -56,12 +57,13 @@ function num(v: string | string[] | undefined): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-/** Read filters and sorting from the address bar (?metal=gold&sort=price-asc). */
+/** Read filters and sorting from the address bar (?metal=gold&size=52&sort=price-asc). */
 export function parseShopQuery(params: Params): ShopQuery {
   const sort = (Array.isArray(params.sort) ? params.sort[0] : params.sort) as SortKey | undefined;
   return {
     metal: list(params.metal),
     stone: list(params.stone),
+    size: list(params.size),
     min: num(params.min),
     max: num(params.max),
     available: params.available === '1',
@@ -74,6 +76,7 @@ export function shopQueryString(q: Partial<ShopQuery>): string {
   const p = new URLSearchParams();
   if (q.metal?.length) p.set('metal', q.metal.join(','));
   if (q.stone?.length) p.set('stone', q.stone.join(','));
+  if (q.size?.length) p.set('size', q.size.join(','));
   if (q.min != null) p.set('min', String(q.min));
   if (q.max != null) p.set('max', String(q.max));
   if (q.available) p.set('available', '1');
@@ -82,8 +85,14 @@ export function shopQueryString(q: Partial<ShopQuery>): string {
   return s ? `?${s}` : '';
 }
 
+/** Every size used by these pieces, once, in a natural order (48, 49, ... 60, then lengths). */
+export function sizesOf(pieces: Pick<Piece, 'piece_variants'>[]): string[] {
+  const all = new Set(pieces.flatMap((p) => (p.piece_variants ?? []).map((v) => v.label.trim()).filter(Boolean)));
+  return [...all].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+
 export function activeFilterCount(q: ShopQuery): number {
-  return q.metal.length + q.stone.length + (q.min != null || q.max != null ? 1 : 0) + (q.available ? 1 : 0);
+  return q.metal.length + q.stone.length + q.size.length + (q.min != null || q.max != null ? 1 : 0) + (q.available ? 1 : 0);
 }
 
 /**
@@ -104,6 +113,7 @@ export function filterPieces(
   const out = pieces.filter((p) => {
     if (q.metal.length && !(p.metal_id && q.metal.includes(attrs.metal.get(p.metal_id) ?? ''))) return false;
     if (q.stone.length && !(p.stone_id && q.stone.includes(attrs.stone.get(p.stone_id) ?? ''))) return false;
+    if (q.size.length && !(p.piece_variants ?? []).some((v) => q.size.includes(v.label.trim()))) return false;
     if (q.min != null || q.max != null) {
       const price = shownPrice(p);
       if (price == null) return false;

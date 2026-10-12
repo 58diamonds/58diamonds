@@ -10,7 +10,7 @@ import { SITE_URL } from '@/lib/config';
 import { getEvents, getFeatures, getInstagramPosts, getPages, getPieces } from '@/lib/data';
 import { splitEvents } from '@/lib/format';
 import { tr } from '@/lib/i18n';
-import { pieceView } from '@/lib/piece-view';
+import { pieceView, wornPhoto } from '@/lib/piece-view';
 import { href } from '@/lib/routes';
 import { alternates, site } from '@/lib/site';
 import type { HomeBlock } from '@/lib/types';
@@ -56,7 +56,7 @@ export default async function Home({ params }: Props) {
             const piece = tile.piece_id ? pieces.find((p) => p.id === tile.piece_id) : undefined;
             const section = sections.find((s) => s.id === (piece?.section_id ?? tile.section_id));
             const name = piece ? tr(piece.title, locale) : section ? tr(section.name, locale) : '';
-            const photo = tile.image_url ?? piece?.piece_images[0]?.url ?? null;
+            const photo = tile.image_url ?? (piece && (wornPhoto(piece.piece_images) ?? piece.piece_images[0])?.url) ?? null;
             if (!photo) return null;
             return (
               <Link key={i} href={href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-2.5">

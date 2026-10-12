@@ -100,6 +100,8 @@ export interface PieceImage {
   url: string;
   alt: L10n;
   position: number;
+  /** Photo on a model: the homepage squares and the collection hover use it. */
+  worn: boolean;
 }
 
 export interface PieceVariant {

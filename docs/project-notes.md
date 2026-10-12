@@ -16,6 +16,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-12: Collection can be filtered by size (`?size=52`). Sizes are the piece sizes Farah enters in Admin > Pieces (shown even while the shop is hidden, without stock).
 - 2026-10-12: EU VAT built into the (hidden) shop, `lib/vat.ts`: Belgian 21% for Belgium; other EU buyers pay Belgian VAT until net sales to them pass EUR 10,000 a year (this or last year), then their own country's standard rate (OSS); non-EU is export at 0%. Prices stay the same everywhere, only the VAT inside changes. Rates for all 27 countries checked against the European Commission (Your Europe table, updated 13/07/2026), editable in Admin > Settings, with an "OSS registered" switch. Each paid order stores its VAT rate, country and scheme (migration 0002), and the invoice shows them.
 - 2026-10-12: All pieces set to "Price on request" and placeholder prices cleared. Farah enters real prices and turns "Show the price" on per piece.
+- 2026-10-12: Worn photos. A piece photo can be ticked as the worn photo (Admin > Pieces > Photos). The collection shows it when a card is hovered, and the homepage squares pick it first. The six worn photos from the homepage were added to their pieces.
 
 ## Facts
 

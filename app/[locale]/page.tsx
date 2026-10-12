@@ -52,10 +52,11 @@ export default async function Home({ params }: Props) {
         </h2>
         <div className="grid grid-cols-2 gap-3 pb-16 sm:grid-cols-3 sm:gap-4 sm:pb-24 lg:grid-cols-6">
           {tiles.map((tile, i) => {
+            const piece = tile.piece_id ? pieces.find((p) => p.id === tile.piece_id) : undefined;
             const section = sections.find((s) => s.id === tile.section_id);
-            const name = section ? tr(section.name, locale) : '';
+            const name = piece ? tr(piece.title, locale) : section ? tr(section.name, locale) : '';
             return (
-              <Link key={i} href={href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-2.5">
+              <Link key={i} href={piece ? href.piece(locale, piece.slug) : href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-2.5">
                 <span className="block aspect-square overflow-hidden bg-white">
                   <Photo src={tile.image_url} alt={name} className="h-full w-full transition duration-700 group-hover:scale-[1.04]" />
                 </span>

@@ -27,7 +27,7 @@ Your order is confirmed once the payment is received. We accept card, Bancontact
 Every order ships insured, with tracking. See [Shipping and returns](returns) for times and countries.
 
 ## Right of withdrawal
-You may return a piece within 14 days of receiving it, without giving a reason, as described in [Shipping and returns](returns), for example with the [model withdrawal form](withdrawal). This right does not apply to pieces made to measure or personalised for you (bespoke pieces, engraving, resizing on request).
+You may return a piece within 14 days of receiving it, without giving a reason, as described in [Shipping and returns](returns), for example with the model withdrawal form at the end of these terms. This right does not apply to pieces made to measure or personalised for you (bespoke pieces, engraving, resizing on request).
 
 ## Guarantee
 Every piece carries the legal two-year guarantee against defects. Normal wear, knocks and loss of stones caused by impact are not covered.
@@ -47,7 +47,7 @@ Uw bestelling is bevestigd zodra de betaling ontvangen is. We aanvaarden kaart, 
 Elke bestelling wordt verzekerd en met track & trace verzonden. Zie [Verzending en retour](returns) voor termijnen en landen.
 
 ## Herroepingsrecht
-U mag een juweel binnen 14 dagen na ontvangst terugsturen zonder reden op te geven, zoals beschreven in [Verzending en retour](returns), bijvoorbeeld met het [modelformulier voor herroeping](withdrawal). Dit recht geldt niet voor juwelen die op maat of gepersonaliseerd voor u gemaakt zijn (juwelen op maat, gravure, aanpassing van maat op vraag).
+U mag een juweel binnen 14 dagen na ontvangst terugsturen zonder reden op te geven, zoals beschreven in [Verzending en retour](returns), bijvoorbeeld met het modelformulier voor herroeping onderaan deze voorwaarden. Dit recht geldt niet voor juwelen die op maat of gepersonaliseerd voor u gemaakt zijn (juwelen op maat, gravure, aanpassing van maat op vraag).
 
 ## Garantie
 Elk juweel heeft de wettelijke garantie van twee jaar op gebreken. Normale slijtage, stoten en verlies van stenen door een schok vallen er niet onder.
@@ -67,7 +67,7 @@ Votre commande est confirmée dès réception du paiement. Nous acceptons la car
 Chaque commande est expédiée assurée, avec suivi. Voir [Livraison et retours](returns) pour les délais et les pays.
 
 ## Droit de rétractation
-Vous pouvez retourner un bijou dans les 14 jours suivant sa réception, sans motif, comme décrit dans [Livraison et retours](returns), par exemple avec le [formulaire de rétractation](withdrawal). Ce droit ne s'applique pas aux bijoux faits sur mesure ou personnalisés pour vous (créations sur mesure, gravure, mise à taille sur demande).
+Vous pouvez retourner un bijou dans les 14 jours suivant sa réception, sans motif, comme décrit dans [Livraison et retours](returns), par exemple avec le formulaire de rétractation à la fin de ces conditions. Ce droit ne s'applique pas aux bijoux faits sur mesure ou personnalisés pour vous (créations sur mesure, gravure, mise à taille sur demande).
 
 ## Garantie
 Chaque bijou bénéficie de la garantie légale de deux ans contre les défauts. L'usure normale, les chocs et la perte de pierres due à un choc ne sont pas couverts.
@@ -85,7 +85,7 @@ const returns: LegalPage = {
 Pieces in stock leave within 2 working days. Every parcel is insured for its full value and needs a signature on delivery. As soon as it leaves, you receive an email with the tracking link, which you also find in your account.
 
 ## Your right of withdrawal
-You may withdraw from your purchase within 14 days of the day you, or someone you name other than the carrier, receive the piece, without giving a reason. To do so, tell us clearly, for example by email to {email}, or use the [model withdrawal form](withdrawal). It is enough to send your message before the 14 days end.
+You may withdraw from your purchase within 14 days of the day you, or someone you name other than the carrier, receive the piece, without giving a reason. To do so, tell us clearly, for example by email to {email}, or use the [model withdrawal form](terms). It is enough to send your message before the 14 days end.
 
 ## Sending the piece back
 Send the piece back within 14 days of telling us, insured, to {company_address}. The direct cost of returning it is yours, unless the piece is defective or not the one you ordered. If you can, return it in its packaging with its certificate; this is not a condition for the refund. You are only liable for any loss of value caused by handling the piece more than needed to establish its nature, characteristics and functioning.
@@ -99,7 +99,7 @@ The right of withdrawal does not apply to goods made to the consumer's specifica
 Juwelen in voorraad vertrekken binnen 2 werkdagen. Elk pakket is verzekerd voor de volle waarde en wordt tegen handtekening geleverd. Zodra het vertrekt, ontvangt u een e-mail met de track & trace-link, die u ook in uw account vindt.
 
 ## Uw herroepingsrecht
-U kunt uw aankoop zonder opgave van redenen herroepen binnen 14 dagen na de dag waarop u, of iemand die u aanwijst en die niet de vervoerder is, het juweel ontvangt. Laat ons dat duidelijk weten, bijvoorbeeld per e-mail naar {email}, of gebruik het [modelformulier voor herroeping](withdrawal). Het volstaat dat u uw bericht verstuurt voor de 14 dagen voorbij zijn.
+U kunt uw aankoop zonder opgave van redenen herroepen binnen 14 dagen na de dag waarop u, of iemand die u aanwijst en die niet de vervoerder is, het juweel ontvangt. Laat ons dat duidelijk weten, bijvoorbeeld per e-mail naar {email}, of gebruik het [modelformulier voor herroeping](terms). Het volstaat dat u uw bericht verstuurt voor de 14 dagen voorbij zijn.
 
 ## Het juweel terugsturen
 Stuur het juweel verzekerd terug binnen 14 dagen nadat u ons op de hoogte bracht, naar {company_address}. De rechtstreekse kosten van de terugzending zijn voor u, behalve als het juweel een gebrek heeft of niet het bestelde is. Stuur het indien mogelijk terug in de verpakking en met het certificaat; dat is geen voorwaarde voor de terugbetaling. U bent enkel aansprakelijk voor waardevermindering die het gevolg is van een behandeling die verder gaat dan nodig om de aard, de kenmerken en de werking van het juweel vast te stellen.
@@ -113,7 +113,7 @@ Het herroepingsrecht geldt niet voor goederen die volgens de specificaties van d
 Les bijoux en stock partent sous 2 jours ouvrables. Chaque colis est assuré pour sa pleine valeur et remis contre signature. Dès son départ, vous recevez un e-mail avec le lien de suivi, que vous retrouvez aussi dans votre compte.
 
 ## Votre droit de rétractation
-Vous pouvez vous rétracter de votre achat sans donner de motif dans les 14 jours suivant le jour où vous, ou une personne que vous désignez autre que le transporteur, recevez le bijou. Pour cela, informez-nous clairement, par exemple par e-mail à {email}, ou utilisez le [formulaire de rétractation](withdrawal). Il suffit d'envoyer votre message avant la fin des 14 jours.
+Vous pouvez vous rétracter de votre achat sans donner de motif dans les 14 jours suivant le jour où vous, ou une personne que vous désignez autre que le transporteur, recevez le bijou. Pour cela, informez-nous clairement, par exemple par e-mail à {email}, ou utilisez le [formulaire de rétractation](terms). Il suffit d'envoyer votre message avant la fin des 14 jours.
 
 ## Renvoyer le bijou
 Renvoyez le bijou, assuré, dans les 14 jours suivant votre message, à {company_address}. Les frais directs du renvoi sont à votre charge, sauf si le bijou présente un défaut ou n'est pas celui commandé. Si possible, renvoyez-le dans son emballage avec son certificat ; ce n'est pas une condition du remboursement. Vous n'êtes responsable que de la dépréciation résultant de manipulations autres que celles nécessaires pour établir la nature, les caractéristiques et le bon fonctionnement du bijou.
@@ -258,4 +258,16 @@ Nous n'utilisons aucun cookie publicitaire ou de suivi, il n'y a donc rien à ac
   },
 };
 
-export const LEGAL_PAGES: LegalPage[] = [terms, returns, privacy, cookies, withdrawal];
+/** The model form sits at the end of the terms, not on its own footer link. */
+const ANNEX = { en: '## Annex: model withdrawal form', nl: '## Bijlage: modelformulier voor herroeping', fr: '## Annexe : formulaire de rétractation' };
+const termsWithForm: LegalPage = {
+  ...terms,
+  body: {
+    en: `${terms.body.en}\n\n${ANNEX.en}\n\n${withdrawal.body.en}`,
+    nl: `${terms.body.nl}\n\n${ANNEX.nl}\n\n${withdrawal.body.nl}`,
+    fr: `${terms.body.fr}\n\n${ANNEX.fr}\n\n${withdrawal.body.fr}`,
+  },
+};
+
+// The withdrawal page stays (the order email attaches its text) but has no menu link.
+export const LEGAL_PAGES: LegalPage[] = [termsWithForm, returns, privacy, cookies, withdrawal];

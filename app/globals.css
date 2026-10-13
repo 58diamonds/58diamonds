@@ -250,6 +250,12 @@ body {
     aspect-ratio: 4 / 5;
   }
 }
+/* "Show the whole photo" in Admin > Homepage: no frame, nothing cropped. */
+.hero-photo.hero-whole {
+  aspect-ratio: auto;
+  max-height: 92vh;
+  object-fit: contain;
+}
 
 /* Small spaced capitals always use the sans, as in the menu. */
 .uppercase[class*='tracking-'] {

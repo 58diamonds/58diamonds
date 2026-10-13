@@ -43,6 +43,10 @@ export interface Settings {
   eu_vat_rates: Record<string, number>;
   invoice_footer: string | null;
   hero_image_url: string | null;
+  /** 'cover' crops to a fixed frame, 'whole' shows the photo uncropped. */
+  hero_fit: 'cover' | 'whole';
+  /** Spot kept in view when the photo is cropped, CSS "x% y%". */
+  hero_focus: string;
   about_image_url: string | null;
   og_image_url: string | null;
   home_blocks: HomeBlock[];

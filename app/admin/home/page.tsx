@@ -84,7 +84,7 @@ export default function HomeAdmin() {
             ))}
           </div>
           <div className="mt-5">
-            <Toggle label="Show PRIVATE JEWELLER under the logo" checked={s.private_jeweller === true} onChange={(v) => setS({ ...s, private_jeweller: v })} hint="In the logo's colour, on every page and on the logo-only page." />
+            <Toggle label="Show PRIVATE JEWELLER under the logo" checked={s.private_jeweller === true} onChange={(v) => setS({ ...s, private_jeweller: v })} hint="In the same letters and colour as the menu, on every page and on the logo-only page." />
           </div>
         </Card>
 

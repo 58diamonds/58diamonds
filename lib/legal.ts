@@ -136,11 +136,11 @@ const privacy: LegalPage = {
 ## What we keep, why, and for how long
 - **Orders and invoices**: name, email, phone, delivery and billing address, the pieces and amounts. Needed to carry out your purchase (contract) and kept 7 years because accounting law requires it (legal obligation).
 - **Your client account**: email, password (stored encrypted by our provider), addresses and wishlist. Needed for the account you asked for (contract). Kept until you close it, or 3 years after your last visit.
-- **Appointment and contact requests**: name, email, phone and your message. To answer you and prepare your visit (our legitimate interest, or steps before a contract you asked for). Kept 2 years after the last contact.
+- **Appointment and contact requests**: name, email, phone, your message and, if you book online, the time you chose. To answer you and prepare your visit (our legitimate interest, or steps before a contract you asked for). Kept 2 years after the last contact.
 - **Newsletter**: your email and the date and place you subscribed, only after you confirm it (your consent). Kept until you unsubscribe; every newsletter has a link for that.
 
 ## Who else sees it
-Only the companies that help us serve you, bound by contract to protect your data: Stripe (payments), Supabase (database), Vercel (hosting), Resend (emails), our carrier (delivery), and DeepL for translating our own texts (no customer data). Stripe and Vercel are based in the United States; transfers there are covered by the EU-US Data Privacy Framework. We never sell your data.
+Only the companies that help us serve you, bound by contract to protect your data: Stripe (payments), Supabase (database), Vercel (hosting), Resend (emails), Apple iCloud (our appointment calendar), our carrier (delivery), and DeepL for translating our own texts (no customer data). Stripe, Vercel and Apple are based in the United States; transfers there are covered by the EU-US Data Privacy Framework. We never sell your data.
 
 ## Your rights
 You can ask to see, correct or delete your data, to receive it in a common format, to limit its use or to object to it, and you can withdraw your consent at any time, by writing to {email}. You can also file a complaint with the Belgian Data Protection Authority (www.dataprotectionauthority.be).`,
@@ -150,11 +150,11 @@ You can ask to see, correct or delete your data, to receive it in a common forma
 ## Wat we bewaren, waarom en hoe lang
 - **Bestellingen en facturen**: naam, e-mail, telefoon, lever- en factuuradres, de juwelen en bedragen. Nodig om uw aankoop uit te voeren (overeenkomst) en 7 jaar bewaard omdat de boekhoudwetgeving dat vereist (wettelijke verplichting).
 - **Uw klantenaccount**: e-mail, wachtwoord (versleuteld bewaard door onze leverancier), adressen en verlanglijst. Nodig voor het account dat u aanvroeg (overeenkomst). Bewaard tot u het afsluit, of 3 jaar na uw laatste bezoek.
-- **Afspraak- en contactaanvragen**: naam, e-mail, telefoon en uw bericht. Om u te antwoorden en uw bezoek voor te bereiden (ons gerechtvaardigd belang, of stappen voor een overeenkomst op uw vraag). Bewaard tot 2 jaar na het laatste contact.
+- **Afspraak- en contactaanvragen**: naam, e-mail, telefoon, uw bericht en, als u online boekt, het gekozen moment. Om u te antwoorden en uw bezoek voor te bereiden (ons gerechtvaardigd belang, of stappen voor een overeenkomst op uw vraag). Bewaard tot 2 jaar na het laatste contact.
 - **Nieuwsbrief**: uw e-mail en datum en plaats van inschrijving, pas nadat u ze bevestigt (uw toestemming). Bewaard tot u zich uitschrijft; elke nieuwsbrief heeft daarvoor een link.
 
 ## Wie het nog ziet
-Enkel de bedrijven die ons helpen u te bedienen, contractueel verplicht uw gegevens te beschermen: Stripe (betalingen), Supabase (databank), Vercel (hosting), Resend (e-mails), onze vervoerder (levering) en DeepL voor het vertalen van onze eigen teksten (geen klantgegevens). Stripe en Vercel zijn gevestigd in de Verenigde Staten; doorgifte daarheen valt onder het EU-VS-kader voor gegevensbescherming (Data Privacy Framework). We verkopen uw gegevens nooit.
+Enkel de bedrijven die ons helpen u te bedienen, contractueel verplicht uw gegevens te beschermen: Stripe (betalingen), Supabase (databank), Vercel (hosting), Resend (e-mails), Apple iCloud (onze afsprakenkalender), onze vervoerder (levering) en DeepL voor het vertalen van onze eigen teksten (geen klantgegevens). Stripe, Vercel en Apple zijn gevestigd in de Verenigde Staten; doorgifte daarheen valt onder het EU-VS-kader voor gegevensbescherming (Data Privacy Framework). We verkopen uw gegevens nooit.
 
 ## Uw rechten
 U kunt uw gegevens inkijken, laten verbeteren of wissen, ze in een gangbaar formaat ontvangen, het gebruik ervan laten beperken of er bezwaar tegen maken, en u kunt uw toestemming altijd intrekken, door te schrijven naar {email}. U kunt ook klacht indienen bij de Gegevensbeschermingsautoriteit (www.gegevensbeschermingsautoriteit.be).`,
@@ -164,11 +164,11 @@ U kunt uw gegevens inkijken, laten verbeteren of wissen, ze in een gangbaar form
 ## Ce que nous conservons, pourquoi et combien de temps
 - **Commandes et factures** : nom, e-mail, téléphone, adresses de livraison et de facturation, les bijoux et montants. Nécessaires pour exécuter votre achat (contrat) et conservés 7 ans car la loi comptable l'impose (obligation légale).
 - **Votre compte client** : e-mail, mot de passe (conservé chiffré par notre prestataire), adresses et liste de souhaits. Nécessaires pour le compte que vous avez demandé (contrat). Conservés jusqu'à sa clôture, ou 3 ans après votre dernière visite.
-- **Demandes de rendez-vous et de contact** : nom, e-mail, téléphone et votre message. Pour vous répondre et préparer votre visite (notre intérêt légitime, ou mesures précontractuelles à votre demande). Conservés 2 ans après le dernier contact.
+- **Demandes de rendez-vous et de contact** : nom, e-mail, téléphone, votre message et, si vous réservez en ligne, le moment choisi. Pour vous répondre et préparer votre visite (notre intérêt légitime, ou mesures précontractuelles à votre demande). Conservés 2 ans après le dernier contact.
 - **Newsletter** : votre e-mail ainsi que la date et le lieu de l'inscription, uniquement après votre confirmation (votre consentement). Conservés jusqu'à votre désinscription ; chaque envoi contient un lien pour cela.
 
 ## Qui d'autre y a accès
-Uniquement les sociétés qui nous aident à vous servir, tenues par contrat de protéger vos données : Stripe (paiements), Supabase (base de données), Vercel (hébergement), Resend (e-mails), notre transporteur (livraison) et DeepL pour traduire nos propres textes (aucune donnée client). Stripe et Vercel sont établis aux États-Unis ; ces transferts sont couverts par le cadre de protection des données UE-États-Unis (Data Privacy Framework). Nous ne vendons jamais vos données.
+Uniquement les sociétés qui nous aident à vous servir, tenues par contrat de protéger vos données : Stripe (paiements), Supabase (base de données), Vercel (hébergement), Resend (e-mails), Apple iCloud (notre agenda de rendez-vous), notre transporteur (livraison) et DeepL pour traduire nos propres textes (aucune donnée client). Stripe, Vercel et Apple sont établis aux États-Unis ; ces transferts sont couverts par le cadre de protection des données UE-États-Unis (Data Privacy Framework). Nous ne vendons jamais vos données.
 
 ## Vos droits
 Vous pouvez consulter, corriger ou supprimer vos données, les recevoir dans un format courant, en limiter l'usage ou vous y opposer, et retirer votre consentement à tout moment, en écrivant à {email}. Vous pouvez aussi introduire une plainte auprès de l'Autorité de protection des données (www.autoriteprotectiondonnees.be).`,

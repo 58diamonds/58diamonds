@@ -78,7 +78,7 @@ export default function SettingsAdmin() {
     <div>
       <PageTitle title="Settings" />
       <Help>
-        Events and Press are switched on and off on their own pages. Wording is under <Link href="/admin/texts" className="underline underline-offset-4">Texts</Link>.
+        Events and Press are switched on and off on their own pages. Wording is under <Link href="/texts" className="underline underline-offset-4">Texts</Link>.
       </Help>
 
       <div className="grid gap-6">

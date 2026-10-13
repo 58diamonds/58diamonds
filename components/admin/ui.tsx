@@ -454,7 +454,7 @@ export function SaveState({ state }: { state: SaveStatus }) {
 }
 
 /** Back to the screen before, or to `fallback` when the page was opened directly. */
-export function useGoBack(fallback = '/admin') {
+export function useGoBack(fallback = '/') {
   const router = useRouter();
   return () => (window.history.length > 1 ? router.back() : router.push(fallback));
 }
@@ -464,7 +464,7 @@ export function useGoBack(fallback = '/admin') {
  * scrolling. Cancel leaves without saving, back to the screen before.
  * Delete is never in this bar: put a DeleteZone at the end of the page.
  */
-export function SaveBar({ state, onSave, onCancel, back = '/admin' }: { state: SaveStatus; onSave: () => void; onCancel?: () => void; back?: string }) {
+export function SaveBar({ state, onSave, onCancel, back = '/' }: { state: SaveStatus; onSave: () => void; onCancel?: () => void; back?: string }) {
   const goBack = useGoBack(back);
   return (
     <div className="sticky bottom-0 z-20 -mx-4 mt-8 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] bg-[var(--color-ivory)]/95 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8">

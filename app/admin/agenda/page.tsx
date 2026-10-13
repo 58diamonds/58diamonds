@@ -234,7 +234,7 @@ export default function Agenda() {
         </Button>
       </PageTitle>
       <Help>
-        Everything in your iPhone calendars, your school links (grey, read-only) and website bookings (gold). Changes here show on your iPhone within a minute; changes on the iPhone show here after Refresh. Opening hours and which calendars count are in <Link href="/admin/booking" className="underline underline-offset-4">Booking calendar</Link>.
+        Everything in your iPhone calendars, your school links (grey, read-only) and website bookings (gold). Changes here show on your iPhone within a minute; changes on the iPhone show here after Refresh. Opening hours and which calendars count are in <Link href="/booking" className="underline underline-offset-4">Booking calendar</Link>.
       </Help>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -315,7 +315,7 @@ export default function Agenda() {
           {viewing.notes && <p className="mt-3 whitespace-pre-line text-sm">{viewing.notes}</p>}
           <p className="mt-4 text-xs text-[var(--color-stone)]">
             {viewing.source === 'booking' ? (
-              <Link href="/admin/requests" className="underline underline-offset-4">Approve, decline or move it in Appointment requests</Link>
+              <Link href="/requests" className="underline underline-offset-4">Approve, decline or move it in Appointment requests</Link>
             ) : viewing.source === 'link' ? (
               'From a calendar link: change it at its source (for example Smartschool).'
             ) : (

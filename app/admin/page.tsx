@@ -46,10 +46,10 @@ function SiteOverview() {
       <PageTitle title={`${greeting()}${name ? `, ${name}` : ''}`} />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          [String(data.open), 'open appointment requests', '/admin/requests'],
-          [String(data.events), 'upcoming events on the site', '/admin/events'],
-          [String(data.pieces), 'pieces in the collection', '/admin/pieces'],
-          [String(data.subscribers), 'newsletter subscribers', '/admin/newsletter'],
+          [String(data.open), 'open appointment requests', '/requests'],
+          [String(data.events), 'upcoming events on the site', '/events'],
+          [String(data.pieces), 'pieces in the collection', '/pieces'],
+          [String(data.subscribers), 'newsletter subscribers', '/newsletter'],
         ].map(([value, label, href]) => (
           <Link key={label} href={href} className="border border-[var(--color-line)] bg-white p-5 hover:border-[var(--color-gold)]">
             <p className="font-display text-4xl">{value}</p>
@@ -75,20 +75,20 @@ function SiteOverview() {
               ))}
             </ul>
           )}
-          <Link href="/admin/requests" className="btn btn-light mt-5 !min-h-9 !px-4">All requests</Link>
+          <Link href="/requests" className="btn btn-light mt-5 !min-h-9 !px-4">All requests</Link>
         </Card>
 
         <Card title="Add something">
           <div className="flex flex-wrap gap-2">
-            <Link href="/admin/pieces?new=1" className="btn btn-light !min-h-9 !px-4">A piece to the collection</Link>
-            <Link href="/admin/pages?new=1" className="btn btn-light !min-h-9 !px-4">A page</Link>
-            <Link href="/admin/menu?new=1" className="btn btn-light !min-h-9 !px-4">A menu item</Link>
-            <Link href="/admin/events?new=1" className="btn btn-light !min-h-9 !px-4">An event</Link>
-            <Link href="/admin/press" className="btn btn-light !min-h-9 !px-4">A press article</Link>
+            <Link href="/pieces?new=1" className="btn btn-light !min-h-9 !px-4">A piece to the collection</Link>
+            <Link href="/pages?new=1" className="btn btn-light !min-h-9 !px-4">A page</Link>
+            <Link href="/menu?new=1" className="btn btn-light !min-h-9 !px-4">A menu item</Link>
+            <Link href="/events?new=1" className="btn btn-light !min-h-9 !px-4">An event</Link>
+            <Link href="/press" className="btn btn-light !min-h-9 !px-4">A press article</Link>
           </div>
           <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
-            <Link href="/admin/home" className="underline underline-offset-4">Change the homepage photos</Link>
-            <Link href="/admin/texts" className="underline underline-offset-4">Edit a text</Link>
+            <Link href="/home" className="underline underline-offset-4">Change the homepage photos</Link>
+            <Link href="/texts" className="underline underline-offset-4">Edit a text</Link>
           </p>
         </Card>
       </div>
@@ -126,10 +126,10 @@ function ShopOverview() {
       <PageTitle title="Overview" />
       <div className="mb-6 grid gap-4 sm:grid-cols-4">
         {[
-          ['To ship', String(toShip.length), '/admin/orders'],
-          ['Open requests', String(data.requests), '/admin/requests'],
-          ['Sales this month', formatPrice(sum(month), 'EUR'), '/admin/orders'],
-          ['Newsletter', String(data.subscribers), '/admin/newsletter'],
+          ['To ship', String(toShip.length), '/orders'],
+          ['Open requests', String(data.requests), '/requests'],
+          ['Sales this month', formatPrice(sum(month), 'EUR'), '/orders'],
+          ['Newsletter', String(data.subscribers), '/newsletter'],
         ].map(([label, value, href]) => (
           <Link key={label} href={href} className="border border-[var(--color-line)] bg-white p-5 hover:border-[var(--color-gold)]">
             <p className="eyebrow">{label}</p>
@@ -146,7 +146,7 @@ function ShopOverview() {
             <ul className="divide-y divide-[var(--color-line)]">
               {toShip.map((o) => (
                 <li key={o.id}>
-                  <Link href={`/admin/orders/${o.id}`} className="flex items-center gap-3 py-2.5 hover:text-[var(--color-gold)]">
+                  <Link href={`/orders/${o.id}`} className="flex items-center gap-3 py-2.5 hover:text-[var(--color-gold)]">
                     <span className="font-display text-xl">#{o.number}</span>
                     <span className="flex-1 truncate text-sm">{o.name}</span>
                     <OrderStatusBadge status={o.status} />
@@ -163,7 +163,7 @@ function ShopOverview() {
             <ul className="divide-y divide-[var(--color-line)]">
               {low.map((p) => (
                 <li key={p.id}>
-                  <Link href={`/admin/pieces/${p.id}`} className="flex justify-between py-2.5 text-sm hover:text-[var(--color-gold)]">
+                  <Link href={`/pieces/${p.id}`} className="flex justify-between py-2.5 text-sm hover:text-[var(--color-gold)]">
                     <span>{show(p.title)}</span>
                     <span>{pieceStock(p) === 0 ? 'Sold out' : '1 left'}</span>
                   </Link>
@@ -182,7 +182,7 @@ function ShopOverview() {
             <li>Press page: {data.settings?.press_enabled ? 'on' : 'off'}</li>
             <li>Events page: {data.settings?.events_enabled ? 'on' : 'off'}</li>
           </ul>
-          <Link href="/admin/settings" className="mt-3 inline-block text-sm underline underline-offset-4">Change in Settings</Link>
+          <Link href="/settings" className="mt-3 inline-block text-sm underline underline-offset-4">Change in Settings</Link>
         </Card>
       </div>
     </div>

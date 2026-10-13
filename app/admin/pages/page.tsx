@@ -25,7 +25,7 @@ export default function PagesAdmin() {
   }, [db]);
 
   function create() {
-    router.push('/admin/pages/new');
+    router.push('/pages/new');
   }
 
   useNewFromLink(create, Boolean(pages));
@@ -41,7 +41,7 @@ export default function PagesAdmin() {
     <ul className="mb-10 divide-y divide-[var(--color-line)] border border-[var(--color-line)] bg-white">
       {rows.map((p) => (
         <li key={p.id}>
-          <Link href={`/admin/pages/${p.id}`} className="flex flex-wrap items-center gap-3 p-4 hover:bg-[var(--color-pearl)]">
+          <Link href={`/pages/${p.id}`} className="flex flex-wrap items-center gap-3 p-4 hover:bg-[var(--color-pearl)]">
             <span className="font-display flex-1 text-xl">{show(p.title) || p.slug}</span>
             <span className="text-xs text-[var(--color-stone)]">/{p.slug}</span>
             {where(p) ? <Badge>{where(p)}</Badge> : <Badge tone="warn">Not in a menu</Badge>}

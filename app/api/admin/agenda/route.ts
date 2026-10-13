@@ -3,7 +3,7 @@ import { bookingItems, bookingMissing, clearAgendaCache, getBookingConfig, getCa
 import { CalDavError, deleteObject, getObject, icloudConfigured, isIcloudHref, newHref, putObject } from '@/lib/caldav';
 import { buildEvent, editEvent, isDate, readEvent, skipOccurrence, type EventInput } from '@/lib/ics';
 import { isClock } from '@/lib/booking';
-import { requireAdmin } from '@/lib/server-auth';
+import { requireManager } from '@/lib/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  * events in her iCloud calendars. Calendar links (school) are read-only.
  */
 export async function POST(req: Request) {
-  if (!(await requireAdmin(req))) return NextResponse.json({ error: 'Not authorised.' }, { status: 401 });
+  if (!(await requireManager(req))) return NextResponse.json({ error: 'Not authorised.' }, { status: 401 });
   const b = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   try {
     switch (b.action) {

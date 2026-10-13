@@ -115,7 +115,7 @@ export default function BookingSettings() {
         </Card>
 
         <Card title="Opening hours">
-          <p className="mb-4 text-sm text-[var(--color-stone)]">Brussels time. A day can have several blocks, for example 10:00 to 13:00 and 14:00 to 18:00. On a day set to "By appointment only", clients cannot pick a time online; they can still ask through the form or WhatsApp.</p>
+          <p className="mb-4 text-sm text-[var(--color-stone)]">Brussels time. A day can have several blocks, for example 10:00 to 13:00 and 14:00 to 18:00. On a day set to "By appointment only", clients see no times but can pick the day in the calendar and send a request for it; you then propose a time.</p>
           <div className="space-y-4">
             {DAYS.map((name, i) => {
               const d = i + 1;

@@ -30,7 +30,7 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - 2026-10-13: Deploys are batched (Sacha): changes wait on a branch with an open pull request and go live only when Sacha says so, to keep Vercel builds few.
 - 2026-10-13: Live on https://58diamonds.com (GoDaddy DNS to Vercel; www redirects to the main domain). NEXT_PUBLIC_SITE_URL is https://58diamonds.com. Farah chose the gold small page titles (option B of the A/B/C mock-ups).
 - 2026-10-13: The admin has its own address, https://admin.58diamonds.com (CNAME "admin" to cname.vercel-dns.com at GoDaddy). The middleware rewrites admin.<host>/x to the screens built under app/admin (/admin/x), so admin links have no /admin prefix; on the public site /admin answers "not found". `ADMIN_URL` in lib/config.ts is used for admin links in emails. Locally: http://admin.localhost:3000.
-- 2026-10-13: Booking calendar opening hours: each day has a choice "Opening hours" or "By appointment only" (Sacha). By appointment only = no hours stored for that day (empty list in booking_settings.hours), so no online slots; clients still ask through the form or WhatsApp.
+- 2026-10-13: Booking calendar opening hours: each day has a choice "Opening hours" or "By appointment only" (Sacha). By appointment only = no hours stored for that day (empty list in booking_settings.hours), so no online slots. Clients can still pick such a day in the calendar (dashed border, `appointment` dates from /api/booking/slots, `appointmentDates()` in lib/booking.ts) and send a request for that day: it arrives as a normal request with the day as preferred date, and Farah proposes a time.
 
 ## Facts
 

@@ -125,9 +125,30 @@ const minutes = (clock: string) => {
 /** Is "HH:MM" a valid clock time? */
 export const isClock = (v: unknown): v is string => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 
-/** Can clients book at all (switched on and at least one opening slot)? */
+const validRanges = (cfg: BookingConfig, day: number) => (cfg.hours?.[String(day)] ?? []).filter(([a, b]) => isClock(a) && isClock(b) && minutes(b) > minutes(a));
+
+/** Can clients book at all (at least one day with opening hours)? */
 export function hasHours(cfg: BookingConfig): boolean {
-  return Object.values(cfg.hours ?? {}).some((ranges) => ranges.some(([a, b]) => isClock(a) && isClock(b) && minutes(b) > minutes(a)));
+  return [1, 2, 3, 4, 5, 6, 7].some((d) => validRanges(cfg, d).length > 0);
+}
+
+/**
+ * Dates from `firstDate` to `lastDate` that are by appointment only (a weekday
+ * without opening hours), inside the booking window and not a closed day.
+ * Clients can ask for such a day without a time; Farah proposes one.
+ */
+export function appointmentDates(cfg: BookingConfig, firstDate: string, lastDate: string, now: number): string[] {
+  const days = new Set([1, 2, 3, 4, 5, 6, 7].filter((d) => validRanges(cfg, d).length === 0));
+  if (!days.size || !hasHours(cfg)) return [];
+  const { from, to } = bookingWindow(cfg, now);
+  const closed = new Set(cfg.closed_dates ?? []);
+  const out: string[] = [];
+  for (let date = firstDate; date <= lastDate; date = addDays(date, 1)) {
+    if (closed.has(date) || !days.has(weekday(date))) continue;
+    if (zonedTime(date, '23:59') < from || zonedTime(date, '00:00') > to) continue;
+    out.push(date);
+  }
+  return out;
 }
 
 /** The first and last moment a client may book, from `now`. */

@@ -18,7 +18,10 @@ export function AppointmentForm() {
   const [live, setLive] = useState(false);
   const [manual, setManual] = useState(false);
   const [start, setStart] = useState<number | null>(null);
+  // A by-appointment-only day picked in the calendar: sent as the preferred day, Farah proposes a time.
+  const [apptDay, setApptDay] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [sentAsBooking, setSentAsBooking] = useState(false);
   const onLive = useCallback((v: boolean) => setLive(v), []);
   const useCalendar = live && !manual;
 
@@ -29,7 +32,8 @@ export function AppointmentForm() {
     // A field people cannot see. Bots fill it in; people do not.
     if (get('website')) return setStatus('sent');
     if (!get('email') && !get('phone')) return setError(t('form.reach'));
-    if (useCalendar && !start) return setError(t('booking.need_time'));
+    if (useCalendar && !start && !apptDay) return setError(t('booking.need_time'));
+    const askDay = useCalendar && Boolean(apptDay);
 
     setError(null);
     setStatus('sending');
@@ -40,8 +44,8 @@ export function AppointmentForm() {
         name: get('name'),
         email: get('email') || null,
         phone: get('phone') || null,
-        preferred_date: useCalendar ? null : get('preferred_date') || null,
-        start: useCalendar ? start : undefined,
+        preferred_date: askDay ? apptDay : useCalendar ? null : get('preferred_date') || null,
+        start: useCalendar && !askDay ? start : undefined,
         message: get('message'),
         piece,
         locale,
@@ -59,6 +63,7 @@ export function AppointmentForm() {
       setError(t('form.error'));
       return;
     }
+    setSentAsBooking(useCalendar && !askDay);
     setStatus('sent');
   }
 
@@ -66,7 +71,7 @@ export function AppointmentForm() {
     return (
       <div className="border border-[var(--color-line)] p-8 text-center" role="status">
         <p className="font-display text-3xl">{t('checkout.thanks_title')}</p>
-        <p className="mt-3 text-[var(--color-stone)]">{t(useCalendar ? 'booking.sent' : 'form.sent')}</p>
+        <p className="mt-3 text-[var(--color-stone)]">{t(sentAsBooking ? 'booking.sent' : 'form.sent')}</p>
       </div>
     );
   }
@@ -88,7 +93,7 @@ export function AppointmentForm() {
       </label>
       <div className="sm:col-span-2">
         <div className={manual ? 'hidden' : ''}>
-          <BookingPicker value={start} onChange={setStart} onLive={onLive} reloadKey={reloadKey} />
+          <BookingPicker value={start} onChange={setStart} onLive={onLive} reloadKey={reloadKey} onAppointmentDay={setApptDay} />
         </div>
         {useCalendar ? (
           <button type="button" className="mt-3 text-sm text-[var(--color-stone)] underline underline-offset-4" onClick={() => setManual(true)}>

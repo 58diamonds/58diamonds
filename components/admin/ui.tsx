@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
@@ -451,17 +452,27 @@ export function SaveState({ state }: { state: SaveStatus }) {
   return <span className="text-sm text-red-800">{state.error}</span>;
 }
 
-/** The save bar at the bottom of an edit page; it stays in view while scrolling. */
-export function SaveBar({ state, onSave, children }: { state: SaveStatus; onSave: () => void; children?: React.ReactNode }) {
+/**
+ * The save bar at the bottom of an edit page; it stays in view while scrolling.
+ * Cancel drops the changes and goes back to the previous screen (or to `back`
+ * when there is none). Delete never goes here: it goes in a DeleteZone.
+ */
+export function SaveBar({ state, onSave, back = '/admin' }: { state: SaveStatus; onSave: () => void; back?: string }) {
+  const router = useRouter();
   return (
     <div className="sticky bottom-0 z-20 -mx-4 mt-8 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] bg-[var(--color-ivory)]/95 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8">
       <Button tone="dark" onClick={onSave} disabled={state === 'saving'}>
         Save
       </Button>
+      <Button onClick={() => (window.history.length > 1 ? router.back() : router.push(back))}>Cancel</Button>
       <SaveState state={state} />
-      <span className="ml-auto flex gap-2">{children}</span>
     </div>
   );
+}
+
+/** The Delete button on its own line, well away from Save and Cancel. */
+export function DeleteZone({ children }: { children: React.ReactNode }) {
+  return <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] pt-5">{children}</div>;
 }
 
 export function Badge({ children, tone = 'quiet' }: { children: React.ReactNode; tone?: 'quiet' | 'gold' | 'warn' | 'dark' }) {

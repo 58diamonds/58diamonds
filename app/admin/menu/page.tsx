@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, Button, Card, Help, L10nField, Loading, PageTitle, SaveState, SelectField, TextField, UpDown, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, DeleteZone, Help, L10nField, Loading, PageTitle, SaveState, SelectField, TextField, UpDown, show, useSave } from '@/components/admin/ui';
 import { move, publish, saveOrder, useNewFromLink } from '@/lib/admin-client';
 import { SHOP_LIVE } from '@/lib/config';
 import { getAdminDb } from '@/lib/supabase';
@@ -142,7 +142,10 @@ export default function MenuAdmin() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button tone="dark" onClick={save}>Save</Button>
             <Button onClick={() => setEdit(null)}>Cancel</Button>
-            {edit.id && (
+            <SaveState state={state} />
+          </div>
+          {edit.id && (
+            <DeleteZone>
               <Button
                 tone="danger"
                 onClick={async () => {
@@ -153,11 +156,10 @@ export default function MenuAdmin() {
                   load();
                 }}
               >
-                Remove
+                Remove from the menu
               </Button>
-            )}
-            <SaveState state={state} />
-          </div>
+            </DeleteZone>
+          )}
         </Card>
       )}
     </div>

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AddressField, Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, show, useSave } from '@/components/admin/ui';
+import { AddressField, Button, Card, DeleteZone, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, show, useSave } from '@/components/admin/ui';
 import { freeSlug, publish } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { isPlaceholderSlug } from '@/lib/slug';
@@ -22,8 +22,15 @@ export default function PageEditor() {
   const [autoAddr, setAutoAddr] = useState(false);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const { state, run, setState } = useSave();
+  // A new page lives only on this screen until Save; nothing is stored before.
+  const isNew = id === 'new';
 
   useEffect(() => {
+    if (isNew) {
+      setPage({ id: crypto.randomUUID(), slug: '', title: {}, body: {}, image_url: null, seo_title: {}, seo_description: {}, published: false });
+      setAutoAddr(true);
+      return;
+    }
     Promise.all([db.from('pages').select('*').eq('id', id).maybeSingle(), db.from('menu_items').select('*').eq('page_id', id)]).then(([p, m]) => {
       if (!p.data) return router.replace('/admin/pages');
       const row = p.data as Page;
@@ -31,7 +38,7 @@ export default function PageEditor() {
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
       setMenu((m.data ?? []) as MenuItem[]);
     });
-  }, [db, id, router]);
+  }, [db, id, isNew, router]);
 
   if (!page) return <Loading />;
   const set = (patch: Partial<Page>) => setPage({ ...page, ...patch });
@@ -43,10 +50,8 @@ export default function PageEditor() {
     if (RESERVED_SLUGS.includes(slug)) return setState({ error: `“${slug}” is used by the site itself. Choose another web address.` });
     let free = slug;
     const ok = await run(async () => {
-      free = await freeSlug('pages', slug, id);
-      return db
-        .from('pages')
-        .update({
+      free = await freeSlug('pages', slug, page!.id);
+      const row = {
           slug: free,
           title: page!.title,
           body: page!.body,
@@ -55,13 +60,15 @@ export default function PageEditor() {
           seo_description: page!.seo_description,
           published: page!.published,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', id);
+      };
+      return isNew ? db.from('pages').insert({ ...row, id: page!.id }) : db.from('pages').update(row).eq('id', id);
     });
+    if (ok && isNew) return router.replace(`/admin/pages/${page!.id}`);
     if (ok) set({ slug: free });
   }
 
   async function toggleMenu(m: MenuItem['menu'], on: boolean) {
+    if (isNew) return setState({ error: 'Save the page first, then add it to a menu.' });
     if (on) {
       const { count } = await db.from('menu_items').select('id', { count: 'exact', head: true }).eq('menu', m);
       const { data, error } = await db.from('menu_items').insert({ menu: m, kind: 'page', page_id: id, label: {}, position: count ?? 0, visible: true }).select('*').single();
@@ -134,9 +141,12 @@ export default function PageEditor() {
         </Card>
       </div>
 
-      <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>Delete page</Button>
-      </SaveBar>
+      <SaveBar state={state} onSave={save} back="/admin/pages" />
+      {!isNew && (
+        <DeleteZone>
+          <Button tone="danger" onClick={remove}>Delete this page</Button>
+        </DeleteZone>
+      )}
     </div>
   );
 }

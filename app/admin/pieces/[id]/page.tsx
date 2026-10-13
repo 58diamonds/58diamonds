@@ -9,6 +9,7 @@ import {
   Badge,
   Button,
   Card,
+  DeleteZone,
   L10nField,
   Loading,
   NumberField,
@@ -30,7 +31,36 @@ import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
 import type { Attribute, Piece, PieceImage, PieceVariant, Section } from '@/lib/types';
 
-const RING_SIZES = ['48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60'];
+/** An empty piece, hidden, kept on the screen until it is saved. */
+function blankPiece(section: string | null): Piece {
+  return {
+    id: crypto.randomUUID(),
+    section_id: section,
+    slug: '',
+    title: {},
+    description: {},
+    details: {},
+    price: null,
+    show_price: true,
+    for_sale: true,
+    stock: 1,
+    metal_id: null,
+    stone_id: null,
+    stone_ids: [],
+    karat: DEFAULT_KARAT,
+    weight_g: null,
+    stone_carats: {},
+    visible: false,
+    featured: false,
+    position: 0,
+    seo_title: {},
+    seo_description: {},
+    published_at: new Date().toISOString(),
+    piece_images: [],
+    piece_variants: [],
+  };
+}
+
 type Img = Omit<PieceImage, 'piece_id'> & { isNew?: boolean };
 type Var = Omit<PieceVariant, 'piece_id'> & { isNew?: boolean };
 
@@ -49,11 +79,15 @@ export default function PieceEditor() {
   const removed = useRef<{ images: string[]; variants: string[] }>({ images: [], variants: [] });
   const file = useRef<HTMLInputElement>(null);
   const { state, run, setState } = useSave();
+  // A new piece lives only on this screen until Save; nothing is stored before.
+  const isNew = id === 'new';
 
   useEffect(() => {
     (async () => {
       const [p, s, a] = await Promise.all([
-        db.from('pieces').select('*, piece_images(*), piece_variants(*)').eq('id', id).maybeSingle(),
+        isNew
+          ? Promise.resolve({ data: blankPiece(new URLSearchParams(window.location.search).get('section')) })
+          : db.from('pieces').select('*, piece_images(*), piece_variants(*)').eq('id', id).maybeSingle(),
         db.from('sections').select('*').order('position'),
         db.from('attributes').select('*').order('position'),
       ]);
@@ -66,7 +100,7 @@ export default function PieceEditor() {
       setSections((s.data ?? []) as Section[]);
       setAttrs((a.data ?? []) as Attribute[]);
     })();
-  }, [db, id, router]);
+  }, [db, id, isNew, router]);
 
   if (!piece) return <Loading />;
   const set = (patch: Partial<Piece>) => setPiece((p) => (p ? { ...p, ...patch } : p));
@@ -76,7 +110,7 @@ export default function PieceEditor() {
     setUploading(true);
     try {
       for (const f of Array.from(files)) {
-        const url = await uploadImage(f, `pieces/${id}`);
+        const url = await uploadImage(f, `pieces/${piece!.id}`);
         setImages((imgs) => [...imgs, { id: crypto.randomUUID(), url, alt: {}, position: imgs.length, worn: false, isNew: true }]);
       }
     } catch (e) {
@@ -92,9 +126,7 @@ export default function PieceEditor() {
     const ok = await run(async () => {
       const base = (autoAddr ? slugify(show(p.title)) : slugify(p.slug)) || slugify(show(p.title)) || `piece-${Date.now().toString(36)}`;
       slug = await freeSlug('pieces', base, p.id);
-      const { error } = await db
-        .from('pieces')
-        .update({
+      const row = {
           slug,
           title: p.title,
           description: p.description,
@@ -116,9 +148,16 @@ export default function PieceEditor() {
           seo_description: p.seo_description,
           published_at: p.published_at,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', p.id);
-      if (error) return { error };
+      };
+      if (isNew) {
+        const q = db.from('pieces').select('id', { count: 'exact', head: true });
+        const { count } = await (p.section_id ? q.eq('section_id', p.section_id) : q.is('section_id', null));
+        const r = await db.from('pieces').insert({ ...row, id: p.id, position: count ?? 0 });
+        if (r.error) return r;
+      } else {
+        const r = await db.from('pieces').update(row).eq('id', p.id);
+        if (r.error) return r;
+      }
 
       const del = removed.current;
       if (del.images.length) await db.from('piece_images').delete().in('id', del.images);
@@ -141,6 +180,7 @@ export default function PieceEditor() {
       removed.current = { images: [], variants: [] };
       return { error: null };
     });
+    if (ok && isNew) return router.replace(`/admin/pieces/${p.id}`);
     if (ok) {
       set({ slug });
       setImages((xs) => xs.map((x) => ({ ...x, isNew: false })));
@@ -150,7 +190,8 @@ export default function PieceEditor() {
 
   async function remove() {
     if (!window.confirm('Delete this piece for good? Orders that contain it keep their copy of its name and price.')) return;
-    await db.from('pieces').delete().eq('id', piece!.id);
+    const { error } = await db.from('pieces').delete().eq('id', piece!.id);
+    if (error) return setState({ error: error.message });
     publish();
     router.replace('/admin/pieces');
   }
@@ -331,9 +372,6 @@ export default function PieceEditor() {
             )}
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', stock: 1, position: variants.length, isNew: true }])}>Add a size</Button>
-              {variants.length === 0 && (
-                <Button onClick={() => setVariants(RING_SIZES.map((label, position) => ({ id: crypto.randomUUID(), label, stock: SHOP_LIVE ? 0 : 1, position, isNew: true })))}>Add ring sizes 48 to 60</Button>
-              )}
             </div>
             {SHOP_LIVE &&
               (variants.length > 0 ? (
@@ -373,11 +411,14 @@ export default function PieceEditor() {
         </Card>
       </div>
 
-      <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>
-          Delete
-        </Button>
-      </SaveBar>
+      <SaveBar state={state} onSave={save} back="/admin/pieces" />
+      {!isNew && (
+        <DeleteZone>
+          <Button tone="danger" onClick={remove}>
+            Delete this piece
+          </Button>
+        </DeleteZone>
+      )}
     </div>
   );
 }

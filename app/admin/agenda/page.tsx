@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge, Button, Help, Loading, PageTitle, SelectField, TextField, Toggle, inputCls } from '@/components/admin/ui';
+import { Badge, Button, DeleteZone, Help, Loading, PageTitle, SelectField, TextField, Toggle, inputCls } from '@/components/admin/ui';
 import { adminFetch } from '@/lib/admin-client';
 import { addDays, weekday, zonedDate, zonedTime } from '@/lib/booking';
 import type { EventInput } from '@/lib/ics';
@@ -395,14 +395,14 @@ export default function Agenda() {
                 {busy ? 'Saving...' : 'Save'}
               </Button>
               <Button onClick={() => setEditing(null)}>Cancel</Button>
-              {editing.item && (
-                <span className="ml-auto">
-                  <Button tone="danger" onClick={remove} disabled={busy}>
-                    Delete
-                  </Button>
-                </span>
-              )}
             </div>
+            {editing.item && (
+              <DeleteZone>
+                <Button tone="danger" onClick={remove} disabled={busy}>
+                  Delete this appointment
+                </Button>
+              </DeleteZone>
+            )}
           </div>
         </Dialog>
       )}

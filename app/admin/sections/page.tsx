@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, Button, Card, Help, ImageField, L10nField, Loading, PageTitle, SaveState, TextField, Toggle, UpDown, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, DeleteZone, Help, ImageField, L10nField, Loading, PageTitle, SaveState, TextField, Toggle, UpDown, show, useSave } from '@/components/admin/ui';
 import { move, publish, saveOrder } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
@@ -86,9 +86,13 @@ export default function SectionsAdmin() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button tone="dark" onClick={saveSection}>Save</Button>
             <Button onClick={() => setEditing(null)}>Cancel</Button>
-            {editing.id && <Button tone="danger" onClick={() => removeSection(editing)}>Delete</Button>}
             <SaveState state={state} />
           </div>
+          {editing.id && (
+            <DeleteZone>
+              <Button tone="danger" onClick={() => removeSection(editing)}>Delete this section</Button>
+            </DeleteZone>
+          )}
         </Card>
       )}
 

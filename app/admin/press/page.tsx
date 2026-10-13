@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, Button, Card, FileField, Help, ImageField, L10nField, Loading, PageTitle, SaveState, TextField, Toggle, UpDown, inputCls, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, DeleteZone, FileField, Help, ImageField, L10nField, Loading, PageTitle, SaveState, TextField, Toggle, UpDown, inputCls, show, useSave } from '@/components/admin/ui';
 import { move, publish, saveOrder } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { PressArticle } from '@/lib/types';
@@ -113,7 +113,10 @@ export default function PressAdmin() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button tone="dark" onClick={save}>Save</Button>
             <Button onClick={() => setEdit(null)}>Cancel</Button>
-            {edit.id && (
+            <SaveState state={state} />
+          </div>
+          {edit.id && (
+            <DeleteZone>
               <Button
                 tone="danger"
                 onClick={async () => {
@@ -124,11 +127,10 @@ export default function PressAdmin() {
                   load();
                 }}
               >
-                Delete
+                Delete this article
               </Button>
-            )}
-            <SaveState state={state} />
-          </div>
+            </DeleteZone>
+          )}
         </Card>
       )}
     </div>

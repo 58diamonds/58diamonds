@@ -59,13 +59,20 @@ body {
   color: var(--color-stone);
 }
 
-.eyebrow {
+.eyebrow,
+.page-title {
   font-family: var(--font-sans);
   font-size: 0.69rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--color-gold);
   font-weight: 400;
+}
+
+/* Page titles: the gold eyebrow line, 50% larger, in place of a big black title. */
+.page-title {
+  font-size: 1.035rem;
+  margin: 0;
 }
 
 .btn {

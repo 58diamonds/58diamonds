@@ -19,7 +19,7 @@ export default async function EventsPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-5xl px-5 pt-16 sm:pt-20">
       <header className="text-center">
-        <h1 className="font-display text-5xl sm:text-6xl">{t('events.title')}</h1>
+        <h1 className="page-title">{t('events.title')}</h1>
         <p className="mx-auto mt-5 max-w-xl text-[var(--color-stone)]">{t('events.intro')}</p>
       </header>
       <section className="mt-16">

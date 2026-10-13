@@ -42,14 +42,13 @@ export async function ShopView({
       .map((a) => ({ slug: a.slug, label: tr(a.label, locale) }));
 
   const qs = shopQueryString({ ...query, sort: query.sort });
-  const title = section ? tr(section.name, locale) : t('shop.title');
+  const title = section ? tr(section.name, locale) : t('shop.eyebrow');
   const intro = section ? tr(section.description, locale) : t('shop.intro');
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-10 pt-14 sm:pt-20">
       <header className="text-center">
-        <p className="eyebrow">{t('shop.eyebrow')}</p>
-        <h1 className="font-display mt-3 text-5xl sm:text-6xl">{title}</h1>
+        <h1 className="page-title">{title}</h1>
         {intro && <p className="mx-auto mt-5 max-w-xl text-[var(--color-stone)]">{intro}</p>}
       </header>
 

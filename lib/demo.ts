@@ -263,7 +263,7 @@ export const DEMO_PAGES: Page[] = [
     image_url: '/demo/02-farah-at-work-reel-cover.jpg',
     seo_title: {},
     seo_description: L(
-      'Farah, private jeweler and HRD-certified gemologist, designs diamond jewelry by appointment.',
+      'Farah, private jeweller and HRD-certified gemmologist, designs diamond jewellery by appointment.',
       'Farah, private juwelier en HRD-gecertificeerd gemmoloog, ontwerpt diamanten juwelen op afspraak.',
       'Farah, joaillière privée et gemmologue certifiée HRD, crée des bijoux en diamants sur rendez-vous.',
     ),

@@ -19,8 +19,7 @@ export default async function ContactPage({ params }: Props) {
     <div className="px-5 pt-16 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <header className="text-center">
-          <p className="eyebrow">{t('contact.eyebrow')}</p>
-          <h1 className="font-display mt-3 text-5xl sm:text-6xl">{t('contact.title')}</h1>
+          <h1 className="page-title">{t('contact.eyebrow')}</h1>
           <p className="mx-auto mt-5 max-w-xl text-[var(--color-stone)]">{t('contact.intro')}</p>
         </header>
 

@@ -230,7 +230,7 @@ export default async function Home({ params }: Props) {
           sameAs: settings.instagram_handle ? [`https://www.instagram.com/${settings.instagram_handle}/`] : undefined,
         }}
       />
-      <Hero t={t} image={settings.hero_image_url} />
+      <Hero t={t} image={settings.hero_image_url} fit={settings.hero_fit} focus={settings.hero_focus} />
       {/* The last band meets the footer, without the gap other pages keep. */}
       <div className="-mb-20">{settings.home_blocks.map((b) => blocks[b] ?? null)}</div>
     </>
@@ -257,13 +257,15 @@ function absolute(url: string | null): string | undefined {
   return url.startsWith('/') ? `${SITE_URL}${url}` : url;
 }
 
-function Hero({ t, image }: { t: Awaited<ReturnType<typeof site>>['t']; image: string | null }) {
+function Hero({ t, image, fit, focus }: { t: Awaited<ReturnType<typeof site>>['t']; image: string | null; fit?: string; focus?: string }) {
+  const whole = fit === 'whole';
+  const position = focus && /^\d{1,3}% \d{1,3}%$/.test(focus) ? focus : undefined;
   return (
     <section className="relative bg-[var(--color-pearl)]">
       <h1 className="sr-only">58 Diamonds by Farah. {t('home.hero_subtitle')}</h1>
       {image && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={image} alt="" className="hero-photo" fetchPriority="high" />
+        <img src={image} alt="" className={whole ? 'hero-photo hero-whole' : 'hero-photo'} style={!whole && position ? { objectPosition: position } : undefined} fetchPriority="high" />
       )}
       <a href="#pieces" className="label absolute bottom-5 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 !text-[var(--color-ink)]">
         {t('home.scroll')}

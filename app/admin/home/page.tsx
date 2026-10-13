@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, UpDown, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, Toggle, UpDown, show, useSave } from '@/components/admin/ui';
 import { move } from '@/lib/admin-client';
 import { wornPhoto } from '@/lib/piece-view';
 import { getAdminDb } from '@/lib/supabase';
@@ -87,7 +87,15 @@ export default function HomeAdmin() {
 
         <Card title="Photos">
           <div className="flex flex-wrap gap-10">
-            <ImageField label="Big photo at the top" value={s.hero_image_url} onChange={(v) => setS({ ...s, hero_image_url: v })} folder="home" aspect="aspect-[3/2]" hint="Landscape, at least 2400 px wide. Keep the jewellery in the middle: phones show a narrower, taller part." />
+            <ImageField label="Big photo at the top" value={s.hero_image_url} onChange={(v) => setS({ ...s, hero_image_url: v })} folder="home" aspect="aspect-[3/2]" hint="Landscape, at least 2400 px wide. How it is cropped is set below." />
+            {s.hero_image_url && (
+              <HeroFraming
+                image={s.hero_image_url}
+                fit={s.hero_fit ?? 'cover'}
+                focus={s.hero_focus ?? '50% 40%'}
+                onChange={(patch) => setS({ ...s, ...patch })}
+              />
+            )}
             <ImageField label="About Farah" value={s.about_image_url} onChange={(v) => setS({ ...s, about_image_url: v })} folder="home" aspect="aspect-[9/14]" />
           </div>
         </Card>
@@ -204,7 +212,7 @@ export default function HomeAdmin() {
 
       <SaveBar
         state={state}
-        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, hero_image_url: s.hero_image_url, about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
+        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, hero_image_url: s.hero_image_url, hero_fit: s.hero_fit ?? 'cover', hero_focus: s.hero_focus ?? '50% 40%', about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
       />
     </div>
   );
@@ -259,6 +267,48 @@ function PiecePicker({
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/**
+ * How the big photo is framed: uncropped, or cropped around a focus point the
+ * admin taps on the photo. Shows what computers (3:2) and phones (4:5) will see.
+ */
+function HeroFraming({ image, fit, focus, onChange }: { image: string; fit: 'cover' | 'whole'; focus: string; onChange: (p: { hero_fit?: 'cover' | 'whole'; hero_focus?: string }) => void }) {
+  const [x, y] = focus.split(' ').map((v) => parseFloat(v));
+  function pick(e: React.MouseEvent<HTMLButtonElement>) {
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)));
+    const py = Math.round(Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)));
+    onChange({ hero_focus: `${px}% ${py}%` });
+  }
+  return (
+    <div className="w-full max-w-xl">
+      <p className="label">Framing of the big photo</p>
+      <Toggle label="Show the whole photo" checked={fit === 'whole'} onChange={(v) => onChange({ hero_fit: v ? 'whole' : 'cover' })} hint="Nothing is cut off, on computers and phones. The photo keeps its own shape." />
+      {fit === 'cover' && (
+        <>
+          <p className="mt-3 text-sm text-[var(--color-stone)]">Tap the photo on the spot that must always stay in view, for example the jewellery.</p>
+          <button type="button" onClick={pick} className="relative mt-2 block w-full cursor-crosshair" aria-label="Choose the focus point">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={image} alt="" className="block w-full" />
+            <span className="pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[var(--color-gold)] shadow" style={{ left: `${x}%`, top: `${y}%` }} />
+          </button>
+          <div className="mt-4 flex items-end gap-4">
+            <figure className="w-2/3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={image} alt="" className="aspect-[3/2] w-full object-cover" style={{ objectPosition: focus }} />
+              <figcaption className="label mt-1">Computer</figcaption>
+            </figure>
+            <figure className="w-1/4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={image} alt="" className="aspect-[4/5] w-full object-cover" style={{ objectPosition: focus }} />
+              <figcaption className="label mt-1">Phone</figcaption>
+            </figure>
+          </div>
+        </>
+      )}
     </div>
   );
 }

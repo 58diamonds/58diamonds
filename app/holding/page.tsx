@@ -18,7 +18,7 @@ export default async function Holding() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <div>
         <img src={LOGOS[settings.header_logo] ?? LOGOS['brown-gold']} alt="58 Diamonds" className="h-auto w-56 sm:w-72" />
-        {settings.private_jeweller === true && <PrivateJeweller logo={settings.header_logo} className="mt-4 pl-[0.42em] text-[0.7rem] sm:text-xs" />}
+        {settings.private_jeweller === true && <PrivateJeweller logo={settings.header_logo} className="mt-4 pl-[0.26em] text-[0.69rem]" />}
       </div>
     </main>
   );

@@ -5,6 +5,7 @@ import { Badge, Button, Card, Help, Loading, PageTitle, TextField } from '@/comp
 import { adminFetch } from '@/lib/admin-client';
 import { PASSWORD_RULE, passwordProblem } from '@/lib/password';
 import { getAdminDb } from '@/lib/supabase';
+import { askConfirm } from '@/components/admin/confirm';
 
 interface Admin {
   user_id: string;
@@ -106,8 +107,8 @@ export default function AdminsAdmin() {
                     <Button
                       tone="danger"
                       disabled={busy}
-                      onClick={() =>
-                        window.confirm(`Remove ${a.username}? They can no longer sign in.`) && call({ action: 'remove', userId: a.user_id }, `${a.username} was removed.`, setListMsg)
+                      onClick={async () =>
+                        (await askConfirm(`Remove ${a.username}? They can no longer sign in.`)) && call({ action: 'remove', userId: a.user_id }, `${a.username} was removed.`, setListMsg)
                       }
                     >
                       Remove

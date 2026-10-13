@@ -8,6 +8,7 @@ import { slugify } from '@/lib/format';
 import { isPlaceholderSlug } from '@/lib/slug';
 import { getAdminDb } from '@/lib/supabase';
 import type { EventItem } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 /** ISO time to the value of a datetime-local input, in the browser's time zone. */
 function toLocal(iso: string | null): string {
@@ -19,6 +20,8 @@ const fromLocal = (v: string) => (v ? new Date(v).toISOString() : null);
 
 export default function EventEditor() {
   const { id } = useParams<{ id: string }>();
+  // "new": nothing is stored until the first Save.
+  const isNew = id === 'new';
   const router = useRouter();
   const db = getAdminDb();
   const [ev, setEv] = useState<EventItem | null>(null);
@@ -27,13 +30,13 @@ export default function EventEditor() {
   const { state, run, setState } = useSave();
 
   useEffect(() => {
-    db.from('events').select('*').eq('id', id).maybeSingle().then(({ data }) => {
+    (isNew ? Promise.resolve({ data: blankEvent() }) : db.from('events').select('*').eq('id', id).maybeSingle()).then(({ data }) => {
       if (!data) return router.replace('/admin/events');
       const row = data as EventItem;
       setEv(row);
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
     });
-  }, [db, id, router]);
+  }, [db, id, isNew, router]);
 
   if (!ev) return <Loading />;
   const set = (patch: Partial<EventItem>) => setEv({ ...ev, ...patch });
@@ -44,10 +47,8 @@ export default function EventEditor() {
     if (ev!.ends_at && ev!.ends_at < ev!.starts_at) return setState({ error: 'The end is before the start.' });
     let free = slug;
     const ok = await run(async () => {
-      free = await freeSlug('events', slug, id);
-      return db
-        .from('events')
-        .update({
+      free = await freeSlug('events', slug, ev!.id);
+      const fields = {
           slug: free,
           title: ev!.title,
           starts_at: ev!.starts_at,
@@ -58,22 +59,25 @@ export default function EventEditor() {
           image_url: ev!.image_url,
           link_url: ev!.link_url || null,
           published: ev!.published,
-        })
-        .eq('id', id);
+      };
+      return isNew ? db.from('events').insert({ ...fields, id: ev!.id }) : db.from('events').update(fields).eq('id', id);
     });
+    if (ok && isNew) return router.replace(`/admin/events/${ev!.id}`);
     if (ok) set({ slug: free });
   }
 
   async function remove() {
-    if (!window.confirm(`Delete “${show(ev!.title)}”? This cannot be undone.`)) return;
-    await db.from('events').delete().eq('id', id);
+    if (isNew) return router.replace('/admin/events');
+    if (!(await askConfirm(`Delete “${show(ev!.title)}”? This cannot be undone.`))) return;
+    const { error } = await db.from('events').delete().eq('id', id);
+    if (error) return setState({ error: error.message });
     publish();
     router.replace('/admin/events');
   }
 
   return (
     <div>
-      <PageTitle title={show(ev.title) || 'Event'} back={{ href: '/admin/events', label: 'Events' }} />
+      <PageTitle title={show(ev.title) || (isNew ? 'New event' : 'Event')} back={{ href: '/admin/events', label: 'Events' }} />
       <div className="grid gap-6">
         <Card title="Event">
           <div className="grid gap-5">
@@ -112,8 +116,16 @@ export default function EventEditor() {
         </Card>
       </div>
       <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>Delete event</Button>
+        <Button tone="danger" onClick={remove}>{isNew ? 'Cancel' : 'Delete event'}</Button>
       </SaveBar>
     </div>
   );
+}
+
+/** An unsaved event, two weeks from now at 18:00, not published. */
+function blankEvent(): EventItem {
+  const start = new Date();
+  start.setDate(start.getDate() + 14);
+  start.setHours(18, 0, 0, 0);
+  return { id: crypto.randomUUID(), slug: '', title: {}, starts_at: start.toISOString(), ends_at: null, location: '', summary: {}, body: {}, image_url: null, link_url: null, published: false };
 }

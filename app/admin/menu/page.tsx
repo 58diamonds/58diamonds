@@ -6,6 +6,7 @@ import { move, publish, saveOrder, useNewFromLink } from '@/lib/admin-client';
 import { SHOP_LIVE } from '@/lib/config';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, MenuTarget, Page, Section } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 const BUILTIN: { value: MenuTarget; label: string }[] = [
   { value: 'shop', label: 'Collection (all pieces)' },
@@ -146,7 +147,7 @@ export default function MenuAdmin() {
               <Button
                 tone="danger"
                 onClick={async () => {
-                  if (!window.confirm('Remove this link from the menu? The page itself stays.')) return;
+                  if (!(await askConfirm('Remove this link from the menu? The page itself stays.'))) return;
                   await db.from('menu_items').delete().eq('id', edit.id);
                   publish();
                   setEdit(null);

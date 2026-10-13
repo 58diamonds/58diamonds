@@ -9,12 +9,15 @@ import { isPlaceholderSlug } from '@/lib/slug';
 import { RESERVED_SLUGS } from '@/lib/routes';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, Page } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 const PLACEHOLDERS = '{company_name}, {legal_name}, {company_address}, {vat_number} and {email} are filled in from Settings.';
 
 /** Edit one page: text, photo, address, search engine text, menus. */
 export default function PageEditor() {
   const { id } = useParams<{ id: string }>();
+  // "new": nothing is stored until the first Save.
+  const isNew = id === 'new';
   const router = useRouter();
   const db = getAdminDb();
   const [page, setPage] = useState<Page | null>(null);
@@ -24,14 +27,18 @@ export default function PageEditor() {
   const { state, run, setState } = useSave();
 
   useEffect(() => {
-    Promise.all([db.from('pages').select('*').eq('id', id).maybeSingle(), db.from('menu_items').select('*').eq('page_id', id)]).then(([p, m]) => {
+    const blank = { data: { id: crypto.randomUUID(), slug: '', title: {}, body: {}, image_url: null, seo_title: {}, seo_description: {}, published: false } as Page };
+    Promise.all([
+      isNew ? Promise.resolve(blank) : db.from('pages').select('*').eq('id', id).maybeSingle(),
+      isNew ? Promise.resolve({ data: [] }) : db.from('menu_items').select('*').eq('page_id', id),
+    ]).then(([p, m]) => {
       if (!p.data) return router.replace('/admin/pages');
       const row = p.data as Page;
       setPage(row);
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
       setMenu((m.data ?? []) as MenuItem[]);
     });
-  }, [db, id, router]);
+  }, [db, id, isNew, router]);
 
   if (!page) return <Loading />;
   const set = (patch: Partial<Page>) => setPage({ ...page, ...patch });
@@ -43,10 +50,8 @@ export default function PageEditor() {
     if (RESERVED_SLUGS.includes(slug)) return setState({ error: `“${slug}” is used by the site itself. Choose another web address.` });
     let free = slug;
     const ok = await run(async () => {
-      free = await freeSlug('pages', slug, id);
-      return db
-        .from('pages')
-        .update({
+      free = await freeSlug('pages', slug, page!.id);
+      const fields = {
           slug: free,
           title: page!.title,
           body: page!.body,
@@ -55,9 +60,10 @@ export default function PageEditor() {
           seo_description: page!.seo_description,
           published: page!.published,
           updated_at: new Date().toISOString(),
-        })
-        .eq('id', id);
+      };
+      return isNew ? db.from('pages').insert({ ...fields, id: page!.id }) : db.from('pages').update(fields).eq('id', id);
     });
+    if (ok && isNew) return router.replace(`/admin/pages/${page!.id}`);
     if (ok) set({ slug: free });
   }
 
@@ -75,7 +81,8 @@ export default function PageEditor() {
   }
 
   async function remove() {
-    if (!window.confirm(`Delete the page “${show(page!.title)}”? It also leaves the menus. This cannot be undone.`)) return;
+    if (isNew) return router.replace('/admin/pages');
+    if (!(await askConfirm(`Delete the page “${show(page!.title)}”? It also leaves the menus. This cannot be undone.`))) return;
     const { error } = await db.from('pages').delete().eq('id', id);
     if (error) return setState({ error: error.message });
     publish();
@@ -84,7 +91,7 @@ export default function PageEditor() {
 
   return (
     <div>
-      <PageTitle title={show(page.title) || 'Page'} back={{ href: '/admin/pages', label: 'Pages' }}>
+      <PageTitle title={show(page.title) || (isNew ? 'New page' : 'Page')} back={{ href: '/admin/pages', label: 'Pages' }}>
         {page.published && (
           <a href={`/en/${slug}`} target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
             View on the site
@@ -114,8 +121,14 @@ export default function PageEditor() {
                 setAutoAddr(on);
               }}
             />
-            <Toggle label="In the top menu" checked={inMenu('header')} onChange={(v) => toggleMenu('header', v)} />
-            <Toggle label="In the footer" checked={inMenu('footer')} onChange={(v) => toggleMenu('footer', v)} />
+            {isNew ? (
+              <p className="text-sm text-[var(--color-stone)]">Save the page first; then you can add it to the top menu or the footer.</p>
+            ) : (
+              <>
+                <Toggle label="In the top menu" checked={inMenu('header')} onChange={(v) => toggleMenu('header', v)} />
+                <Toggle label="In the footer" checked={inMenu('footer')} onChange={(v) => toggleMenu('footer', v)} />
+              </>
+            )}
           </div>
         </Card>
 
@@ -135,7 +148,7 @@ export default function PageEditor() {
       </div>
 
       <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>Delete page</Button>
+        <Button tone="danger" onClick={remove}>{isNew ? 'Cancel' : 'Delete page'}</Button>
       </SaveBar>
     </div>
   );

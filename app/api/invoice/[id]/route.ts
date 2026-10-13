@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { loadOrder, renderInvoice } from '@/lib/orders';
-import { getRequestUser, requireAdmin } from '@/lib/server-auth';
+import { getRequestUser, requireManager } from '@/lib/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
-  const [order, user, admin] = await Promise.all([loadOrder(id), getRequestUser(req), requireAdmin(req)]);
+  const [order, user, admin] = await Promise.all([loadOrder(id), getRequestUser(req), requireManager(req)]);
   if (!order || !order.invoice_number) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
   if (!admin && (!user || order.customer_id !== user.id)) return NextResponse.json({ error: 'Not authorised.' }, { status: 401 });
   const pdf = await renderInvoice(order);

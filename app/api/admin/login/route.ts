@@ -16,11 +16,14 @@ export async function POST(req: Request) {
   const fail = () => NextResponse.json({ error: 'That username and password do not match.' }, { status: 401 });
   if (!username || !password || !SUPABASE_URL) return fail();
 
-  const { data: admin } = await getServiceDb().from('admins').select('email').eq('username', username).maybeSingle();
+  const service = getServiceDb();
+  const { data: admin } = await service.from('admins').select('user_id, blocked').eq('username', username).maybeSingle();
+  // The sign-in email lives with the sign-in itself; an admin may have no email of their own.
+  const signIn = admin && !admin.blocked ? (await service.auth.admin.getUserById(admin.user_id)).data.user?.email : undefined;
   // Same answer and similar work whether or not the username exists.
-  const email = admin?.email ?? `nobody-${crypto.randomUUID()}@invalid.example`;
+  const email = signIn ?? `nobody-${crypto.randomUUID()}@invalid.example`;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
   const { data, error } = await db.auth.signInWithPassword({ email, password });
-  if (error || !data.session || !admin) return fail();
+  if (error || !data.session || !signIn) return fail();
   return NextResponse.json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
 }

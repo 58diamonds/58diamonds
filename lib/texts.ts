@@ -221,6 +221,8 @@ export const TEXTS = {
   'booking.pick_time': t('Booking calendar', 'Heading above the times', 'Choose a time', 'Kies een uur', 'Choisissez une heure'),
   'booking.zone': t('Booking calendar', 'Note about the time zone', 'Times are Brussels time.', 'Uren in Brusselse tijd.', 'Heures de Bruxelles.'),
   'booking.none': t('Booking calendar', 'No free times in this month', 'No free times this month. Please look at the next month, or send a message.', 'Geen vrije momenten deze maand. Kijk naar de volgende maand of stuur ons een bericht.', 'Aucun créneau libre ce mois-ci. Regardez le mois suivant ou envoyez-nous un message.'),
+  'booking.by_appointment': t('Booking calendar', 'Heading for a day that is by appointment only', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
+  'booking.by_appointment_text': t('Booking calendar', 'Text for a day that is by appointment only', 'Send your request for this day and Farah will propose a time.', 'Stuur uw aanvraag voor deze dag en Farah stelt een uur voor.', 'Envoyez votre demande pour ce jour et Farah vous proposera une heure.'),
   'booking.unverified': t('Booking calendar', 'When the calendar could not be checked', 'Farah will confirm the exact time with you.', 'Farah bevestigt het juiste uur met u.', 'Farah vous confirmera l\'heure exacte.'),
   'booking.chosen': t('Booking calendar', 'Picked time ({when} is filled in)', 'Your choice: {when}', 'Uw keuze: {when}', 'Votre choix : {when}'),
   'booking.change': t('Booking calendar', 'Button to pick another time', 'Change', 'Wijzigen', 'Modifier'),

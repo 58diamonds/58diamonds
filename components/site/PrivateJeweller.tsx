@@ -12,10 +12,10 @@ const COLOUR: Record<HeaderLogo, React.CSSProperties> = {
   },
 };
 
-/** The PRIVATE JEWELLER line under the logo: menu lettering, wordmark colour (Admin > Homepage). */
+/** The PRIVATE JEWELLER line under the logo: in the wordmark's lettering and colour (Admin > Homepage). */
 export function PrivateJeweller({ logo, className = '' }: { logo: HeaderLogo; className?: string }) {
   return (
-    <span className={`block whitespace-nowrap text-center font-sans uppercase tracking-[0.26em] ${className}`} style={COLOUR[logo] ?? COLOUR.ink}>
+    <span className={`block whitespace-nowrap text-center font-[family-name:var(--font-wordmark)] uppercase tracking-[0.26em] ${className}`} style={COLOUR[logo] ?? COLOUR.ink}>
       Private jeweller
     </span>
   );

@@ -3,6 +3,8 @@ export const TIME_ZONE = 'Europe/Brussels';
 
 export const SITE_NAME = '58 Diamonds';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+/** The admin has its own address, the site's with "admin." in front (admin.58diamonds.com). */
+export const ADMIN_URL = SITE_URL.replace('://www.', '://').replace('://', '://admin.');
 
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';

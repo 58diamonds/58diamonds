@@ -6,6 +6,7 @@ import { Badge, Button, Card, FileField, Help, ImageField, L10nField, Loading, P
 import { move, publish, saveOrder } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { PressArticle } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 /**
  * Articles about the brand. The Press tab shows only when it is switched on
@@ -117,7 +118,7 @@ export default function PressAdmin() {
               <Button
                 tone="danger"
                 onClick={async () => {
-                  if (!window.confirm('Delete this article?')) return;
+                  if (!(await askConfirm('Delete this article?'))) return;
                   await db.from('press_articles').delete().eq('id', edit.id);
                   publish();
                   setEdit(null);

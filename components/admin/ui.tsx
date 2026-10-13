@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { LOCALES, LOCALE_NAMES, type L10n, type Locale } from '@/lib/i18n';
+import { askConfirm } from './confirm';
 
 /**
  * The admin's building blocks, in the website's own ivory look and fonts, so
@@ -204,7 +205,7 @@ export function TranslateButton({ value, from, onChange, className = '' }: { val
   const others = LOCALES.filter((l) => l !== from);
   async function go() {
     const filled = others.filter((l) => value[l]?.trim());
-    if (filled.length && !window.confirm(`Replace the ${filled.map((l) => LANGUAGE[l]).join(' and ')} with a new translation of the ${LANGUAGE[from]}?`)) return;
+    if (filled.length && !(await askConfirm(`Replace the ${filled.map((l) => LANGUAGE[l]).join(' and ')} with a new translation of the ${LANGUAGE[from]}?`))) return;
     setBusy(true);
     setError('');
     try {

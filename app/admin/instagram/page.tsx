@@ -6,6 +6,7 @@ import { Badge, Help, PageTitle, Button } from '@/components/admin/ui';
 import { adminFetch, publish } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { InstagramPost } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 type Status = { connected: boolean; username: string | null; expiresAt: string | null; lastSyncedAt: string | null };
 
@@ -75,7 +76,7 @@ export default function InstagramAdmin() {
           </p>
           <p className="mt-1 text-[var(--color-stone)]">Last sync: {fmt(status.lastSyncedAt)}. Access renews itself; current access runs until {fmt(status.expiresAt)}.</p>
           <div className="mt-3">
-            <Button tone="danger" onClick={() => window.confirm('Disconnect Instagram? Posts already on the site stay.') && act('disconnect')}>
+            <Button tone="danger" onClick={async () => (await askConfirm('Disconnect Instagram? Posts already on the site stay.')) && act('disconnect')}>
               Disconnect
             </Button>
           </div>

@@ -6,6 +6,7 @@ import { adminFetch } from '@/lib/admin-client';
 import { zonedClock, zonedDate, zonedTime } from '@/lib/booking';
 import { getAdminDb } from '@/lib/supabase';
 import type { AppointmentRequest } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 /** Appointment requests sent through the website's form, newest first. */
 export default function RequestsAdmin() {
@@ -60,7 +61,7 @@ export default function RequestsAdmin() {
   }
 
   async function remove(r: AppointmentRequest) {
-    if (!window.confirm(`Delete the request from ${r.name}?`)) return;
+    if (!(await askConfirm(`Delete the request from ${r.name}?`))) return;
     await db.from('appointment_requests').delete().eq('id', r.id);
     load();
   }

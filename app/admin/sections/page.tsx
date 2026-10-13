@@ -6,6 +6,7 @@ import { move, publish, saveOrder } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
 import type { Attribute, Section } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 /** Shop sections (Rings, Necklaces...) and the filter values (metals, stones). */
 export default function SectionsAdmin() {
@@ -45,7 +46,7 @@ export default function SectionsAdmin() {
   }
 
   async function removeSection(s: Section) {
-    if (!window.confirm(`Delete the section “${show(s.name)}”? Its pieces stay, without a section.`)) return;
+    if (!(await askConfirm(`Delete the section “${show(s.name)}”? Its pieces stay, without a section.`))) return;
     await db.from('sections').delete().eq('id', s.id);
     publish();
     setEditing(null);
@@ -126,7 +127,7 @@ function AttributeList({ kind, title, all, reload }: { kind: 'metal' | 'stone'; 
             <button
               className="text-xs text-red-800 underline underline-offset-2"
               onClick={async () => {
-                if (!window.confirm(`Delete “${show(a.label)}”? Pieces keep everything else.`)) return;
+                if (!(await askConfirm(`Delete “${show(a.label)}”? Pieces keep everything else.`))) return;
                 await db.from('attributes').delete().eq('id', a.id);
                 publish();
                 reload();

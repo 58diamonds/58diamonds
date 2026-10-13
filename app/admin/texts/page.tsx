@@ -7,6 +7,7 @@ import { publish } from '@/lib/admin-client';
 import { LOCALES, LOCALE_NAMES, type L10n } from '@/lib/i18n';
 import { getAdminDb } from '@/lib/supabase';
 import { TEXTS, type TextKey } from '@/lib/texts';
+import { askConfirm } from '@/components/admin/confirm';
 
 export default function TextsAdmin() {
   return (
@@ -61,7 +62,7 @@ function Texts() {
   }
 
   async function reset(k: TextKey) {
-    if (!window.confirm('Put the original wording back, in all three languages?')) return;
+    if (!(await askConfirm('Put the original wording back, in all three languages?'))) return;
     await db.from('site_texts').delete().eq('key', k);
     const { [k]: _, ...rest } = saved!;
     setSaved(rest);

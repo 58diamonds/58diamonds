@@ -6,6 +6,7 @@ import { Badge, Button, Help, Loading, PageTitle, SelectField, TextField, Toggle
 import { adminFetch } from '@/lib/admin-client';
 import { addDays, weekday, zonedDate, zonedTime } from '@/lib/booking';
 import type { EventInput } from '@/lib/ics';
+import { askConfirm } from '@/components/admin/confirm';
 
 interface Item {
   uid: string;
@@ -187,7 +188,7 @@ export default function Agenda() {
   async function remove() {
     if (!editing?.item) return;
     const what = editing.item.recurring && editing.scope === 'one' ? 'this occurrence' : editing.item.recurring ? 'every occurrence of this event' : 'this event';
-    if (!window.confirm(`Delete ${what}? It disappears from your iPhone too.`)) return;
+    if (!(await askConfirm(`Delete ${what}? It disappears from your iPhone too.`))) return;
     setBusy(true);
     try {
       await adminFetch('/api/admin/agenda', { action: 'delete', href: editing.item.href, etag: editing.etag, scope: editing.scope, recurrenceId: editing.item.recurrenceId });

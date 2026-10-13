@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AddressField, Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, show, useSave } from '@/components/admin/ui';
+import { AddressField, Card, DeleteZone, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, show, useSave } from '@/components/admin/ui';
 import { freeSlug, publish } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { isPlaceholderSlug } from '@/lib/slug';
@@ -147,9 +147,8 @@ export default function PageEditor() {
         </Card>
       </div>
 
-      <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>{isNew ? 'Cancel' : 'Delete page'}</Button>
-      </SaveBar>
+      {!isNew && <DeleteZone label="Delete this page" onDelete={remove} />}
+      <SaveBar state={state} onSave={save} back="/admin/pages" />
     </div>
   );
 }

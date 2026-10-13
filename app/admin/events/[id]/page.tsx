@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AddressField, Button, Card, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, inputCls, show, useSave } from '@/components/admin/ui';
+import { AddressField, Card, DeleteZone, ImageField, L10nField, Loading, MARKDOWN_HINT, PageTitle, SaveBar, TextField, Toggle, inputCls, show, useSave } from '@/components/admin/ui';
 import { freeSlug, publish } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { isPlaceholderSlug } from '@/lib/slug';
@@ -115,9 +115,8 @@ export default function EventEditor() {
           </div>
         </Card>
       </div>
-      <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>{isNew ? 'Cancel' : 'Delete event'}</Button>
-      </SaveBar>
+      {!isNew && <DeleteZone label="Delete this event" onDelete={remove} />}
+      <SaveBar state={state} onSave={save} back="/admin/events" />
     </div>
   );
 }

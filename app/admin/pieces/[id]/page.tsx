@@ -9,6 +9,7 @@ import {
   Badge,
   Button,
   Card,
+  DeleteZone,
   L10nField,
   Loading,
   NumberField,
@@ -387,11 +388,8 @@ export default function PieceEditor() {
         </Card>
       </div>
 
-      <SaveBar state={state} onSave={save}>
-        <Button tone="danger" onClick={remove}>
-          {isNew ? 'Cancel' : 'Delete'}
-        </Button>
-      </SaveBar>
+      {!isNew && <DeleteZone label="Delete this piece" onDelete={remove} />}
+      <SaveBar state={state} onSave={save} back="/admin/pieces" />
     </div>
   );
 }

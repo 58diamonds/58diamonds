@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
@@ -452,15 +453,74 @@ export function SaveState({ state }: { state: SaveStatus }) {
   return <span className="text-sm text-red-800">{state.error}</span>;
 }
 
-/** The save bar at the bottom of an edit page; it stays in view while scrolling. */
-export function SaveBar({ state, onSave, children }: { state: SaveStatus; onSave: () => void; children?: React.ReactNode }) {
+/** Back to the screen before, or to `fallback` when the page was opened directly. */
+export function useGoBack(fallback = '/admin') {
+  const router = useRouter();
+  return () => (window.history.length > 1 ? router.back() : router.push(fallback));
+}
+
+/**
+ * The save bar at the bottom of an edit page; it stays in view while
+ * scrolling. Cancel leaves without saving, back to the screen before.
+ * Delete is never in this bar: put a DeleteZone at the end of the page.
+ */
+export function SaveBar({ state, onSave, onCancel, back = '/admin' }: { state: SaveStatus; onSave: () => void; onCancel?: () => void; back?: string }) {
+  const goBack = useGoBack(back);
   return (
     <div className="sticky bottom-0 z-20 -mx-4 mt-8 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] bg-[var(--color-ivory)]/95 px-4 py-3 backdrop-blur sm:-mx-8 sm:px-8">
       <Button tone="dark" onClick={onSave} disabled={state === 'saving'}>
         Save
       </Button>
+      <Button onClick={onCancel ?? goBack}>Cancel</Button>
       <SaveState state={state} />
-      <span className="ml-auto flex gap-2">{children}</span>
+    </div>
+  );
+}
+
+/** Save and Cancel under a form on a list page, with Delete set well apart. */
+export function FormActions({
+  state,
+  onSave,
+  onCancel,
+  onDelete,
+  deleteLabel = 'Delete',
+  saveDisabled,
+}: {
+  state?: SaveStatus;
+  onSave: () => void;
+  onCancel: () => void;
+  onDelete?: () => void;
+  deleteLabel?: string;
+  saveDisabled?: boolean;
+}) {
+  return (
+    <div className="mt-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button tone="dark" onClick={onSave} disabled={saveDisabled || state === 'saving'}>
+          Save
+        </Button>
+        <Button onClick={onCancel}>Cancel</Button>
+        {state && <SaveState state={state} />}
+      </div>
+      {onDelete && (
+        <div className="mt-10 border-t border-[var(--color-line)] pt-5">
+          <Button tone="danger" onClick={onDelete}>
+            {deleteLabel}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Delete, at the very end of an edit page, away from Save and Cancel. */
+export function DeleteZone({ label, onDelete, hint }: { label: string; onDelete: () => void; hint?: string }) {
+  return (
+    <div className="mt-16 border-t border-[var(--color-line)] pt-6">
+      {hint && <p className="mb-3 text-sm text-[var(--color-stone)]">{hint}</p>}
+      <Button tone="danger" onClick={onDelete}>
+        {label}
+      </Button>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { BookingPicker } from './BookingPicker';
 import { PrivacyNote } from './PrivacyNote';
 import { useSite } from './SiteProvider';
 
@@ -13,6 +14,13 @@ export function AppointmentForm() {
   const piece = useSearchParams().get('piece');
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
+  // Online booking: on when the calendar says so, unless the client prefers to suggest days.
+  const [live, setLive] = useState(false);
+  const [manual, setManual] = useState(false);
+  const [start, setStart] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  const onLive = useCallback((v: boolean) => setLive(v), []);
+  const useCalendar = live && !manual;
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,6 +29,7 @@ export function AppointmentForm() {
     // A field people cannot see. Bots fill it in; people do not.
     if (get('website')) return setStatus('sent');
     if (!get('email') && !get('phone')) return setError(t('form.reach'));
+    if (useCalendar && !start) return setError(t('booking.need_time'));
 
     setError(null);
     setStatus('sending');
@@ -31,12 +40,20 @@ export function AppointmentForm() {
         name: get('name'),
         email: get('email') || null,
         phone: get('phone') || null,
-        preferred_date: get('preferred_date') || null,
+        preferred_date: useCalendar ? null : get('preferred_date') || null,
+        start: useCalendar ? start : undefined,
         message: get('message'),
         piece,
         locale,
       }),
     }).catch(() => null);
+    if (res?.status === 409 && useCalendar) {
+      setStatus('idle');
+      setStart(null);
+      setReloadKey((k) => k + 1);
+      setError(t('booking.taken'));
+      return;
+    }
     if (!res?.ok) {
       setStatus('error');
       setError(t('form.error'));
@@ -49,7 +66,7 @@ export function AppointmentForm() {
     return (
       <div className="border border-[var(--color-line)] p-8 text-center" role="status">
         <p className="font-display text-3xl">{t('checkout.thanks_title')}</p>
-        <p className="mt-3 text-[var(--color-stone)]">{t('form.sent')}</p>
+        <p className="mt-3 text-[var(--color-stone)]">{t(useCalendar ? 'booking.sent' : 'form.sent')}</p>
       </div>
     );
   }
@@ -69,10 +86,28 @@ export function AppointmentForm() {
         <span className="eyebrow">{t('form.phone')}</span>
         <input name="phone" type="tel" maxLength={50} autoComplete="tel" className="field" />
       </label>
-      <label className="sm:col-span-2">
-        <span className="eyebrow">{t('form.date')}</span>
-        <input name="preferred_date" maxLength={100} className="field" />
-      </label>
+      <div className="sm:col-span-2">
+        <div className={manual ? 'hidden' : ''}>
+          <BookingPicker value={start} onChange={setStart} onLive={onLive} reloadKey={reloadKey} />
+        </div>
+        {useCalendar ? (
+          <button type="button" className="mt-3 text-sm text-[var(--color-stone)] underline underline-offset-4" onClick={() => setManual(true)}>
+            {t('booking.no_time')}
+          </button>
+        ) : (
+          <>
+            <label>
+              <span className="eyebrow">{t('form.date')}</span>
+              <input name="preferred_date" maxLength={100} className="field" />
+            </label>
+            {live && (
+              <button type="button" className="mt-3 text-sm text-[var(--color-stone)] underline underline-offset-4" onClick={() => setManual(false)}>
+                {t('booking.with_calendar')}
+              </button>
+            )}
+          </>
+        )}
+      </div>
       <label className="sm:col-span-2">
         <span className="eyebrow">{t('form.message')}</span>
         <textarea name="message" rows={4} maxLength={3500} className="field resize-y" />

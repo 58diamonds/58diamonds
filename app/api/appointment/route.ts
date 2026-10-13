@@ -5,6 +5,7 @@ import { adminNewRequest } from '@/lib/emails';
 import { isLocale } from '@/lib/i18n';
 import { getServiceDb } from '@/lib/supabase';
 import { HAS_DATABASE } from '@/lib/config';
+import { createBooking } from '@/lib/booking-flow';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,13 @@ export async function POST(req: Request) {
   const message = (piece ? `About: ${piece}\n\n` : '') + str(b.message, 3500);
   if (!name || (!email && !phone) || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     return NextResponse.json({ error: 'invalid' }, { status: 400 });
+  }
+  // A time picked in the booking calendar: checked, held and sent to Farah to approve.
+  if (typeof b.start === 'number' && Number.isFinite(b.start)) {
+    if (!HAS_DATABASE) return NextResponse.json({ ok: true });
+    const r = await createBooking({ name, email, phone, message, locale: isLocale(b.locale) ? b.locale : 'en', start: b.start });
+    if ('ok' in r) return NextResponse.json({ ok: true });
+    return NextResponse.json({ error: r.error }, { status: r.error === 'failed' ? 500 : 409 });
   }
   const row = { name, email, phone, preferred_date: str(b.preferred_date, 100) || null, message, locale: isLocale(b.locale) ? b.locale : 'en' };
   if (!HAS_DATABASE) return NextResponse.json({ ok: true });

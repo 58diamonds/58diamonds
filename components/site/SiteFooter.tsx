@@ -10,7 +10,7 @@ import { useSite } from './SiteProvider';
 const LEGAL_SLUGS = ['terms', 'returns', 'privacy', 'cookies', 'withdrawal'];
 
 /** Fixed bottom line. Deliberately not in Admin > Texts, so it can't be edited there. */
-const CREDIT = 'Web design by 18 Diamonds Inc.';
+const CREDIT = { text: 'Web design by', name: '18 Diamonds Inc', href: 'https://agency.18diam.com' };
 
 function InstagramIcon() {
   return (
@@ -86,7 +86,7 @@ export function SiteFooter({ links, settings }: { links: (NavLink & { text: stri
       <p className="mt-2 border-t border-[var(--color-line)] px-4 py-5 text-center text-[0.6rem]">
         <span className="block md:inline">© {new Date().getFullYear()} 58 Diamonds</span>
         <span className="hidden md:inline"> · </span>
-        <span className="mt-1 block md:mt-0 md:inline">{CREDIT}</span>
+        <span className="mt-1 block md:mt-0 md:inline">{CREDIT.text} <a href={CREDIT.href} target="_blank" rel="noopener" className={hover}>{CREDIT.name}</a></span>
       </p>
     </footer>
   );

@@ -42,9 +42,9 @@ export function LanguageSwitch({ className = '' }: { className?: string }) {
 }
 
 const LOGO_SRC: Record<HeaderLogo, string> = {
-  ink: '/brand/logo-ink.svg',
-  black: '/brand/logo-black.svg',
-  'brown-gold': '/brand/logo-brown-gold.svg',
+  ink: '/brand/logo-ink.svg?v=3',
+  black: '/brand/logo-black.svg?v=3',
+  'brown-gold': '/brand/logo-brown-gold.svg?v=3',
 };
 
 /**

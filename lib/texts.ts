@@ -40,9 +40,6 @@ export const TEXTS = {
   'footer.vat': t('Header and footer', 'VAT label before the number', 'VAT', 'BTW', 'TVA'),
 
   // Homepage
-  'home.hero_eyebrow': t('Homepage', 'Line above the logo', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
-  'home.hero_subtitle': t('Homepage', 'Line under the logo', 'Private jeweller. Custom diamond jewellery, designed with you.', 'Private juwelier. Diamanten juwelen op maat, samen met u ontworpen.', 'Joaillière privée. Bijoux en diamants sur mesure, dessinés avec vous.', true),
-  'home.hero_shop': t('Homepage', 'First hero button', 'View the collection', 'Bekijk de collectie', 'Voir la collection'),
   'home.featured_eyebrow': t('Homepage', 'Selected pieces: small line', 'Selected pieces', 'Geselecteerde stukken', 'Pièces choisies'),
   'home.featured_title': t('Homepage', 'Selected pieces: heading', 'From the atelier', 'Uit het atelier', "De l'atelier"),
   'home.featured_link': t('Homepage', 'Selected pieces: link', 'See the whole collection', 'Bekijk de hele collectie', 'Voir toute la collection'),

@@ -268,4 +268,10 @@ export interface AppointmentRequest {
   locale: string;
   handled: boolean;
   created_at: string;
+  /** Set when the client picked a time in the booking calendar. */
+  starts_at?: string | null;
+  ends_at?: string | null;
+  status?: 'pending' | 'confirmed' | 'declined' | 'cancelled' | null;
+  decided_at?: string | null;
+  decision_note?: string | null;
 }

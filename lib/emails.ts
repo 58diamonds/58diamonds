@@ -1,4 +1,5 @@
 import 'server-only';
+import { formatWhen } from './booking';
 import { SITE_URL } from './config';
 import { formatPrice } from './format';
 import type { Locale } from './i18n';
@@ -127,4 +128,68 @@ export function adminNewRequest(r: Pick<AppointmentRequest, 'name' | 'email' | '
     .join('<br>');
   const html = layout(subject, `<p>${rows}</p>${r.message ? `<p>${nl2br(r.message)}</p>` : ''}${button(`${SITE_URL}/admin/requests`, 'Open requests')}`);
   return { subject, html, text: `${subject}\n${r.email ?? ''} ${r.phone ?? ''}\n${r.preferred_date ?? ''}\n\n${r.message}` };
+}
+
+/* Booking calendar ------------------------------------------------------- */
+
+type Booking = Pick<AppointmentRequest, 'name' | 'email' | 'phone' | 'message'> & { starts_at: string };
+
+const whenOf = (r: Booking, locale: Locale) => formatWhen(Date.parse(r.starts_at), locale);
+
+/** To the client right after booking: received, not yet confirmed. */
+export function bookingReceived(r: Booking, t: T, locale: Locale) {
+  const subject = t('email.booking_received_subject');
+  const body = t('email.booking_received', { when: whenOf(r, locale) });
+  const html = layout(subject, `<p>${nl2br(body)}</p><p>${nl2br(t('email.sign_off'))}</p>`);
+  return { subject, html, text: `${subject}\n\n${body}\n\n${t('email.sign_off')}` };
+}
+
+export function bookingConfirmed(r: Booking, t: T, locale: Locale, place: string, cancelUrl: string) {
+  const subject = t('email.booking_confirmed_subject');
+  const body = t('email.booking_confirmed', { when: whenOf(r, locale), address: place });
+  const html = layout(subject, `<p>${nl2br(body)}</p>${button(cancelUrl, t('email.booking_cancel'))}<p>${nl2br(t('email.sign_off'))}</p>`);
+  return { subject, html, text: `${subject}\n\n${body}\n\n${t('email.booking_cancel')}: ${cancelUrl}\n\n${t('email.sign_off')}` };
+}
+
+export function bookingDeclined(r: Booking, t: T, locale: Locale, note: string | null, bookUrl: string) {
+  const subject = t('email.booking_declined_subject');
+  const body = t('email.booking_declined', { when: whenOf(r, locale) });
+  const html = layout(subject, `<p>${nl2br(body)}</p>${note ? `<p style="padding:14px;background:#f8f5ef"><em>${nl2br(note)}</em></p>` : ''}${button(bookUrl, t('email.booking_choose'))}<p>${nl2br(t('email.sign_off'))}</p>`);
+  return { subject, html, text: `${subject}\n\n${body}${note ? `\n\n${note}` : ''}\n\n${bookUrl}\n\n${t('email.sign_off')}` };
+}
+
+export function bookingReminder(r: Booking, t: T, locale: Locale, place: string, cancelUrl: string) {
+  const subject = t('email.booking_reminder_subject');
+  const body = t('email.booking_reminder', { when: whenOf(r, locale), address: place });
+  const html = layout(subject, `<p>${nl2br(body)}</p>${button(cancelUrl, t('email.booking_cancel'))}<p>${nl2br(t('email.sign_off'))}</p>`);
+  return { subject, html, text: `${subject}\n\n${body}\n\n${cancelUrl}\n\n${t('email.sign_off')}` };
+}
+
+const bookingRows = (r: Booking) =>
+  [
+    ['When', formatWhen(Date.parse(r.starts_at), 'en')],
+    ['Email', r.email],
+    ['Phone', r.phone],
+  ]
+    .filter(([, v]) => v)
+    .map(([k, v]) => `<strong>${k}</strong>: ${esc(String(v))}`)
+    .join('<br>');
+
+/** To Farah: a client picked a time. Approve or decline in one tap. */
+export function adminNewBooking(r: Booking, decideUrl: string, reminder = false) {
+  const when = formatWhen(Date.parse(r.starts_at), 'en');
+  const subject = `${reminder ? 'Waiting for your answer: ' : ''}Appointment request from ${r.name}, ${when}`;
+  const wa = r.phone ? `https://wa.me/${r.phone.replace(/\D/g, '').replace(/^00/, '')}` : null;
+  const html = layout(
+    subject,
+    `<p>${bookingRows(r)}</p>${r.message ? `<p>${nl2br(r.message)}</p>` : ''}<p>The time is held in your "58 Diamonds requests" calendar until you answer.</p>${button(`${decideUrl}&action=approve`, 'Approve')}${button(`${decideUrl}&action=decline`, 'Decline')}${wa ? `<p><a href="${wa}" style="color:#8a6a3b">Message ${esc(r.name)} on WhatsApp</a></p>` : ''}`,
+  );
+  return { subject, html, text: `${subject}\n${r.email ?? ''} ${r.phone ?? ''}\n\n${r.message}\n\nApprove: ${decideUrl}&action=approve\nDecline: ${decideUrl}&action=decline` };
+}
+
+export function adminBookingCancelled(r: Booking) {
+  const when = formatWhen(Date.parse(r.starts_at), 'en');
+  const subject = `${r.name} cancelled the appointment of ${when}`;
+  const html = layout(subject, `<p>${bookingRows(r)}</p><p>The time is free again and has been removed from your calendar.</p>${button(`${SITE_URL}/admin/requests`, 'Open requests')}`);
+  return { subject, html, text: `${subject}\n${r.email ?? ''} ${r.phone ?? ''}` };
 }

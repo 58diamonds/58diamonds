@@ -13,7 +13,7 @@ export function WishlistView({ catalog }: { catalog: CatalogItem[] }) {
   const items = ids.map((id) => catalog.find((c) => c.id === id)).filter((c): c is CatalogItem => Boolean(c));
   return (
     <div className="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
-      <h1 className="font-display text-center text-5xl sm:text-6xl">{t('wishlist.title')}</h1>
+      <h1 className="page-title text-center">{t('wishlist.title')}</h1>
       {items.length === 0 ? (
         <div className="py-20 text-center">
           <p className="text-[var(--color-stone)]">{t('wishlist.empty')}</p>

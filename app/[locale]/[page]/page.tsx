@@ -34,7 +34,7 @@ export default async function CustomPage({ params }: Props) {
   const title = tr(page.title, locale);
   return (
     <article className="mx-auto max-w-6xl px-5 pt-16 sm:pt-20">
-      <h1 className="font-display text-center text-5xl sm:text-6xl">{title}</h1>
+      <h1 className="page-title text-center">{title}</h1>
       <div className={`mt-14 ${page.image_url ? 'grid gap-12 md:grid-cols-2 md:gap-20' : 'mx-auto max-w-2xl'}`}>
         {page.image_url && <Photo src={page.image_url} alt={title} eager className="aspect-[4/5] w-full" />}
         <div className="text-lg text-[var(--color-ink)]/90">

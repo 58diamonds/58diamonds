@@ -87,7 +87,7 @@ export default function HomeAdmin() {
 
         <Card title="Photos">
           <div className="flex flex-wrap gap-10">
-            <ImageField label="Big photo at the top" value={s.hero_image_url} onChange={(v) => setS({ ...s, hero_image_url: v })} folder="home" aspect="aspect-[3/2]" hint="Landscape, at least 2400 px wide. Keep the jewelry in the middle: phones show a narrower, taller part." />
+            <ImageField label="Big photo at the top" value={s.hero_image_url} onChange={(v) => setS({ ...s, hero_image_url: v })} folder="home" aspect="aspect-[3/2]" hint="Landscape, at least 2400 px wide. Keep the jewellery in the middle: phones show a narrower, taller part." />
             <ImageField label="About Farah" value={s.about_image_url} onChange={(v) => setS({ ...s, about_image_url: v })} folder="home" aspect="aspect-[9/14]" />
           </div>
         </Card>

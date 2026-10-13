@@ -236,6 +236,21 @@ describe('admin roles', () => {
     expect((await as(EDITOR, 'select admin_role() as r')).rows[0]).toEqual({ r: 'editor' });
   });
 
+  it('lets an editor change the homepage but not other settings, the Instagram token or admins', async () => {
+    await as(EDITOR, `update settings set hero_fit = 'whole' where id = 1`);
+    expect((await db.query<{ hero_fit: string }>('select hero_fit from settings where id = 1')).rows[0].hero_fit).toBe('whole');
+    await expect(as(EDITOR, `update settings set site_hidden = true where id = 1`)).rejects.toThrow();
+    await as(ADMIN, `update settings set site_hidden = true, hero_fit = 'cover' where id = 1`);
+    expect((await db.query<{ site_hidden: boolean }>('select site_hidden from settings where id = 1')).rows[0].site_hidden).toBe(true);
+    await as(ADMIN, `update settings set site_hidden = false where id = 1`);
+    await db.exec(`insert into app_settings (key, value) values ('instagram_token', 'secret')`);
+    expect((await as(EDITOR, 'select value from app_settings')).rows).toHaveLength(0);
+    expect((await as(ADMIN, 'select value from app_settings')).rows.length).toBeGreaterThan(0);
+    await as(ADMIN, `update admins set role = 'editor' where username = 'editor1'`);
+    await as(EDITOR, `update admins set role = 'owner' where username = 'editor1'`);
+    expect((await db.query<{ role: string }>(`select role from admins where username = 'editor1'`)).rows[0].role).toBe('editor');
+  });
+
   it('treats a blocked admin as nobody', async () => {
     expect((await as(BLOCKED, 'select is_admin() as a')).rows[0]).toEqual({ a: false });
     expect((await as(BLOCKED, 'select admin_role() as r')).rows[0]).toEqual({ r: null });

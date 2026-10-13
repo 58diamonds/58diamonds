@@ -27,8 +27,30 @@ create or replace function is_manager() returns boolean
     select exists (select 1 from admins where user_id = auth.uid() and not blocked and role in ('owner', 'admin'));
   $$;
 
+-- Adding, blocking and changing admins goes through the server (which checks
+-- who may touch whom), never straight from the browser.
 drop policy if exists "admins write" on admins;
-create policy "admins write" on admins for all using (is_manager()) with check (is_manager());
+
+-- The Instagram token: owners and admins only (editors use the server routes).
+drop policy if exists "app_settings admin" on app_settings;
+create policy "app_settings admin" on app_settings for all using (is_manager()) with check (is_manager());
+
+-- Editors may change the homepage and the Events/Press switches, nothing else
+-- in settings (contact details, VAT, site visibility, ...).
+create or replace function settings_editor_guard() returns trigger
+  language plpgsql security definer set search_path = public as $$
+  declare
+    allowed text[] := array['home_blocks', 'home_tiles', 'header_logo', 'hero_image_url', 'hero_fit', 'hero_focus', 'about_image_url', 'events_enabled', 'press_enabled', 'updated_at'];
+  begin
+    if auth.uid() is not null and not is_manager()
+       and (to_jsonb(new) - allowed) is distinct from (to_jsonb(old) - allowed) then
+      raise exception 'Only an owner or admin can change these settings.';
+    end if;
+    return new;
+  end;
+  $$;
+drop trigger if exists settings_editor_guard on settings;
+create trigger settings_editor_guard before update on settings for each row execute function settings_editor_guard();
 
 drop policy if exists "customers own" on customers;
 create policy "customers own" on customers for all

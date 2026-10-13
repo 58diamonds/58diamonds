@@ -33,7 +33,7 @@ export default function EventsAdmin() {
   }
 
   function create() {
-    router.push('/admin/events/new');
+    router.push('/events/new');
   }
 
   useNewFromLink(create, Boolean(events));
@@ -47,7 +47,7 @@ export default function EventsAdmin() {
     <ul className="mb-10 divide-y divide-[var(--color-line)] border border-[var(--color-line)] bg-white">
       {rows.map((e) => (
         <li key={e.id}>
-          <Link href={`/admin/events/${e.id}`} className="flex flex-wrap items-center gap-3 p-4 hover:bg-[var(--color-pearl)]">
+          <Link href={`/events/${e.id}`} className="flex flex-wrap items-center gap-3 p-4 hover:bg-[var(--color-pearl)]">
             <span className="flex-1">
               <span className="font-display block text-xl">{show(e.title)}</span>
               <span className="text-xs text-[var(--color-stone)]">

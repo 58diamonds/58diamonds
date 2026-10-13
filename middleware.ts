@@ -9,15 +9,27 @@ const under = (pathname: string, base: string) => pathname === base || pathname.
  * without one is sent to the visitor's language: the one they picked before
  * (remembered in a cookie), else their browser's, else English.
  *
+ * The admin lives on its own address, admin.58diamonds.com: there, /pieces
+ * shows the screen built at /admin/pieces. On the public site /admin does not
+ * exist.
+ *
  * While the shop is hidden (SHOP_LIVE), its addresses answer "not found".
  */
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (!SHOP_LIVE) {
-    if (SHOP_PATHS.api.some((p) => under(pathname, p))) return NextResponse.json({ error: 'not found' }, { status: 404 });
-    if (SHOP_PATHS.admin.some((p) => under(pathname, p))) return NextResponse.redirect(new URL('/admin', req.url));
+  if (!SHOP_LIVE && SHOP_PATHS.api.some((p) => under(pathname, p))) return NextResponse.json({ error: 'not found' }, { status: 404 });
+  if (pathname.startsWith('/api')) return NextResponse.next();
+
+  if ((req.headers.get('host') ?? '').startsWith('admin.')) {
+    if (under(pathname, '/admin')) return NextResponse.redirect(new URL(pathname.slice('/admin'.length) || '/', req.url));
+    const inner = `/admin${pathname === '/' ? '' : pathname}`;
+    if (!SHOP_LIVE && SHOP_PATHS.admin.some((p) => under(inner, p))) return NextResponse.redirect(new URL('/', req.url));
+    return NextResponse.rewrite(new URL(inner, req.url));
   }
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api')) return NextResponse.next();
+  if (under(pathname, '/admin')) {
+    const remembered = req.cookies.get('locale')?.value;
+    return NextResponse.rewrite(new URL(`/${isLocale(remembered) ? remembered : 'en'}/_not-found-shop`, req.url), { status: 404 });
+  }
 
   const [, first, second] = pathname.split('/');
   if (isLocale(first)) {

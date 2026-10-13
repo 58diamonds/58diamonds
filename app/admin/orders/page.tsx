@@ -54,7 +54,7 @@ export default function OrdersAdmin() {
         <ul className="divide-y divide-[var(--color-line)] border border-[var(--color-line)] bg-white">
           {shown.map((o) => (
             <li key={o.id}>
-              <Link href={`/admin/orders/${o.id}`} className="flex flex-wrap items-center gap-x-5 gap-y-1 p-4 hover:bg-[var(--color-pearl)]/50">
+              <Link href={`/orders/${o.id}`} className="flex flex-wrap items-center gap-x-5 gap-y-1 p-4 hover:bg-[var(--color-pearl)]/50">
                 <span className="font-display w-20 text-2xl">#{o.number}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate">{o.name || o.email || 'Not filled in yet'}</span>

@@ -62,7 +62,7 @@ export default function HomeAdmin() {
       <PageTitle title="Homepage" />
       <Help>
         The big photo at the top always comes first. Below it, choose which blocks show and in which order. The wording of every block is under{' '}
-        <Link href="/admin/texts?group=Homepage" className="underline underline-offset-4">Texts › Homepage</Link>.
+        <Link href="/texts?group=Homepage" className="underline underline-offset-4">Texts › Homepage</Link>.
       </Help>
 
       <div className="grid gap-6">

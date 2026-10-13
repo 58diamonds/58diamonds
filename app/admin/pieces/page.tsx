@@ -59,7 +59,7 @@ export default function PiecesAdmin() {
 
   function create() {
     const target = section !== 'all' && section !== 'none' ? section : sections[0]?.id;
-    router.push(`/admin/pieces/new${target ? `?section=${target}` : ''}`);
+    router.push(`/pieces/new${target ? `?section=${target}` : ''}`);
   }
 
   useNewFromLink(create, Boolean(pieces) && sections.length > 0);
@@ -94,10 +94,10 @@ export default function PiecesAdmin() {
             const stock = pieceStock(p);
             return (
               <li key={p.id} className={`flex items-center gap-4 p-3 ${p.visible ? '' : 'opacity-55'}`}>
-                <Link href={`/admin/pieces/${p.id}`} className="h-16 w-14 shrink-0 overflow-hidden bg-[var(--color-pearl)]">
+                <Link href={`/pieces/${p.id}`} className="h-16 w-14 shrink-0 overflow-hidden bg-[var(--color-pearl)]">
                   {p.piece_images[0] && <img src={p.piece_images[0].url} alt="" className="h-full w-full object-cover" />}
                 </Link>
-                <Link href={`/admin/pieces/${p.id}`} className="min-w-0 flex-1">
+                <Link href={`/pieces/${p.id}`} className="min-w-0 flex-1">
                   <span className="font-display block truncate text-xl">{show(p.title) || '(no title)'}</span>
                   <span className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-stone)]">
                     {p.price != null ? formatPrice(Number(p.price), 'EUR') : 'No price'}

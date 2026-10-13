@@ -2,7 +2,7 @@ import 'server-only';
 import { bookingLive, busyTimes, clearAgendaCache, getBookingConfig, getCalendars, saveCalendarRef } from './agenda';
 import { addDays, isFree, zonedDate, type BookingConfig } from './booking';
 import { deleteObject, ensureCalendar, icloudConfigured, newHref, putObject } from './caldav';
-import { SITE_URL } from './config';
+import { ADMIN_URL, SITE_URL } from './config';
 import { getSettings, getTexts } from './data';
 import { adminAddress, sendEmail } from './email';
 import { adminBookingCancelled, adminNewBooking, bookingConfirmed, bookingDeclined, bookingReceived } from './emails';
@@ -73,7 +73,7 @@ function eventFor(b: BookingRow, pending: boolean): EventInput {
     endDate: zonedDate(e),
     endTime: zonedClock(e),
     location: '',
-    notes: [b.phone, b.email, b.message, `${SITE_URL}/admin/requests`].filter(Boolean).join('\n'),
+    notes: [b.phone, b.email, b.message, `${ADMIN_URL}/requests`].filter(Boolean).join('\n'),
     repeat: 'none',
     alarmMin: pending ? null : 60,
   };

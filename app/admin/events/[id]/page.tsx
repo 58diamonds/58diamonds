@@ -31,7 +31,7 @@ export default function EventEditor() {
 
   useEffect(() => {
     (isNew ? Promise.resolve({ data: blankEvent() }) : db.from('events').select('*').eq('id', id).maybeSingle()).then(({ data }) => {
-      if (!data) return router.replace('/admin/events');
+      if (!data) return router.replace('/events');
       const row = data as EventItem;
       setEv(row);
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
@@ -62,22 +62,22 @@ export default function EventEditor() {
       };
       return isNew ? db.from('events').insert({ ...fields, id: ev!.id }) : db.from('events').update(fields).eq('id', id);
     });
-    if (ok && isNew) return router.replace(`/admin/events/${ev!.id}`);
+    if (ok && isNew) return router.replace(`/events/${ev!.id}`);
     if (ok) set({ slug: free });
   }
 
   async function remove() {
-    if (isNew) return router.replace('/admin/events');
+    if (isNew) return router.replace('/events');
     if (!(await askConfirm(`Delete “${show(ev!.title)}”? This cannot be undone.`))) return;
     const { error } = await db.from('events').delete().eq('id', id);
     if (error) return setState({ error: error.message });
     publish();
-    router.replace('/admin/events');
+    router.replace('/events');
   }
 
   return (
     <div>
-      <PageTitle title={show(ev.title) || (isNew ? 'New event' : 'Event')} back={{ href: '/admin/events', label: 'Events' }} />
+      <PageTitle title={show(ev.title) || (isNew ? 'New event' : 'Event')} back={{ href: '/events', label: 'Events' }} />
       <div className="grid gap-6">
         <Card title="Event">
           <div className="grid gap-5">
@@ -116,7 +116,7 @@ export default function EventEditor() {
         </Card>
       </div>
       {!isNew && <DeleteZone label="Delete this event" onDelete={remove} />}
-      <SaveBar state={state} onSave={save} back="/admin/events" />
+      <SaveBar state={state} onSave={save} back="/events" />
     </div>
   );
 }

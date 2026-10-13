@@ -75,7 +75,7 @@ export default function OrderAdmin() {
 
   return (
     <div>
-      <PageTitle title={`Order #${order.number}`} back={{ href: '/admin/orders', label: 'Orders' }}>
+      <PageTitle title={`Order #${order.number}`} back={{ href: '/orders', label: 'Orders' }}>
         <OrderStatusBadge status={order.status} />
       </PageTitle>
       {message && <p className="mb-5 border-l-2 border-[var(--color-gold)] bg-white p-3 text-sm">{message}</p>}

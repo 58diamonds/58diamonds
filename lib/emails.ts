@@ -1,6 +1,6 @@
 import 'server-only';
 import { formatWhen } from './booking';
-import { SITE_URL } from './config';
+import { ADMIN_URL, SITE_URL } from './config';
 import { formatPrice } from './format';
 import type { Locale } from './i18n';
 import { href } from './routes';
@@ -112,8 +112,8 @@ export function adminNewOrder(order: Order, items: OrderItem[], oversold: boolea
     : '';
   const list = items.map((i) => `${esc(i.title)}${i.variant ? ` (size ${esc(i.variant)})` : ''} × ${i.quantity}`).join('<br>');
   const gift = order.gift_wrap ? `<p><strong>Gift wrap</strong>${order.gift_message ? `<br>Card: “${nl2br(order.gift_message)}”` : ''}</p>` : '';
-  const html = layout(subject, `${warn}<p>${list}</p>${gift}<p><strong>Ship to</strong><br>${address(order)}<br>${esc(order.email)}${order.phone ? `<br>${esc(order.phone)}` : ''}</p>${button(`${SITE_URL}/admin/orders/${order.id}`, 'Open in admin')}`);
-  return { subject, html, text: `${subject}\n${items.map((i) => `${i.title} x${i.quantity}`).join('\n')}\n${SITE_URL}/admin/orders/${order.id}` };
+  const html = layout(subject, `${warn}<p>${list}</p>${gift}<p><strong>Ship to</strong><br>${address(order)}<br>${esc(order.email)}${order.phone ? `<br>${esc(order.phone)}` : ''}</p>${button(`${ADMIN_URL}/orders/${order.id}`, 'Open in admin')}`);
+  return { subject, html, text: `${subject}\n${items.map((i) => `${i.title} x${i.quantity}`).join('\n')}\n${ADMIN_URL}/orders/${order.id}` };
 }
 
 export function adminNewRequest(r: Pick<AppointmentRequest, 'name' | 'email' | 'phone' | 'preferred_date' | 'message'>) {
@@ -126,7 +126,7 @@ export function adminNewRequest(r: Pick<AppointmentRequest, 'name' | 'email' | '
     .filter(([, v]) => v)
     .map(([k, v]) => `<strong>${k}</strong>: ${esc(String(v))}`)
     .join('<br>');
-  const html = layout(subject, `<p>${rows}</p>${r.message ? `<p>${nl2br(r.message)}</p>` : ''}${button(`${SITE_URL}/admin/requests`, 'Open requests')}`);
+  const html = layout(subject, `<p>${rows}</p>${r.message ? `<p>${nl2br(r.message)}</p>` : ''}${button(`${ADMIN_URL}/requests`, 'Open requests')}`);
   return { subject, html, text: `${subject}\n${r.email ?? ''} ${r.phone ?? ''}\n${r.preferred_date ?? ''}\n\n${r.message}` };
 }
 
@@ -190,6 +190,6 @@ export function adminNewBooking(r: Booking, decideUrl: string, reminder = false)
 export function adminBookingCancelled(r: Booking) {
   const when = formatWhen(Date.parse(r.starts_at), 'en');
   const subject = `${r.name} cancelled the appointment of ${when}`;
-  const html = layout(subject, `<p>${bookingRows(r)}</p><p>The time is free again and has been removed from your calendar.</p>${button(`${SITE_URL}/admin/requests`, 'Open requests')}`);
+  const html = layout(subject, `<p>${bookingRows(r)}</p><p>The time is free again and has been removed from your calendar.</p>${button(`${ADMIN_URL}/requests`, 'Open requests')}`);
   return { subject, html, text: `${subject}\n${r.email ?? ''} ${r.phone ?? ''}` };
 }

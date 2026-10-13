@@ -3,42 +3,42 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { HAS_DATABASE, SHOP_LIVE } from '@/lib/config';
+import { HAS_DATABASE, SHOP_LIVE, SITE_URL } from '@/lib/config';
 import { getAdminDb } from '@/lib/supabase';
 import { AdminLogin } from './AdminLogin';
 import { ConfirmHost } from './confirm';
 
 const NAV: { group: string; items: { href: string; label: string }[] }[] = [
   { group: 'Website', items: [
-    { href: '/admin', label: 'Overview' },
-    { href: '/admin/home', label: 'Homepage' },
-    { href: '/admin/pages', label: 'Pages' },
-    { href: '/admin/menu', label: 'Menus' },
-    { href: '/admin/texts', label: 'Texts' },
-    { href: '/admin/events', label: 'Events' },
-    { href: '/admin/press', label: 'Press' },
-    { href: '/admin/instagram', label: 'Instagram' },
+    { href: '/', label: 'Overview' },
+    { href: '/home', label: 'Homepage' },
+    { href: '/pages', label: 'Pages' },
+    { href: '/menu', label: 'Menus' },
+    { href: '/texts', label: 'Texts' },
+    { href: '/events', label: 'Events' },
+    { href: '/press', label: 'Press' },
+    { href: '/instagram', label: 'Instagram' },
   ] },
   { group: 'Collection', items: [
-    { href: '/admin/pieces', label: 'Pieces' },
-    { href: '/admin/sections', label: 'Sections and filters' },
+    { href: '/pieces', label: 'Pieces' },
+    { href: '/sections', label: 'Sections and filters' },
   ] },
   // The shop screens exist but stay out of the menu until the shop goes live.
   ...(SHOP_LIVE
     ? [{ group: 'Shop', items: [
-        { href: '/admin/orders', label: 'Orders' },
-        { href: '/admin/clients', label: 'Clients' },
+        { href: '/orders', label: 'Orders' },
+        { href: '/clients', label: 'Clients' },
       ] }]
     : []),
   { group: 'Contact', items: [
-    { href: '/admin/requests', label: 'Appointment requests' },
-    { href: '/admin/agenda', label: 'Agenda' },
-    { href: '/admin/newsletter', label: 'Newsletter' },
+    { href: '/requests', label: 'Appointment requests' },
+    { href: '/agenda', label: 'Agenda' },
+    { href: '/newsletter', label: 'Newsletter' },
   ] },
   { group: 'Setup', items: [
-    { href: '/admin/settings', label: 'Settings' },
-    { href: '/admin/booking', label: 'Booking calendar' },
-    { href: '/admin/admins', label: 'Admins' },
+    { href: '/settings', label: 'Settings' },
+    { href: '/booking', label: 'Booking calendar' },
+    { href: '/admins', label: 'Admins' },
   ] },
 ];
 
@@ -100,7 +100,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const isActive = (href: string) => (href === '/admin' ? pathname === '/admin' : pathname.startsWith(href));
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   const nav = (
     <nav aria-label="Admin" className="space-y-7">
       {NAV.map((g) => (
@@ -127,19 +127,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="admin-ui min-h-svh bg-[var(--color-ivory)] lg:grid lg:grid-cols-[15.5rem_1fr]">
       <aside className="hidden border-r border-[var(--color-line)] bg-[var(--color-pearl)] px-4 py-7 lg:sticky lg:top-0 lg:block lg:h-svh lg:overflow-y-auto">
-        <Link href="/admin" className="mb-9 block px-3">
+        <Link href="/" className="mb-9 block px-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-ink.svg" alt="58 Diamonds" className="h-14 w-auto" />
         </Link>
         {nav}
         <div className="mt-10 space-y-2 px-3 text-[0.66rem] uppercase tracking-[0.22em] text-[var(--color-stone)]">
-          <a href="/" target="_blank" className="block hover:text-[var(--color-ink)]">View site ↗</a>
+          <a href={SITE_URL} target="_blank" className="block hover:text-[var(--color-ink)]">View site ↗</a>
           <button onClick={() => getAdminDb().auth.signOut()} className="block uppercase hover:text-[var(--color-ink)]">Sign out</button>
         </div>
       </aside>
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-pearl)] px-4 py-3 lg:hidden">
-        <Link href="/admin">
+        <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-ink.svg" alt="58 Diamonds" className="h-9 w-auto" />
         </Link>
@@ -151,7 +151,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="fixed inset-x-0 bottom-0 top-[3.85rem] z-30 overflow-y-auto bg-[var(--color-pearl)] px-4 py-6 lg:hidden">
           {nav}
           <div className="mt-8 flex gap-6 px-3 text-[0.66rem] uppercase tracking-[0.22em] text-[var(--color-stone)]">
-            <a href="/" target="_blank">View site ↗</a>
+            <a href={SITE_URL} target="_blank">View site ↗</a>
             <button onClick={() => getAdminDb().auth.signOut()} className="uppercase">Sign out</button>
           </div>
         </div>

@@ -49,8 +49,7 @@ export function NewsletterForm({ dark = false, source = 'home' }: { dark?: boole
           {t('newsletter.error')}
         </p>
       )}
-      <p className={`mt-3 text-xs leading-relaxed ${dark ? 'text-white/60' : 'text-[var(--color-stone)]'}`}>{t('newsletter.consent')}</p>
-      <PrivacyNote dark={dark} className="mt-1" />
+      <PrivacyNote dark={dark} className="mt-3" />
     </form>
   );
 }

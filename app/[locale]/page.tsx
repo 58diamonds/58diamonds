@@ -186,25 +186,16 @@ export default async function Home({ params }: Props) {
         <div className="mx-auto max-w-[85rem] px-4 sm:px-8">
           <p className="eyebrow">{t('home.contact_eyebrow')}</p>
           <h2 className="font-display mt-4 text-[clamp(1.75rem,3vw,2.5rem)] leading-tight">{t('home.contact_title')}</h2>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
-            {settings.company_address || settings.address ? (
-              <div>
-                <p className="label">{t('home.contact_showroom')}</p>
-                <p className="mt-2 whitespace-pre-line text-[1.3rem]">{(settings.address || settings.company_address || '').split('\n').filter((l) => !/^belgi/i.test(l.trim())).join('\n')}</p>
-              </div>
-            ) : null}
-            <div>
-              <p className="label">Instagram</p>
-              <a href={`https://www.instagram.com/${settings.instagram_handle}/`} target="_blank" rel="noreferrer" className="mt-2 block text-[1.3rem] hover:text-[var(--color-gold)]">
-                @{settings.instagram_handle}
-              </a>
-            </div>
-            <div>
-              <p className="label">{t('home.contact_visits')}</p>
-              <p className="mt-2 text-[1.3rem]">{t('footer.appointment')}</p>
-            </div>
-          </div>
-          <Link href={`${href.contact(locale)}#appointment`} className="btn btn-light mt-10">
+          <p className="mt-5 text-[1.15rem] text-[var(--color-stone)]">
+            {(settings.address || settings.company_address || '').split('\n').map((l) => l.trim()).filter((l) => l && !/^belgi/i.test(l)).join(', ') && (
+              <>
+                <span className="block md:inline">{(settings.address || settings.company_address || '').split('\n').map((l) => l.trim()).filter((l) => l && !/^belgi/i.test(l)).join(', ')}</span>
+                <span className="hidden md:inline"> · </span>
+              </>
+            )}
+            <span className="block md:inline">{t('footer.appointment')}</span>
+          </p>
+          <Link href={`${href.contact(locale)}#appointment`} className="btn btn-light mt-8">
             {t('nav.book')}
           </Link>
         </div>

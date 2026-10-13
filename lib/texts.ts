@@ -31,7 +31,7 @@ export const TEXTS = {
   'nav.bag': t('Header and footer', 'Shopping bag link', 'Bag', 'Winkeltas', 'Panier'),
   'nav.open_menu': t('Header and footer', 'Open menu (screen readers)', 'Open menu', 'Menu openen', 'Ouvrir le menu'),
   'nav.close_menu': t('Header and footer', 'Close menu (screen readers)', 'Close menu', 'Menu sluiten', 'Fermer le menu'),
-  'footer.tagline': t('Header and footer', 'Footer line under the logo', 'Private jeweler. Custom diamond jewelry, designed with you.', 'Private juwelier. Diamanten juwelen op maat, samen met u ontworpen.', 'Joaillière privée. Bijoux en diamants sur mesure, dessinés avec vous.', true),
+  'footer.tagline': t('Header and footer', 'Footer line under the logo', 'Private jeweller. Custom diamond jewellery, designed with you.', 'Private juwelier. Diamanten juwelen op maat, samen met u ontworpen.', 'Joaillière privée. Bijoux en diamants sur mesure, dessinés avec vous.', true),
   'footer.appointment': t('Header and footer', 'Footer appointment note', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
   'footer.contact': t('Header and footer', 'Footer contact heading', 'Contact', 'Contact', 'Contact'),
   'footer.follow': t('Header and footer', 'Footer social heading', 'Follow', 'Volg ons', 'Suivez-nous'),
@@ -41,7 +41,7 @@ export const TEXTS = {
 
   // Homepage
   'home.hero_eyebrow': t('Homepage', 'Line above the logo', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
-  'home.hero_subtitle': t('Homepage', 'Line under the logo', 'Private jeweler. Custom diamond jewelry, designed with you.', 'Private juwelier. Diamanten juwelen op maat, samen met u ontworpen.', 'Joaillière privée. Bijoux en diamants sur mesure, dessinés avec vous.', true),
+  'home.hero_subtitle': t('Homepage', 'Line under the logo', 'Private jeweller. Custom diamond jewellery, designed with you.', 'Private juwelier. Diamanten juwelen op maat, samen met u ontworpen.', 'Joaillière privée. Bijoux en diamants sur mesure, dessinés avec vous.', true),
   'home.hero_shop': t('Homepage', 'First hero button', 'View the collection', 'Bekijk de collectie', 'Voir la collection'),
   'home.featured_eyebrow': t('Homepage', 'Selected pieces: small line', 'Selected pieces', 'Geselecteerde stukken', 'Pièces choisies'),
   'home.featured_title': t('Homepage', 'Selected pieces: heading', 'From the atelier', 'Uit het atelier', "De l'atelier"),
@@ -61,11 +61,11 @@ export const TEXTS = {
   'home.scroll': t('Homepage', 'Under the big photo', 'Scroll to explore', 'Scroll om te ontdekken', 'Faites défiler'),
   'home.tiles_title': t('Homepage', 'Squares: heading (new line = line break)', 'Timeless pieces\nmade with love to carry with joy.', 'Tijdloze juwelen,\nmet liefde gemaakt om met vreugde te dragen.', 'Des bijoux intemporels,\nfaits avec amour pour être portés avec joie.', true),
   'home.house_eyebrow': t('Homepage', 'The house: small line', 'The house', 'Het huis', 'La maison'),
-  'home.house_title': t('Homepage', 'The house: heading', 'Fine jewelry from Antwerp, by private appointment.', 'Fijne juwelen uit Antwerpen, op privéafspraak.', 'Joaillerie fine d’Anvers, sur rendez-vous privé.'),
+  'home.house_title': t('Homepage', 'The house: heading', 'Fine jewellery from Antwerp, by private appointment.', 'Fijne juwelen uit Antwerpen, op privéafspraak.', 'Joaillerie fine d’Anvers, sur rendez-vous privé.'),
   'home.house1_title': t('Homepage', 'The house: 1st title', 'Made to order', 'Op maat gemaakt', 'Sur mesure'),
   'home.house1_text': t('Homepage', 'The house: 1st text', 'Every piece can be made for you: your stone, your metal, your size. Farah guides you from the first sketch to the final fitting.', 'Elk juweel kan voor u gemaakt worden: uw steen, uw metaal, uw maat. Farah begeleidt u van de eerste schets tot de laatste pasbeurt.', 'Chaque bijou peut être fait pour vous : votre pierre, votre métal, votre taille. Farah vous accompagne du premier croquis au dernier essayage.', true),
   'home.house2_title': t('Homepage', 'The house: 2nd title', 'Certified stones', 'Gecertificeerde stenen', 'Pierres certifiées'),
-  'home.house2_text': t('Homepage', 'The house: 2nd text', 'Farah is an HRD-certified gemologist. Each diamond is selected by hand in Antwerp, the heart of the diamond world.', 'Farah is HRD-gecertificeerd gemmoloog. Elke diamant wordt met de hand gekozen in Antwerpen, het hart van de diamantwereld.', 'Farah est gemmologue certifiée HRD. Chaque diamant est choisi à la main à Anvers, au cœur du monde du diamant.', true),
+  'home.house2_text': t('Homepage', 'The house: 2nd text', 'Farah is an HRD-certified gemmologist. Each diamond is selected by hand in Antwerp, the heart of the diamond world.', 'Farah is HRD-gecertificeerd gemmoloog. Elke diamant wordt met de hand gekozen in Antwerpen, het hart van de diamantwereld.', 'Farah est gemmologue certifiée HRD. Chaque diamant est choisi à la main à Anvers, au cœur du monde du diamant.', true),
   'home.house3_title': t('Homepage', 'The house: 3rd title', 'Private appointments', 'Privéafspraken', 'Rendez-vous privés'),
   'home.house3_text': t('Homepage', 'The house: 3rd text', 'Visit the showroom in Antwerp by appointment, or start the conversation on Instagram or WhatsApp.', 'Bezoek de showroom in Antwerpen op afspraak, of begin het gesprek op Instagram of WhatsApp.', 'Visitez le showroom à Anvers sur rendez-vous, ou commencez la conversation sur Instagram ou WhatsApp.', true),
   'home.contact_eyebrow': t('Homepage', 'Contact block: small line', 'Contact', 'Contact', 'Contact'),
@@ -76,8 +76,8 @@ export const TEXTS = {
   'home.events_title': t('Homepage', 'Events heading', 'Upcoming events', 'Komende evenementen', 'Événements à venir'),
 
   // Shop
-  'shop.eyebrow': t('Shop', 'Small line above the title', 'The collection', 'De collectie', 'La collection'),
-  'shop.title': t('Shop', 'Page title', 'Collection', 'Collectie', 'Collection'),
+  'shop.eyebrow': t('Shop', 'Page title (gold line)', 'The collection', 'De collectie', 'La collection'),
+  'shop.title': t('Shop', 'Name in the browser tab and Google', 'Collection', 'Collectie', 'Collection'),
   'shop.intro': t('Shop', 'Introduction', 'Every piece is designed and made with care. Pieces marked "Price on request" can be seen by appointment.', 'Elk juweel wordt met zorg ontworpen en gemaakt. Stukken met "Prijs op aanvraag" kunt u op afspraak bekijken.', 'Chaque bijou est dessiné et fabriqué avec soin. Les pièces "Prix sur demande" se découvrent sur rendez-vous.', true),
   'shop.all': t('Shop', 'Section: all', 'All', 'Alles', 'Tout'),
   'shop.filter': t('Shop', 'Filter button', 'Filter', 'Filter', 'Filtrer'),
@@ -202,9 +202,9 @@ export const TEXTS = {
   'press.read': t('Events and press', 'Read article link', 'Read the article', 'Lees het artikel', "Lire l'article"),
 
   // Contact
-  'contact.eyebrow': t('Contact', 'Small line above the title', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
-  'contact.title': t('Contact', 'Page title', 'Book an appointment', 'Maak een afspraak', 'Prendre rendez-vous'),
-  'contact.intro': t('Contact', 'Introduction', 'Tell us a little about what you are looking for and when suits you. We will get back to you to confirm.', 'Vertel ons kort wat u zoekt en wanneer het u past. We nemen contact op om te bevestigen.', 'Dites-nous en quelques mots ce que vous cherchez et quand cela vous convient. Nous revenons vers vous pour confirmer.', true),
+  'contact.eyebrow': t('Contact', 'Page title (gold line)', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
+  'contact.title': t('Contact', 'Name in the browser tab and Google', 'Book an appointment', 'Maak een afspraak', 'Prendre rendez-vous'),
+  'contact.intro': t('Contact', 'Introduction', 'Tell us a little about what you are looking for and when you would like to visit. We will be in touch to confirm.', 'Vertel ons kort wat u zoekt en wanneer u graag langskomt. We nemen contact met u op om te bevestigen.', 'Dites-nous en quelques mots ce que vous recherchez et quand vous aimeriez passer. Nous vous recontacterons pour confirmer.', true),
   'contact.or': t('Contact', 'Other ways heading', 'Or reach us directly', 'Of contacteer ons rechtstreeks', 'Ou contactez-nous directement'),
   'form.name': t('Contact', 'Form: name', 'Name', 'Naam', 'Nom'),
   'form.email': t('Contact', 'Form: email', 'Email', 'E-mail', 'E-mail'),
@@ -271,8 +271,8 @@ export const TEXTS = {
   'notfound.text': t('Other', 'Page not found: text', 'This page does not exist, or no longer does.', 'Deze pagina bestaat niet, of niet meer.', "Cette page n'existe pas, ou plus.", true),
   'common.home': t('Other', 'Back to homepage', 'Back to the homepage', 'Terug naar de homepage', "Retour à l'accueil"),
   'common.loading': t('Other', 'Loading', 'One moment...', 'Even geduld...', 'Un instant...'),
-  'seo.home_title': t('Search engines', 'Homepage title in Google', '58 Diamonds by Farah | Private jeweler', '58 Diamonds by Farah | Private juwelier', '58 Diamonds by Farah | Joaillière privée'),
-  'seo.home_description': t('Search engines', 'Homepage description in Google', 'Custom diamond jewelry by Farah, HRD-certified gemologist. Engagement rings, rings, necklaces, earrings and bracelets. By appointment.', 'Diamanten juwelen op maat door Farah, HRD-gecertificeerd gemmoloog. Verlovingsringen, ringen, halskettingen, oorbellen en armbanden. Op afspraak.', 'Bijoux en diamants sur mesure par Farah, gemmologue certifiée HRD. Bagues de fiançailles, bagues, colliers, boucles d’oreilles et bracelets. Sur rendez-vous.', true),
+  'seo.home_title': t('Search engines', 'Homepage title in Google', '58 Diamonds by Farah | Private jeweller', '58 Diamonds by Farah | Private juwelier', '58 Diamonds by Farah | Joaillière privée'),
+  'seo.home_description': t('Search engines', 'Homepage description in Google', 'Custom diamond jewellery by Farah, HRD-certified gemmologist. Engagement rings, rings, necklaces, earrings and bracelets. By appointment.', 'Diamanten juwelen op maat door Farah, HRD-gecertificeerd gemmoloog. Verlovingsringen, ringen, halskettingen, oorbellen en armbanden. Op afspraak.', 'Bijoux en diamants sur mesure par Farah, gemmologue certifiée HRD. Bagues de fiançailles, bagues, colliers, boucles d’oreilles et bracelets. Sur rendez-vous.', true),
   'seo.shop_description': t('Search engines', 'Collection description in Google', 'Discover the 58 Diamonds collection: diamond rings, necklaces, earrings and bracelets, made with care.', 'Ontdek de collectie van 58 Diamonds: diamanten ringen, halskettingen, oorbellen en armbanden, met zorg gemaakt.', 'Découvrez la collection 58 Diamonds : bagues, colliers, boucles d’oreilles et bracelets en diamants, faits avec soin.', true),
 } satisfies Record<string, TextDef>;
 

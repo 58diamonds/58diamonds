@@ -40,9 +40,6 @@ export const TEXTS = {
   'footer.vat': t('Header and footer', 'VAT label before the number', 'VAT', 'BTW', 'TVA'),
 
   // Homepage
-  'home.hero_eyebrow': t('Homepage', 'Line above the logo', 'By appointment only', 'Enkel op afspraak', 'Uniquement sur rendez-vous'),
-  'home.hero_subtitle': t('Homepage', 'Line under the logo', 'Private jeweller. Custom diamond jewellery, designed with you.', 'Private juwelier. Diamanten juwelen op maat, samen met u ontworpen.', 'Joaillière privée. Bijoux en diamants sur mesure, dessinés avec vous.', true),
-  'home.hero_shop': t('Homepage', 'First hero button', 'View the collection', 'Bekijk de collectie', 'Voir la collection'),
   'home.featured_eyebrow': t('Homepage', 'Selected pieces: small line', 'Selected pieces', 'Geselecteerde stukken', 'Pièces choisies'),
   'home.featured_title': t('Homepage', 'Selected pieces: heading', 'From the atelier', 'Uit het atelier', "De l'atelier"),
   'home.featured_link': t('Homepage', 'Selected pieces: link', 'See the whole collection', 'Bekijk de hele collectie', 'Voir toute la collection'),
@@ -148,6 +145,8 @@ export const TEXTS = {
   'account.sign_out': t('Client account', 'Sign out', 'Sign out', 'Afmelden', 'Se déconnecter'),
   'account.email': t('Client account', 'Email', 'Email', 'E-mail', 'E-mail'),
   'account.password': t('Client account', 'Password', 'Password', 'Wachtwoord', 'Mot de passe'),
+  'account.show_password': t('Client account', 'Eye button: show password', 'Show password', 'Wachtwoord tonen', 'Afficher le mot de passe'),
+  'account.hide_password': t('Client account', 'Eye button: hide password', 'Hide password', 'Wachtwoord verbergen', 'Masquer le mot de passe'),
   'account.name': t('Client account', 'Name', 'Full name', 'Volledige naam', 'Nom complet'),
   'account.phone': t('Client account', 'Phone', 'Phone', 'Telefoon', 'Téléphone'),
   'account.forgot': t('Client account', 'Forgot password link', 'Forgot your password?', 'Wachtwoord vergeten?', 'Mot de passe oublié ?'),
@@ -257,7 +256,7 @@ export const TEXTS = {
   'newsletter.check_email': t('Newsletter', 'After signing up: check your inbox', 'Almost done: please confirm with the link we just emailed you.', 'Bijna klaar: bevestig met de link die we u net mailden.', "Presque terminé : confirmez avec le lien que nous venons de vous envoyer."),
   'newsletter.consent': t('Newsletter', 'Consent line under the field', 'By subscribing you agree to receive our news by email. You can unsubscribe at any time.', 'Met uw inschrijving gaat u akkoord om ons nieuws per e-mail te ontvangen. U kunt zich altijd uitschrijven.', "En vous inscrivant, vous acceptez de recevoir nos nouvelles par e-mail. Vous pouvez vous désinscrire à tout moment."),
   'newsletter.unsubscribed': t('Newsletter', 'Unsubscribed message', 'You have been unsubscribed.', 'U bent uitgeschreven.', 'Vous êtes désinscrit(e).'),
-  'invoice.trade_name': t('Invoice', 'Bottom line ({company}, {name}, {vat} come from Settings)', '{company} is a trade name of {name}, sole trader · Enterprise no. / VAT {vat}', '{company} is een handelsnaam van {name}, eenmanszaak · Ondernemingsnr. / btw {vat}', "{company} est un nom commercial de {name}, entreprise individuelle · N° d'entreprise / TVA {vat}"),
+  'invoice.trade_name': t('Invoices', 'Bottom line ({company}, {name}, {vat} come from Settings)', '{company} is a trade name of {name}, sole trader · Enterprise no. / VAT {vat}', '{company} is een handelsnaam van {name}, eenmanszaak · Ondernemingsnr. / btw {vat}', "{company} est un nom commercial de {name}, entreprise individuelle · N° d'entreprise / TVA {vat}"),
   'invoice.title': t('Invoices', 'Invoice heading', 'Invoice', 'Factuur', 'Facture'),
   'invoice.download': t('Invoices', 'Download link', 'Download invoice (PDF)', 'Factuur downloaden (PDF)', 'Télécharger la facture (PDF)'),
   'invoice.vat_included': t('Invoices', 'VAT line', 'of which VAT', 'waarvan btw', 'dont TVA'),

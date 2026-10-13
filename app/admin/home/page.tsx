@@ -83,6 +83,9 @@ export default function HomeAdmin() {
               </button>
             ))}
           </div>
+          <div className="mt-5">
+            <Toggle label="Show PRIVATE JEWELLER under the logo" checked={s.private_jeweller === true} onChange={(v) => setS({ ...s, private_jeweller: v })} hint="In the logo's colour, on every page and on the logo-only page." />
+          </div>
         </Card>
 
         <Card title="Photos">
@@ -212,7 +215,7 @@ export default function HomeAdmin() {
 
       <SaveBar
         state={state}
-        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, hero_image_url: s.hero_image_url, hero_fit: s.hero_fit ?? 'cover', hero_focus: s.hero_focus ?? '50% 40%', about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
+        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, private_jeweller: s.private_jeweller === true, hero_image_url: s.hero_image_url, hero_fit: s.hero_fit ?? 'cover', hero_focus: s.hero_focus ?? '50% 40%', about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
       />
     </div>
   );

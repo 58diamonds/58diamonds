@@ -4,9 +4,9 @@ import { getSettings } from '@/lib/data';
 export const revalidate = 300;
 
 const LOGOS: Record<string, string> = {
-  ink: '/brand/logo-ink.svg',
-  black: '/brand/logo-black.svg',
-  'brown-gold': '/brand/logo-brown-gold.svg',
+  ink: '/brand/logo-ink.svg?v=3',
+  black: '/brand/logo-black.svg?v=3',
+  'brown-gold': '/brand/logo-brown-gold.svg?v=3',
 };
 
 /** What the public sees while the site is hidden (Admin > Settings): only the logo. */

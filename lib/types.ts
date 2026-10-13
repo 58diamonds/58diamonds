@@ -54,6 +54,8 @@ export interface Settings {
   home_blocks: HomeBlock[];
   home_tiles: HomeTile[];
   header_logo: HeaderLogo;
+  /** Show PRIVATE JEWELLER under the header logo. */
+  private_jeweller: boolean;
 }
 
 export interface Page {

@@ -32,17 +32,8 @@ export default function EventsAdmin() {
     publish();
   }
 
-  async function create() {
-    const start = new Date();
-    start.setDate(start.getDate() + 14);
-    start.setHours(18, 0, 0, 0);
-    const { data, error } = await db
-      .from('events')
-      .insert({ slug: `event-${Date.now().toString(36)}`, title: { en: 'New event' }, starts_at: start.toISOString(), published: false })
-      .select('id')
-      .single();
-    if (error) return window.alert(error.message);
-    router.push(`/admin/events/${data.id}`);
+  function create() {
+    router.push('/admin/events/new');
   }
 
   useNewFromLink(create, Boolean(events));

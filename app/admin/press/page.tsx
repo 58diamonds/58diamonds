@@ -2,10 +2,11 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, Button, Card, FileField, Help, ImageField, L10nField, Loading, PageTitle, SaveState, TextField, Toggle, UpDown, inputCls, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, FormActions, FileField, Help, ImageField, L10nField, Loading, PageTitle, TextField, Toggle, UpDown, inputCls, show, useSave } from '@/components/admin/ui';
 import { move, publish, saveOrder } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { PressArticle } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 /**
  * Articles about the brand. The Press tab shows only when it is switched on
@@ -110,25 +111,23 @@ export default function PressAdmin() {
             <ImageField label="Photo" value={edit.image_url} onChange={(image_url) => setEdit({ ...edit, image_url })} folder="press" aspect="aspect-[4/5]" hint="The cover or a page of the article." />
             <Toggle label="Published" checked={edit.published} onChange={(published) => setEdit({ ...edit, published })} />
           </div>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button tone="dark" onClick={save}>Save</Button>
-            <Button onClick={() => setEdit(null)}>Cancel</Button>
-            {edit.id && (
-              <Button
-                tone="danger"
-                onClick={async () => {
-                  if (!window.confirm('Delete this article?')) return;
-                  await db.from('press_articles').delete().eq('id', edit.id);
-                  publish();
-                  setEdit(null);
-                  load();
-                }}
-              >
-                Delete
-              </Button>
-            )}
-            <SaveState state={state} />
-          </div>
+          <FormActions
+            state={state}
+            onSave={save}
+            onCancel={() => setEdit(null)}
+            deleteLabel="Delete this article"
+            onDelete={
+              edit.id
+                ? async () => {
+                    if (!(await askConfirm('Delete this article?'))) return;
+                    await db.from('press_articles').delete().eq('id', edit.id);
+                    publish();
+                    setEdit(null);
+                    load();
+                  }
+                : undefined
+            }
+          />
         </Card>
       )}
     </div>

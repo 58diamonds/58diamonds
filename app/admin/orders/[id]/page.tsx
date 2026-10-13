@@ -10,6 +10,7 @@ import { CARRIERS, trackingUrl } from '@/lib/carriers';
 import { formatDate, formatPrice } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
 import type { Order, OrderItem, OrderStatus } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 type Full = Order & { order_items: OrderItem[]; stripe_payment_intent: string | null };
 
@@ -178,7 +179,7 @@ export default function OrderAdmin() {
               {(['processing', 'shipped', 'delivered', 'refunded', 'cancelled'] as OrderStatus[])
                 .filter((s) => s !== order.status && order.status !== 'pending')
                 .map((s) => (
-                  <Button key={s} disabled={busy} onClick={() => window.confirm(`Set this order to “${STATUS_LABEL[s]}”?`) && setStatus(s)}>
+                  <Button key={s} disabled={busy} onClick={async () => (await askConfirm(`Set this order to “${STATUS_LABEL[s]}”?`)) && setStatus(s)}>
                     {STATUS_LABEL[s]}
                   </Button>
                 ))}

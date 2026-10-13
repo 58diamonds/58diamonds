@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable @next/next/no-img-element */
-import { SHOP_LIVE } from '@/lib/config';
+import { SHOP_LIVE, SITE_URL } from '@/lib/config';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -60,7 +60,7 @@ export default function PieceEditor() {
         db.from('sections').select('*').order('position'),
         db.from('attributes').select('*').order('position'),
       ]);
-      if (!isNew && !p.data) return router.replace('/admin/pieces');
+      if (!isNew && !p.data) return router.replace('/pieces');
       const row = (p.data as Piece | null) ?? blankPiece(new URLSearchParams(window.location.search).get('section') || (s.data?.[0]?.id as string | undefined) || null);
       setPiece({ ...row, price: row.price == null ? null : Number(row.price), weight_g: row.weight_g == null ? null : Number(row.weight_g) });
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.visible && row.slug === slugify(row.title.en ?? '')));
@@ -144,7 +144,7 @@ export default function PieceEditor() {
       removed.current = { images: [], variants: [] };
       return { error: null };
     });
-    if (ok && isNew) return router.replace(`/admin/pieces/${p.id}`);
+    if (ok && isNew) return router.replace(`/pieces/${p.id}`);
     if (ok) {
       set({ slug });
       setImages((xs) => xs.map((x) => ({ ...x, isNew: false })));
@@ -159,12 +159,12 @@ export default function PieceEditor() {
   }
 
   async function remove() {
-    if (isNew) return router.replace('/admin/pieces');
+    if (isNew) return router.replace('/pieces');
     if (!(await askConfirm('Delete this piece for good? Orders that contain it keep their copy of its name and price.'))) return;
     const { error } = await db.from('pieces').delete().eq('id', piece!.id);
     if (error) return setState({ error: `The piece could not be deleted: ${error.message}` });
     publish();
-    router.replace('/admin/pieces');
+    router.replace('/pieces');
   }
 
   const metals = attrs.filter((a) => a.kind === 'metal');
@@ -173,9 +173,9 @@ export default function PieceEditor() {
 
   return (
     <div>
-      <PageTitle title={show(piece.title) || (isNew ? 'New piece' : 'Piece')} back={{ href: '/admin/pieces', label: 'Pieces' }}>
+      <PageTitle title={show(piece.title) || (isNew ? 'New piece' : 'Piece')} back={{ href: '/pieces', label: 'Pieces' }}>
         {!isNew && (
-          <a href={`/en/piece/${piece.slug}`} target="_blank" rel="noreferrer" className="self-center text-xs uppercase tracking-[0.16em] underline underline-offset-4">
+          <a href={`${SITE_URL}/en/piece/${piece.slug}`} target="_blank" rel="noreferrer" className="self-center text-xs uppercase tracking-[0.16em] underline underline-offset-4">
             View on site ↗
           </a>
         )}
@@ -385,7 +385,7 @@ export default function PieceEditor() {
       </div>
 
       {!isNew && <DeleteZone label="Delete this piece" onDelete={remove} />}
-      <SaveBar state={state} onSave={save} back="/admin/pieces" />
+      <SaveBar state={state} onSave={save} back="/pieces" />
     </div>
   );
 }

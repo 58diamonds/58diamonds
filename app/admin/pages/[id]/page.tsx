@@ -7,6 +7,7 @@ import { freeSlug, publish } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { isPlaceholderSlug } from '@/lib/slug';
 import { RESERVED_SLUGS } from '@/lib/routes';
+import { SITE_URL } from '@/lib/config';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, Page } from '@/lib/types';
 import { askConfirm } from '@/components/admin/confirm';
@@ -32,7 +33,7 @@ export default function PageEditor() {
       isNew ? Promise.resolve(blank) : db.from('pages').select('*').eq('id', id).maybeSingle(),
       isNew ? Promise.resolve({ data: [] }) : db.from('menu_items').select('*').eq('page_id', id),
     ]).then(([p, m]) => {
-      if (!p.data) return router.replace('/admin/pages');
+      if (!p.data) return router.replace('/pages');
       const row = p.data as Page;
       setPage(row);
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.published && row.slug === slugify(row.title.en ?? '')));
@@ -63,7 +64,7 @@ export default function PageEditor() {
       };
       return isNew ? db.from('pages').insert({ ...fields, id: page!.id }) : db.from('pages').update(fields).eq('id', id);
     });
-    if (ok && isNew) return router.replace(`/admin/pages/${page!.id}`);
+    if (ok && isNew) return router.replace(`/pages/${page!.id}`);
     if (ok) set({ slug: free });
   }
 
@@ -81,19 +82,19 @@ export default function PageEditor() {
   }
 
   async function remove() {
-    if (isNew) return router.replace('/admin/pages');
+    if (isNew) return router.replace('/pages');
     if (!(await askConfirm(`Delete the page “${show(page!.title)}”? It also leaves the menus. This cannot be undone.`))) return;
     const { error } = await db.from('pages').delete().eq('id', id);
     if (error) return setState({ error: error.message });
     publish();
-    router.replace('/admin/pages');
+    router.replace('/pages');
   }
 
   return (
     <div>
-      <PageTitle title={show(page.title) || (isNew ? 'New page' : 'Page')} back={{ href: '/admin/pages', label: 'Pages' }}>
+      <PageTitle title={show(page.title) || (isNew ? 'New page' : 'Page')} back={{ href: '/pages', label: 'Pages' }}>
         {page.published && (
-          <a href={`/en/${slug}`} target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
+          <a href={`${SITE_URL}/en/${slug}`} target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
             View on the site
           </a>
         )}
@@ -148,7 +149,7 @@ export default function PageEditor() {
       </div>
 
       {!isNew && <DeleteZone label="Delete this page" onDelete={remove} />}
-      <SaveBar state={state} onSave={save} back="/admin/pages" />
+      <SaveBar state={state} onSave={save} back="/pages" />
     </div>
   );
 }

@@ -38,6 +38,9 @@ export const TEXTS = {
   'footer.enterprise': t('Header and footer', 'Enterprise number label before the number', 'Enterprise no.', 'Ondernemingsnr.', "N° d'entreprise"),
   'footer.rights': t('Header and footer', 'Copyright line', 'All rights reserved.', 'Alle rechten voorbehouden.', 'Tous droits réservés.'),
   'footer.vat': t('Header and footer', 'VAT label before the number', 'VAT', 'BTW', 'TVA'),
+  'footer.client_care': t('Header and footer', 'Footer section with contact links', 'Client care', 'Klantendienst', 'Service client'),
+  'footer.legal': t('Header and footer', 'Footer section with legal pages and company details', 'Legal notice', 'Wettelijke vermeldingen', 'Mentions légales'),
+  'footer.trade_name': t('Header and footer', 'Legal notice line ({company} and {name} come from Settings)', '{company} is a trade name of {name}, sole trader.', '{company} is een handelsnaam van {name}, eenmanszaak.', "{company} est un nom commercial de {name}, entreprise individuelle."),
 
   // Homepage
   'home.featured_eyebrow': t('Homepage', 'Selected pieces: small line', 'Selected pieces', 'Geselecteerde stukken', 'Pièces choisies'),

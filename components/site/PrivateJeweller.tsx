@@ -1,9 +1,21 @@
 import type { HeaderLogo } from '@/lib/types';
 
-/** The PRIVATE JEWELLER line under the logo, set like the menu (Admin > Homepage). */
-export function PrivateJeweller({ className = '' }: { logo?: HeaderLogo; className?: string }) {
+const COLOUR: Record<HeaderLogo, React.CSSProperties> = {
+  ink: { color: '#38302A' },
+  black: { color: '#000000' },
+  // The same soft gold as the 58 DIAMONDS wordmark.
+  'brown-gold': {
+    backgroundImage: 'linear-gradient(135deg, #8C6A3A 0%, #B99A66 28%, #9C7B48 50%, #BFA06C 72%, #8E6C3C 100%)',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent',
+  },
+};
+
+/** The PRIVATE JEWELLER line under the logo: menu lettering, wordmark colour (Admin > Homepage). */
+export function PrivateJeweller({ logo, className = '' }: { logo: HeaderLogo; className?: string }) {
   return (
-    <span className={`block whitespace-nowrap text-center font-sans uppercase tracking-[0.26em] text-[var(--color-ink)] ${className}`}>
+    <span className={`block whitespace-nowrap text-center font-sans uppercase tracking-[0.26em] ${className}`} style={COLOUR[logo] ?? COLOUR.ink}>
       Private jeweller
     </span>
   );

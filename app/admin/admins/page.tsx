@@ -8,6 +8,7 @@ import { PASSWORD_RULE, passwordProblem } from '@/lib/password';
 import { canManage, isRole, ROLE_HELP, ROLE_LABEL, ROLES, type AdminRole } from '@/lib/roles';
 import { getAdminDb } from '@/lib/supabase';
 import { askConfirm } from '@/components/admin/confirm';
+import { PasswordInput } from '@/components/PasswordInput';
 
 interface Admin {
   user_id: string;
@@ -37,6 +38,7 @@ export default function AdminsAdmin() {
   const [pw, setPw] = useState({ next: '', again: '' });
   const [pwMsg, setPwMsg] = useState<Msg>(null);
   const [listMsg, setListMsg] = useState<Msg>(null);
+  const [reset, setReset] = useState<{ userId: string; password: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -119,13 +121,7 @@ export default function AdminsAdmin() {
                       </select>
                       <Button
                         disabled={busy}
-                        onClick={() => {
-                          const password = window.prompt(`New password for ${a.username}. ${PASSWORD_RULE}`);
-                          if (!password) return;
-                          const weak = passwordProblem(password);
-                          if (weak) return setListMsg({ ok: false, text: weak });
-                          call({ action: 'set-password', userId: a.user_id, password }, `${a.username} can sign in with the new password. Give it to them in person.`, setListMsg);
-                        }}
+                        onClick={() => setReset({ userId: a.user_id, password: '' })}
                       >
                         New password
                       </Button>
@@ -151,6 +147,33 @@ export default function AdminsAdmin() {
                         Remove
                       </Button>
                     </>
+                  )}
+                  {reset?.userId === a.user_id && (
+                    <span className="flex w-full flex-wrap items-center gap-3">
+                      <span className="min-w-56 flex-1">
+                        <PasswordInput
+                          aria-label={`New password for ${a.username}`}
+                          value={reset.password}
+                          autoComplete="new-password"
+                          autoFocus
+                          onChange={(e) => setReset({ ...reset, password: e.target.value })}
+                          className="min-h-10 w-full border border-[var(--color-line)] bg-white px-3"
+                        />
+                        <span className="mt-1 block text-xs text-[var(--color-stone)]">{PASSWORD_RULE} Give it to them in person.</span>
+                      </span>
+                      <Button
+                        tone="dark"
+                        disabled={busy}
+                        onClick={async () => {
+                          const weak = passwordProblem(reset.password);
+                          if (weak) return setListMsg({ ok: false, text: weak });
+                          if (await call({ action: 'set-password', userId: a.user_id, password: reset.password }, `${a.username} can sign in with the new password. Give it to them in person.`, setListMsg)) setReset(null);
+                        }}
+                      >
+                        Save
+                      </Button>
+                      <Button disabled={busy} onClick={() => setReset(null)}>Cancel</Button>
+                    </span>
                   )}
                 </li>
               );

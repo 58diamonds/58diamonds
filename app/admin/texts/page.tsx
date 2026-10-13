@@ -109,8 +109,8 @@ function Texts() {
                   <div key={l}>
                     <span className="flex items-baseline justify-between gap-2">
                       <span className="text-[0.65rem] uppercase tracking-[0.16em] text-[var(--color-stone)]">{LOCALE_NAMES[l]}</span>
-                      {/* Only once that language has been rewritten here: every text already comes in all three. */}
-                      {draft[k] && draft[k][l] !== { ...TEXTS[k].value, ...strip(saved[k]) }[l] && (
+                      {/* From English at any time; from Dutch or French once rewritten here. */}
+                      {(l === 'en' || (draft[k] && draft[k][l] !== { ...TEXTS[k].value, ...strip(saved[k]) }[l])) && (
                         <TranslateButton value={v} from={l} onChange={(t) => setDraft({ ...draft, [k]: t })} />
                       )}
                     </span>

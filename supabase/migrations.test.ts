@@ -83,6 +83,13 @@ describe('public visitors', () => {
     expect((await as(null, 'select * from appointment_requests')).rows).toHaveLength(0);
   });
 
+  it('cannot book a time directly or read the booking settings', async () => {
+    await expect(as(null, `insert into appointment_requests (name, email, status, starts_at) values ('Ana', 'ana@example.com', 'confirmed', now())`)).rejects.toThrow();
+    expect((await as(null, 'select * from booking_settings')).rows).toHaveLength(0);
+    expect((await as(STRANGER, 'select * from booking_settings')).rows).toHaveLength(0);
+    expect((await as(ADMIN, 'select * from booking_settings')).rows).toHaveLength(1);
+  });
+
   it('cannot send a request with no way to reply', async () => {
     await expect(as(null, `insert into appointment_requests (name) values ('Ana')`)).rejects.toThrow();
   });

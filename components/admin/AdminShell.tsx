@@ -31,10 +31,12 @@ const NAV: { group: string; items: { href: string; label: string }[] }[] = [
     : []),
   { group: 'Contact', items: [
     { href: '/admin/requests', label: 'Appointment requests' },
+    { href: '/admin/agenda', label: 'Agenda' },
     { href: '/admin/newsletter', label: 'Newsletter' },
   ] },
   { group: 'Setup', items: [
     { href: '/admin/settings', label: 'Settings' },
+    { href: '/admin/booking', label: 'Booking calendar' },
     { href: '/admin/admins', label: 'Admins' },
   ] },
 ];

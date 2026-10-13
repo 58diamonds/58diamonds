@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { SHOP_LIVE, SHOP_PATHS } from './lib/config';
 import { isLocale, negotiateLocale } from './lib/i18n';
+import { PREVIEW_COOKIE, PREVIEW_PARAM, isSiteHidden, previewToken } from './lib/preview';
 
 const under = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`);
 
@@ -14,8 +15,11 @@ const under = (pathname: string, base: string) => pathname === base || pathname.
  * exist.
  *
  * While the shop is hidden (SHOP_LIVE), its addresses answer "not found".
+ *
+ * While the whole site is hidden (Admin > Settings), every public address shows
+ * only the logo, except for people who opened the private preview link.
  */
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (!SHOP_LIVE && SHOP_PATHS.api.some((p) => under(pathname, p))) return NextResponse.json({ error: 'not found' }, { status: 404 });
   if (pathname.startsWith('/api')) return NextResponse.next();
@@ -25,6 +29,22 @@ export function middleware(req: NextRequest) {
     const inner = `/admin${pathname === '/' ? '' : pathname}`;
     if (!SHOP_LIVE && SHOP_PATHS.admin.some((p) => under(inner, p))) return NextResponse.redirect(new URL('/', req.url));
     return NextResponse.rewrite(new URL(inner, req.url));
+  }
+  if (await isSiteHidden()) {
+    const token = await previewToken();
+    const given = req.nextUrl.searchParams.get(PREVIEW_PARAM);
+    if (token && given === token) {
+      const url = req.nextUrl.clone();
+      url.searchParams.delete(PREVIEW_PARAM);
+      const res = NextResponse.redirect(url);
+      res.cookies.set(PREVIEW_COOKIE, token, { path: '/', maxAge: 60 * 60 * 24 * 60, sameSite: 'lax', httpOnly: true, secure: true });
+      return res;
+    }
+    if (!token || req.cookies.get(PREVIEW_COOKIE)?.value !== token) {
+      const res = NextResponse.rewrite(new URL('/holding', req.url));
+      res.headers.set('x-robots-tag', 'noindex, nofollow');
+      return res;
+    }
   }
   if (under(pathname, '/admin')) {
     const remembered = req.cookies.get('locale')?.value;

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge, Button, Help, Loading, PageTitle, SelectField, TextField, Toggle, inputCls } from '@/components/admin/ui';
+import { Badge, Button, FormActions, Help, Loading, PageTitle, SelectField, TextField, Toggle, inputCls } from '@/components/admin/ui';
 import { adminFetch } from '@/lib/admin-client';
 import { addDays, weekday, zonedDate, zonedTime } from '@/lib/booking';
 import type { EventInput } from '@/lib/ics';
@@ -391,19 +391,13 @@ export default function Agenda() {
               options={ALERTS.some((a) => a.value === String(editing.event.alarmMin ?? '')) ? ALERTS : [...ALERTS, { value: String(editing.event.alarmMin), label: `${editing.event.alarmMin} minutes before` }]}
             />
             {problem && <p className="text-sm text-red-800" role="alert">{problem}</p>}
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Button tone="dark" onClick={save} disabled={busy || !editing.event.startDate || (!editing.item && !editing.calendar)}>
-                {busy ? 'Saving...' : 'Save'}
-              </Button>
-              <Button onClick={() => setEditing(null)}>Cancel</Button>
-              {editing.item && (
-                <span className="ml-auto">
-                  <Button tone="danger" onClick={remove} disabled={busy}>
-                    Delete
-                  </Button>
-                </span>
-              )}
-            </div>
+            <FormActions
+              state={busy ? 'saving' : undefined}
+              onSave={save}
+              saveDisabled={!editing.event.startDate || (!editing.item && !editing.calendar)}
+              onCancel={() => setEditing(null)}
+              onDelete={editing.item ? remove : undefined}
+            />
           </div>
         </Dialog>
       )}

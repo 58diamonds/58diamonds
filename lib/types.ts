@@ -43,6 +43,8 @@ export interface Settings {
   eu_vat_rates: Record<string, number>;
   invoice_footer: string | null;
   hero_image_url: string | null;
+  /** The public site shows only the logo; the preview link shows everything. */
+  site_hidden: boolean;
   /** 'cover' crops to a fixed frame, 'whole' shows the photo uncropped. */
   hero_fit: 'cover' | 'whole';
   /** Spot kept in view when the photo is cropped, CSS "x% y%". */

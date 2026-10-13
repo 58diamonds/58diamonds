@@ -15,6 +15,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 const ADMIN = '00000000-0000-0000-0000-00000000000a';
 const STRANGER = '00000000-0000-0000-0000-00000000000b';
 const CUSTOMER = '00000000-0000-0000-0000-00000000000c';
+const EDITOR = '00000000-0000-0000-0000-00000000000d';
+const BLOCKED = '00000000-0000-0000-0000-00000000000e';
 
 let db: PGlite;
 
@@ -47,7 +49,9 @@ beforeAll(async () => {
   await db.exec(`
     grant usage on schema public to anon, authenticated;
     grant select, insert, update, delete on all tables in schema public to anon, authenticated;
-    insert into admins (user_id, username, email) values ('${ADMIN}', 'farah', 'farah@example.com');
+    insert into admins (user_id, username, email, role) values ('${ADMIN}', 'farah', 'farah@example.com', 'owner');
+    insert into admins (user_id, username, role) values ('${EDITOR}', 'editor1', 'editor');
+    insert into admins (user_id, username, role, blocked) values ('${BLOCKED}', 'gone', 'admin', true);
     insert into sections (id, slug, name, visible) values
       ('10000000-0000-0000-0000-000000000001', 'rings', '{"en":"Rings"}', true),
       ('10000000-0000-0000-0000-000000000002', 'archive', '{"en":"Archive"}', false);
@@ -216,5 +220,46 @@ describe('seed.sql', () => {
     expect(rows[0].n).toBeGreaterThan(5);
     const menu = await fresh.query<{ n: number }>('select count(*)::int as n from menu_items');
     expect(menu.rows[0].n).toBeGreaterThan(3);
+  });
+});
+
+describe('admin roles', () => {
+  it('lets an editor change content but not read requests, clients, orders or the newsletter', async () => {
+    expect((await as(EDITOR, 'select slug from pieces')).rows).toHaveLength(3);
+    await as(EDITOR, `update pieces set stock = 5 where slug = 'shown'`);
+    expect((await db.query<{ stock: number }>(`select stock from pieces where slug = 'shown'`)).rows[0].stock).toBe(5);
+    await as(ADMIN, `update pieces set stock = 2 where slug = 'shown'`);
+    expect((await as(EDITOR, 'select id from appointment_requests')).rows).toHaveLength(0);
+    expect((await as(EDITOR, 'select email from customers')).rows).toHaveLength(0);
+    expect((await as(EDITOR, 'select number from orders')).rows).toHaveLength(0);
+    expect((await as(EDITOR, 'select id from newsletter_subscribers')).rows).toHaveLength(0);
+    expect((await as(EDITOR, 'select admin_role() as r')).rows[0]).toEqual({ r: 'editor' });
+  });
+
+  it('lets an editor change the homepage but not other settings, the Instagram token or admins', async () => {
+    await as(EDITOR, `update settings set hero_fit = 'whole' where id = 1`);
+    expect((await db.query<{ hero_fit: string }>('select hero_fit from settings where id = 1')).rows[0].hero_fit).toBe('whole');
+    await expect(as(EDITOR, `update settings set site_hidden = true where id = 1`)).rejects.toThrow();
+    await as(ADMIN, `update settings set site_hidden = true, hero_fit = 'cover' where id = 1`);
+    expect((await db.query<{ site_hidden: boolean }>('select site_hidden from settings where id = 1')).rows[0].site_hidden).toBe(true);
+    await as(ADMIN, `update settings set site_hidden = false where id = 1`);
+    await db.exec(`insert into app_settings (key, value) values ('instagram_token', 'secret')`);
+    expect((await as(EDITOR, 'select value from app_settings')).rows).toHaveLength(0);
+    expect((await as(ADMIN, 'select value from app_settings')).rows.length).toBeGreaterThan(0);
+    await as(ADMIN, `update admins set role = 'editor' where username = 'editor1'`);
+    await as(EDITOR, `update admins set role = 'owner' where username = 'editor1'`);
+    expect((await db.query<{ role: string }>(`select role from admins where username = 'editor1'`)).rows[0].role).toBe('editor');
+  });
+
+  it('treats a blocked admin as nobody', async () => {
+    expect((await as(BLOCKED, 'select is_admin() as a')).rows[0]).toEqual({ a: false });
+    expect((await as(BLOCKED, 'select admin_role() as r')).rows[0]).toEqual({ r: null });
+    const stranger = (await as(STRANGER, 'select slug from pieces order by slug')).rows;
+    expect((await as(BLOCKED, 'select slug from pieces order by slug')).rows).toEqual(stranger);
+    expect((await as(BLOCKED, 'select id from appointment_requests')).rows).toHaveLength(0);
+  });
+
+  it('lets the owner read requests', async () => {
+    expect((await as(ADMIN, 'select admin_role() as r')).rows[0]).toEqual({ r: 'owner' });
   });
 });

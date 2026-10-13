@@ -1,3 +1,4 @@
+import { PrivateJeweller } from '@/components/site/PrivateJeweller';
 import { getSettings } from '@/lib/data';
 
 export const revalidate = 300;
@@ -15,7 +16,10 @@ export default async function Holding() {
     <main className="flex min-h-svh items-center justify-center bg-[var(--color-ivory)] p-8">
       <h1 className="sr-only">58 Diamonds</h1>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={LOGOS[settings.header_logo] ?? LOGOS['brown-gold']} alt="58 Diamonds" className="h-auto w-56 sm:w-72" />
+      <div>
+        <img src={LOGOS[settings.header_logo] ?? LOGOS['brown-gold']} alt="58 Diamonds" className="h-auto w-56 sm:w-72" />
+        {settings.private_jeweller === true && <PrivateJeweller logo={settings.header_logo} className="mt-4 pl-[0.42em] text-[0.7rem] sm:text-xs" />}
+      </div>
     </main>
   );
 }

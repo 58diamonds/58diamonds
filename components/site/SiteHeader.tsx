@@ -8,6 +8,7 @@ import { LOCALES } from '@/lib/i18n';
 import { href, type NavLink } from '@/lib/routes';
 import type { HeaderLogo } from '@/lib/types';
 import { BagIcon, HeartIcon, UserIcon } from './icons';
+import { PrivateJeweller } from './PrivateJeweller';
 import { useSite } from './SiteProvider';
 
 type Link_ = NavLink & { text: string };
@@ -51,7 +52,7 @@ const LOGO_SRC: Record<HeaderLogo, string> = {
  * once the shop is live, account and bag) on the right, the menu underneath.
  * On phones the menu opens from the button on the left.
  */
-export function SiteHeader({ links, logo = 'ink' }: { links: Link_[]; logo?: HeaderLogo }) {
+export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { links: Link_[]; logo?: HeaderLogo; privateJeweller?: boolean }) {
   const { locale, t, features } = useSite();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -90,7 +91,8 @@ export function SiteHeader({ links, logo = 'ink' }: { links: Link_[]; logo?: Hea
 
         <Link href={href.home(locale)} className="block justify-self-center" aria-label="58 Diamonds">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="h-11 w-auto md:h-[clamp(3.25rem,5.4vw,4.4rem)]" />
+          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-11 w-auto md:h-[clamp(3.25rem,5.4vw,4.4rem)]" />
+          {privateJeweller && <PrivateJeweller logo={logo} className="mt-1 pl-[0.42em] text-[0.5rem] md:text-[0.62rem]" />}
         </Link>
 
         <div className="flex items-center justify-end gap-1">

@@ -262,7 +262,7 @@ function Hero({ t, image, fit, focus }: { t: Awaited<ReturnType<typeof site>>['t
   const position = focus && /^\d{1,3}% \d{1,3}%$/.test(focus) ? focus : undefined;
   return (
     <section className="relative bg-[var(--color-pearl)]">
-      <h1 className="sr-only">58 Diamonds by Farah. {t('home.hero_subtitle')}</h1>
+      <h1 className="sr-only">58 Diamonds by Farah</h1>
       {image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={image} alt="" className={whole ? 'hero-photo hero-whole' : 'hero-photo'} style={!whole && position ? { objectPosition: position } : undefined} fetchPriority="high" />

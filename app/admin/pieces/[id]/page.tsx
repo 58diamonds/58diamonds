@@ -32,7 +32,6 @@ import { getAdminDb } from '@/lib/supabase';
 import type { Attribute, Piece, PieceImage, PieceVariant, Section } from '@/lib/types';
 import { askConfirm } from '@/components/admin/confirm';
 
-const RING_SIZES = ['48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60'];
 type Img = Omit<PieceImage, 'piece_id'> & { isNew?: boolean };
 type Var = Omit<PieceVariant, 'piece_id'> & { isNew?: boolean };
 
@@ -346,9 +345,6 @@ export default function PieceEditor() {
             )}
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', stock: 1, position: variants.length, isNew: true }])}>Add a size</Button>
-              {variants.length === 0 && (
-                <Button onClick={() => setVariants(RING_SIZES.map((label, position) => ({ id: crypto.randomUUID(), label, stock: SHOP_LIVE ? 0 : 1, position, isNew: true })))}>Add ring sizes 48 to 60</Button>
-              )}
             </div>
             {SHOP_LIVE &&
               (variants.length > 0 ? (

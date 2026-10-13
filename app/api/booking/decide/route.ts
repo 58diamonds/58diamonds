@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { decideBooking, getBooking, moveBooking } from '@/lib/booking-flow';
-import { requireAdmin } from '@/lib/server-auth';
+import { requireManager } from '@/lib/server-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const booking = await getBooking(String(b.id ?? ''));
   if (!booking) return NextResponse.json({ error: 'Request not found.' }, { status: 404 });
   const byToken = typeof b.token === 'string' && b.token === booking.decision_token;
-  if (!byToken && !(await requireAdmin(req))) return NextResponse.json({ error: 'This link is not valid.' }, { status: 403 });
+  if (!byToken && !(await requireManager(req))) return NextResponse.json({ error: 'This link is not valid.' }, { status: 403 });
   const note = typeof b.note === 'string' && b.note.trim() ? b.note.trim().slice(0, 2000) : null;
 
   if (b.action === 'move') {

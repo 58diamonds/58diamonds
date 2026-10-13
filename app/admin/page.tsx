@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useAdminRole } from '@/components/admin/AdminShell';
 import { OrderStatusBadge } from '@/components/admin/orders';
 import { Card, Loading, PageTitle, show } from '@/components/admin/ui';
 import { SHOP_LIVE } from '@/lib/config';
 import { formatPrice } from '@/lib/format';
+import { canOpen } from '@/lib/roles';
 import { pieceStock } from '@/lib/shop';
 import { getAdminDb } from '@/lib/supabase';
 import type { AppointmentRequest, Order, Piece, Settings } from '@/lib/types';
@@ -21,6 +23,7 @@ function greeting() {
 }
 
 function SiteOverview() {
+  const role = useAdminRole();
   const [data, setData] = useState<{ requests: AppointmentRequest[]; open: number; events: number; pieces: number; subscribers: number; me: string } | null>(null);
 
   useEffect(() => {
@@ -50,7 +53,7 @@ function SiteOverview() {
           [String(data.events), 'upcoming events on the site', '/events'],
           [String(data.pieces), 'pieces in the collection', '/pieces'],
           [String(data.subscribers), 'newsletter subscribers', '/newsletter'],
-        ].map(([value, label, href]) => (
+        ].filter(([, , href]) => canOpen(role, href)).map(([value, label, href]) => (
           <Link key={label} href={href} className="border border-[var(--color-line)] bg-white p-5 hover:border-[var(--color-gold)]">
             <p className="font-display text-4xl">{value}</p>
             <p className="mt-1 text-[var(--color-stone)]">{label}</p>
@@ -59,7 +62,7 @@ function SiteOverview() {
       </div>
 
       <div className="grid gap-6">
-        <Card title="Newest requests">
+        {canOpen(role, '/requests') && <Card title="Newest requests">
           {data.requests.length === 0 ? (
             <p className="text-[var(--color-stone)]">No open requests.</p>
           ) : (
@@ -76,7 +79,7 @@ function SiteOverview() {
             </ul>
           )}
           <Link href="/requests" className="btn btn-light mt-5 !min-h-9 !px-4">All requests</Link>
-        </Card>
+        </Card>}
 
         <Card title="Add something">
           <div className="flex flex-wrap gap-2">

@@ -67,3 +67,4 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - Waiting for Farah: Stripe account, sending domain for Resend, shipping price and countries, real piece texts and prices.
 - Legal pages are a starting draft; to be checked by her accountant or lawyer before launch.
 - Possible later: bespoke request form with inspiration photo upload, event RSVP list, bookable time slots.
+- Page titles (2026-10-13, Sacha): no big black titles. Each page's h1 is the gold eyebrow line at 1.5x size (`.page-title` in globals.css): Collection shows `shop.eyebrow` (a section shows its name), Book an appointment shows `contact.eyebrow`, other pages show their title. `shop.title` and `contact.title` now only name the browser tab and Google result. Site English is British (jewellery, jeweller, gemmologist); keep new copy British.

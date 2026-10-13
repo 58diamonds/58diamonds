@@ -21,7 +21,7 @@ export default async function PressPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-6xl px-5 pt-16 sm:pt-20">
       <header className="text-center">
-        <h1 className="font-display text-5xl sm:text-6xl">{t('press.title')}</h1>
+        <h1 className="page-title">{t('press.title')}</h1>
         <p className="mx-auto mt-5 max-w-xl text-[var(--color-stone)]">{t('press.intro')}</p>
       </header>
       <div className="mt-16 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">

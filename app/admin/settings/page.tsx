@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { SHOP_LIVE } from '@/lib/config';
 import { useEffect, useState } from 'react';
 import { Card, Help, ImageField, Loading, NumberField, PageTitle, SaveBar, TextField, Toggle, useSave } from '@/components/admin/ui';
+import { adminFetch } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { Settings } from '@/lib/types';
 import { EU_VAT_RATES, HOME_COUNTRY, OSS_THRESHOLD } from '@/lib/vat';
@@ -53,6 +54,7 @@ export default function SettingsAdmin() {
           address: v.address?.trim() || null,
           instagram_handle: v.instagram_handle.replace(/^@/, '').trim(),
           shop_enabled: v.shop_enabled,
+          site_hidden: v.site_hidden === true,
           wishlist_enabled: v.wishlist_enabled,
           newsletter_enabled: v.newsletter_enabled,
           shipping_flat: v.shipping_flat ?? 0,
@@ -92,6 +94,16 @@ export default function SettingsAdmin() {
               <TextField label="Address for appointments" value={s.address ?? ''} onChange={(address) => set({ address })} multiline rows={3} hint="Empty: “by appointment” only." />
             </div>
           </div>
+        </Card>
+
+        <Card title="Website visibility">
+          <Toggle
+            label="Hidden from the public"
+            checked={s.site_hidden === true}
+            onChange={(site_hidden) => set({ site_hidden })}
+            hint="On: 58diamonds.com shows only the logo. The admin keeps working. Switch it off on launch day."
+          />
+          <PreviewLink />
         </Card>
 
         <Card title="On the site">
@@ -239,5 +251,34 @@ function EuVatCard({ s, set }: { s: Settings; set: (patch: Partial<Settings>) =>
         </div>
       </details>
     </Card>
+  );
+}
+
+/** The private link that shows the whole site while it is hidden, with a Copy button. */
+function PreviewLink() {
+  const [link, setLink] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    adminFetch('/api/admin/preview')
+      .then((r) => setLink((r.link as string) ?? null))
+      .catch((e: Error) => setError(e.message));
+  }, []);
+  if (error) return <p className="mt-4 text-sm text-red-800">{error}</p>;
+  if (!link) return null;
+  return (
+    <div className="mt-5">
+      <p className="text-sm text-[var(--color-stone)]">Private link to the whole site while it is hidden. Whoever opens it once sees the full site in that browser for 60 days. Share it only with people you trust.</p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <code className="break-all rounded bg-[var(--color-pearl)] px-2 py-1.5 text-xs">{link}</code>
+        <button
+          type="button"
+          className="btn btn-light !min-h-9 !px-4"
+          onClick={() => navigator.clipboard?.writeText(link).then(() => setCopied(true))}
+        >
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+    </div>
   );
 }

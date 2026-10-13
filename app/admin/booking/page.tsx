@@ -18,7 +18,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 const MISSING: Record<string, string> = {
   icloud: "Farah's Apple ID and app-specific password are not set in Vercel yet (ICLOUD_USERNAME, ICLOUD_APP_PASSWORD).",
   email: 'Email sending is not set up yet (Resend), so clients would get no confirmation.',
-  hours: 'No opening hours yet: add at least one below.',
+  hours: 'No opening hours yet: set at least one day to "Opening hours" below.',
   switch: 'Online booking is switched off below.',
 };
 
@@ -115,13 +115,22 @@ export default function BookingSettings() {
         </Card>
 
         <Card title="Opening hours">
-          <p className="mb-4 text-sm text-[var(--color-stone)]">Brussels time. A day can have several blocks, for example 10:00 to 13:00 and 14:00 to 18:00. Leave a day empty when you are closed.</p>
+          <p className="mb-4 text-sm text-[var(--color-stone)]">Brussels time. A day can have several blocks, for example 10:00 to 13:00 and 14:00 to 18:00. On a day set to "By appointment only", clients cannot pick a time online; they can still ask through the form or WhatsApp.</p>
           <div className="space-y-4">
             {DAYS.map((name, i) => {
               const d = i + 1;
               return (
                 <div key={d} className="flex flex-wrap items-center gap-2 border-b border-[var(--color-line)] pb-3">
                   <span className="w-28 text-sm">{name}</span>
+                  <select
+                    aria-label={`${name}: opening hours or by appointment only`}
+                    value={ranges(d).length ? 'hours' : 'appointment'}
+                    onChange={(e) => setRanges(d, e.target.value === 'hours' ? [['10:00', '18:00']] : [])}
+                    className={`${inputCls} mt-0 w-auto`}
+                  >
+                    <option value="hours">Opening hours</option>
+                    <option value="appointment">By appointment only</option>
+                  </select>
                   {ranges(d).map(([a, b], j) => (
                     <span key={j} className="flex items-center gap-1">
                       <input type="time" value={a} aria-label={`${name} from`} onChange={(e) => setRanges(d, ranges(d).map((r, k) => (k === j ? [e.target.value, r[1]] : r)))} className={`${inputCls} mt-0 w-28`} />
@@ -132,7 +141,7 @@ export default function BookingSettings() {
                       </Button>
                     </span>
                   ))}
-                  <Button onClick={() => setRanges(d, [...ranges(d), ['10:00', '18:00']])}>Add hours</Button>
+                  {ranges(d).length > 0 && <Button onClick={() => setRanges(d, [...ranges(d), ['14:00', '18:00']])}>Add hours</Button>}
                 </div>
               );
             })}

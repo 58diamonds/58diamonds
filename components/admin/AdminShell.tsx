@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { HAS_DATABASE, SHOP_LIVE, SITE_URL } from '@/lib/config';
+import { canOpen, isRole, type AdminRole } from '@/lib/roles';
 import { getAdminDb } from '@/lib/supabase';
 import { AdminLogin } from './AdminLogin';
 import { ConfirmHost } from './confirm';
@@ -42,26 +43,35 @@ const NAV: { group: string; items: { href: string; label: string }[] }[] = [
   ] },
 ];
 
+const RoleContext = createContext<AdminRole | null>(null);
+
+/** The signed-in admin's role: owner, admin or editor. */
+export function useAdminRole() {
+  return useContext(RoleContext);
+}
+
 type State = 'loading' | 'signed-out' | 'not-admin' | 'ready';
 
 /**
  * Sign-in and navigation for /admin.
  *
  * This decides what to show; it does not protect anything. Every read and
- * write of private data is checked by the database (is_admin()), so skipping
- * this screen gains nothing.
+ * write of private data is checked by the database (is_admin(), is_manager()),
+ * so skipping this screen gains nothing.
  */
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [state, setState] = useState<State>('loading');
   const [open, setOpen] = useState(false);
+  const [role, setRole] = useState<AdminRole | null>(null);
 
   const resolve = useCallback(async () => {
     const db = getAdminDb();
     const { data } = await db.auth.getSession();
     if (!data.session) return setState('signed-out');
-    const { data: ok } = await db.rpc('is_admin');
-    setState(ok === true ? 'ready' : 'not-admin');
+    const { data: r } = await db.rpc('admin_role');
+    setRole(isRole(r) ? r : null);
+    setState(isRole(r) ? 'ready' : 'not-admin');
   }, []);
 
   useEffect(() => {
@@ -92,7 +102,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return (
       <Centered>
         <h1 className="font-display text-3xl">No access</h1>
-        <p className="mt-3 text-sm text-[var(--color-stone)]">This account is not an admin of this site.</p>
+        <p className="mt-3 text-sm text-[var(--color-stone)]">This account is not an admin of this site, or it has been blocked.</p>
         <button className="btn btn-light mt-6" onClick={() => getAdminDb().auth.signOut()}>
           Sign out
         </button>
@@ -103,7 +113,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   const nav = (
     <nav aria-label="Admin" className="space-y-7">
-      {NAV.map((g) => (
+      {NAV.map((g) => ({ ...g, items: g.items.filter((n) => canOpen(role, n.href)) })).filter((g) => g.items.length > 0).map((g) => (
         <div key={g.group}>
           <p className="mb-2 px-3 text-[0.62rem] uppercase tracking-[0.28em] text-[var(--color-gold)]">{g.group}</p>
           <ul>
@@ -157,7 +167,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-8 sm:pt-10">{children}</main>
+      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-8 sm:pt-10">
+        <RoleContext.Provider value={role}>
+          {canOpen(role, pathname) ? (
+            children
+          ) : (
+            <p className="text-[var(--color-stone)]">This part of the admin is for owners and admins.</p>
+          )}
+        </RoleContext.Provider>
+      </main>
       <ConfirmHost />
     </div>
   );

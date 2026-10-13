@@ -145,6 +145,8 @@ export const TEXTS = {
   'account.sign_out': t('Client account', 'Sign out', 'Sign out', 'Afmelden', 'Se déconnecter'),
   'account.email': t('Client account', 'Email', 'Email', 'E-mail', 'E-mail'),
   'account.password': t('Client account', 'Password', 'Password', 'Wachtwoord', 'Mot de passe'),
+  'account.show_password': t('Client account', 'Eye button: show password', 'Show password', 'Wachtwoord tonen', 'Afficher le mot de passe'),
+  'account.hide_password': t('Client account', 'Eye button: hide password', 'Hide password', 'Wachtwoord verbergen', 'Masquer le mot de passe'),
   'account.name': t('Client account', 'Name', 'Full name', 'Volledige naam', 'Nom complet'),
   'account.phone': t('Client account', 'Phone', 'Phone', 'Telefoon', 'Téléphone'),
   'account.forgot': t('Client account', 'Forgot password link', 'Forgot your password?', 'Wachtwoord vergeten?', 'Mot de passe oublié ?'),

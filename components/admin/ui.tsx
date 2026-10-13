@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PasswordInput } from '@/components/PasswordInput';
 import { useRef, useState } from 'react';
 import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
@@ -72,6 +73,8 @@ export function TextField({
       <span className="text-sm">{label}</span>
       {multiline ? (
         <textarea value={value} rows={rows} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className={`${inputCls} resize-y`} />
+      ) : type === 'password' ? (
+        <PasswordInput value={value} placeholder={placeholder} required={required} onChange={(e) => onChange(e.target.value)} className={inputCls} />
       ) : (
         <input type={type} value={value} placeholder={placeholder} required={required} onChange={(e) => onChange(e.target.value)} className={inputCls} />
       )}

@@ -57,6 +57,8 @@ export const DEMO_SETTINGS: Settings = {
   eu_vat_rates: {},
   invoice_footer: null,
   hero_image_url: '/home/hero-hand.jpg',
+  hero_fit: 'cover',
+  hero_focus: '50% 40%',
   about_image_url: '/demo/02-farah-at-work-reel-cover.jpg',
   og_image_url: '/pieces/14-black.jpg',
   home_blocks: ['tiles', 'house', 'story', 'events', 'instagram', 'newsletter', 'contact'],

@@ -12,6 +12,7 @@ interface SlotsResponse {
   last?: string;
   unverified?: boolean;
   days?: Record<string, number[]>;
+  appointment?: string[];
 }
 
 const TZ = 'Europe/Brussels';
@@ -26,7 +27,20 @@ const nextMonth = (m: string, n: number) => {
  * picked; then the times of that day. Calls `onLive(false)` when online
  * booking is off, so the form shows the plain "preferred days" field instead.
  */
-export function BookingPicker({ value, onChange, onLive, reloadKey }: { value: number | null; onChange: (start: number | null) => void; onLive: (live: boolean) => void; reloadKey: number }) {
+export function BookingPicker({
+  value,
+  onChange,
+  onLive,
+  reloadKey,
+  onAppointmentDay,
+}: {
+  value: number | null;
+  onChange: (start: number | null) => void;
+  onLive: (live: boolean) => void;
+  reloadKey: number;
+  /** A by-appointment-only day was picked ("Tuesday 14 October"), or null. */
+  onAppointmentDay: (label: string | null) => void;
+}) {
   const { locale, t } = useSite();
   const tag = INTL_LOCALE[locale];
   const [month, setMonth] = useState<string | null>(null);
@@ -60,6 +74,7 @@ export function BookingPicker({ value, onChange, onLive, reloadKey }: { value: n
 
   if (!data?.live || !month) return null;
   const slots = data.days ?? {};
+  const byAppointment = new Set(data.appointment ?? []);
   const fmtMonth = new Intl.DateTimeFormat(tag, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(Date.parse(`${month}-01T12:00:00Z`));
   const fmtTime = (ms: number) => new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', timeZone: TZ }).format(ms);
   const fmtWeekday = (i: number) => new Intl.DateTimeFormat(tag, { weekday: 'short', timeZone: 'UTC' }).format(Date.UTC(2024, 0, 1 + i));
@@ -68,10 +83,15 @@ export function BookingPicker({ value, onChange, onLive, reloadKey }: { value: n
     const m = nextMonth(month, n);
     setDay(null);
     onChange(null);
+    onAppointmentDay(null);
     setMonth(m);
     load(m);
   };
-  const empty = Object.keys(slots).length === 0;
+  const empty = Object.keys(slots).length === 0 && byAppointment.size === 0;
+  const pick = (d: string) => {
+    setDay(d);
+    onAppointmentDay(byAppointment.has(d) ? fmtDay(d) : null);
+  };
 
   if (value) {
     return (
@@ -107,10 +127,10 @@ export function BookingPicker({ value, onChange, onLive, reloadKey }: { value: n
             <button
               key={d}
               type="button"
-              disabled={!slots[d]}
+              disabled={!slots[d] && !byAppointment.has(d)}
               aria-pressed={day === d}
-              onClick={() => setDay(d)}
-              className={`aspect-square text-sm transition ${day === d ? 'bg-[var(--color-ink)] text-[var(--color-ivory)]' : slots[d] ? 'border border-[var(--color-gold-soft)] hover:border-[var(--color-gold)]' : 'text-[var(--color-stone)] opacity-40'}`}
+              onClick={() => pick(d)}
+              className={`aspect-square text-sm transition ${day === d ? 'bg-[var(--color-ink)] text-[var(--color-ivory)]' : slots[d] ? 'border border-[var(--color-gold-soft)] hover:border-[var(--color-gold)]' : byAppointment.has(d) ? 'border border-dashed border-[var(--color-gold-soft)] hover:border-[var(--color-gold)]' : 'text-[var(--color-stone)] opacity-40'}`}
             >
               {Number(d.slice(8))}
             </button>
@@ -120,6 +140,13 @@ export function BookingPicker({ value, onChange, onLive, reloadKey }: { value: n
         )}
       </div>
       {empty && <p className="mt-4 text-sm text-[var(--color-stone)]">{t('booking.none')}</p>}
+      {day && byAppointment.has(day) && (
+        <div className="mt-6">
+          <p className="eyebrow">{t('booking.by_appointment')}</p>
+          <p className="mt-1 text-sm capitalize text-[var(--color-stone)]">{fmtDay(day)}</p>
+          <p className="mt-3 text-sm">{t('booking.by_appointment_text')}</p>
+        </div>
+      )}
       {day && slots[day] && (
         <div className="mt-6">
           <p className="eyebrow">{t('booking.pick_time')}</p>

@@ -24,11 +24,8 @@ export default function PagesAdmin() {
     });
   }, [db]);
 
-  async function create() {
-    const slug = `new-page-${Date.now().toString(36)}`;
-    const { data, error } = await db.from('pages').insert({ slug, title: { en: 'New page' }, published: false }).select('id').single();
-    if (error) return window.alert(error.message);
-    router.push(`/admin/pages/${data.id}`);
+  function create() {
+    router.push('/admin/pages/new');
   }
 
   useNewFromLink(create, Boolean(pages));

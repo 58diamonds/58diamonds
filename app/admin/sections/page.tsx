@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, Button, Card, Help, ImageField, L10nField, Loading, PageTitle, SaveState, TextField, Toggle, UpDown, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, FormActions, Help, ImageField, L10nField, Loading, PageTitle, TextField, Toggle, UpDown, show, useSave } from '@/components/admin/ui';
 import { move, publish, saveOrder } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
 import type { Attribute, Section } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 /** Shop sections (Rings, Necklaces...) and the filter values (metals, stones). */
 export default function SectionsAdmin() {
@@ -45,7 +46,7 @@ export default function SectionsAdmin() {
   }
 
   async function removeSection(s: Section) {
-    if (!window.confirm(`Delete the section “${show(s.name)}”? Its pieces stay, without a section.`)) return;
+    if (!(await askConfirm(`Delete the section “${show(s.name)}”? Its pieces stay, without a section.`))) return;
     await db.from('sections').delete().eq('id', s.id);
     publish();
     setEditing(null);
@@ -83,12 +84,7 @@ export default function SectionsAdmin() {
             <Toggle label="Visible on the site" checked={editing.visible} onChange={(v) => setEditing({ ...editing, visible: v })} hint="Hiding a section also hides its pieces." />
             <Toggle label="Show prices in this section" checked={editing.show_prices} onChange={(v) => setEditing({ ...editing, show_prices: v })} hint="Off: every piece here shows “Price on request”." />
           </div>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button tone="dark" onClick={saveSection}>Save</Button>
-            <Button onClick={() => setEditing(null)}>Cancel</Button>
-            {editing.id && <Button tone="danger" onClick={() => removeSection(editing)}>Delete</Button>}
-            <SaveState state={state} />
-          </div>
+          <FormActions state={state} onSave={saveSection} onCancel={() => setEditing(null)} onDelete={editing.id ? () => removeSection(editing) : undefined} deleteLabel="Delete this section" />
         </Card>
       )}
 
@@ -126,7 +122,7 @@ function AttributeList({ kind, title, all, reload }: { kind: 'metal' | 'stone'; 
             <button
               className="text-xs text-red-800 underline underline-offset-2"
               onClick={async () => {
-                if (!window.confirm(`Delete “${show(a.label)}”? Pieces keep everything else.`)) return;
+                if (!(await askConfirm(`Delete “${show(a.label)}”? Pieces keep everything else.`))) return;
                 await db.from('attributes').delete().eq('id', a.id);
                 publish();
                 reload();
@@ -157,10 +153,7 @@ function AttributeList({ kind, title, all, reload }: { kind: 'metal' | 'stone'; 
               hint="For example Laboratory Grown Diamond. Leave empty to use the name above."
             />
           )}
-          <div className="flex gap-2">
-            <Button tone="dark" onClick={save}>Save</Button>
-            <Button onClick={() => setEdit(null)}>Cancel</Button>
-          </div>
+          <FormActions onSave={save} onCancel={() => setEdit(null)} />
         </div>
       ) : (
         <Button onClick={() => setEdit({ id: '', kind, slug: '', label: {}, full_label: {}, position: 0 })}>Add</Button>

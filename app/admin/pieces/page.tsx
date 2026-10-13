@@ -57,16 +57,9 @@ export default function PiecesAdmin() {
     load();
   }
 
-  async function create() {
-    const slug = `new-piece-${Date.now().toString(36)}`;
-    const target = section !== 'all' && section !== 'none' ? section : sections[0]?.id ?? null;
-    const position = (pieces ?? []).filter((p) => p.section_id === target).length;
-    const { data, error } = await db
-      .from('pieces')
-      .insert({ slug, title: { en: 'New piece' }, section_id: target, visible: false, position, price: null })
-      .select('id')
-      .single();
-    if (!error && data) router.push(`/admin/pieces/${data.id}`);
+  function create() {
+    const target = section !== 'all' && section !== 'none' ? section : sections[0]?.id;
+    router.push(`/admin/pieces/new${target ? `?section=${target}` : ''}`);
   }
 
   useNewFromLink(create, Boolean(pieces) && sections.length > 0);

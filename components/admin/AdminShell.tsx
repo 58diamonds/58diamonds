@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { HAS_DATABASE, SHOP_LIVE } from '@/lib/config';
 import { getAdminDb } from '@/lib/supabase';
 import { AdminLogin } from './AdminLogin';
+import { ConfirmHost } from './confirm';
 
 const NAV: { group: string; items: { href: string; label: string }[] }[] = [
   { group: 'Website', items: [
@@ -157,6 +158,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       )}
 
       <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-8 sm:pt-10">{children}</main>
+      <ConfirmHost />
     </div>
   );
 }

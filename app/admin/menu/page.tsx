@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Badge, Button, Card, Help, L10nField, Loading, PageTitle, SaveState, SelectField, TextField, UpDown, show, useSave } from '@/components/admin/ui';
+import { Badge, Button, Card, FormActions, Help, L10nField, Loading, PageTitle, SelectField, TextField, UpDown, show, useSave } from '@/components/admin/ui';
 import { move, publish, saveOrder, useNewFromLink } from '@/lib/admin-client';
 import { SHOP_LIVE } from '@/lib/config';
 import { getAdminDb } from '@/lib/supabase';
 import type { MenuItem, MenuTarget, Page, Section } from '@/lib/types';
+import { askConfirm } from '@/components/admin/confirm';
 
 const BUILTIN: { value: MenuTarget; label: string }[] = [
   { value: 'shop', label: 'Collection (all pieces)' },
@@ -139,25 +140,23 @@ export default function MenuAdmin() {
             <L10nField label="Name in the menu" value={edit.label} onChange={(v) => setEdit({ ...edit, label: v })} />
             <SelectField label="Shown" value={edit.visible ? 'yes' : 'no'} onChange={(v) => setEdit({ ...edit, visible: v === 'yes' })} options={[{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No, hidden' }]} />
           </div>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Button tone="dark" onClick={save}>Save</Button>
-            <Button onClick={() => setEdit(null)}>Cancel</Button>
-            {edit.id && (
-              <Button
-                tone="danger"
-                onClick={async () => {
-                  if (!window.confirm('Remove this link from the menu? The page itself stays.')) return;
-                  await db.from('menu_items').delete().eq('id', edit.id);
-                  publish();
-                  setEdit(null);
-                  load();
-                }}
-              >
-                Remove
-              </Button>
-            )}
-            <SaveState state={state} />
-          </div>
+          <FormActions
+            state={state}
+            onSave={save}
+            onCancel={() => setEdit(null)}
+            deleteLabel="Remove from the menu"
+            onDelete={
+              edit.id
+                ? async () => {
+                    if (!(await askConfirm('Remove this link from the menu? The page itself stays.'))) return;
+                    await db.from('menu_items').delete().eq('id', edit.id);
+                    publish();
+                    setEdit(null);
+                    load();
+                  }
+                : undefined
+            }
+          />
         </Card>
       )}
     </div>

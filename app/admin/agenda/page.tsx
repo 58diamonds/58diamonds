@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge, Button, Help, Loading, PageTitle, SelectField, TextField, Toggle, inputCls } from '@/components/admin/ui';
+import { Badge, Button, FormActions, Help, Loading, PageTitle, SelectField, TextField, Toggle, inputCls } from '@/components/admin/ui';
 import { adminFetch } from '@/lib/admin-client';
 import { addDays, weekday, zonedDate, zonedTime } from '@/lib/booking';
 import type { EventInput } from '@/lib/ics';
+import { askConfirm } from '@/components/admin/confirm';
 
 interface Item {
   uid: string;
@@ -187,7 +188,7 @@ export default function Agenda() {
   async function remove() {
     if (!editing?.item) return;
     const what = editing.item.recurring && editing.scope === 'one' ? 'this occurrence' : editing.item.recurring ? 'every occurrence of this event' : 'this event';
-    if (!window.confirm(`Delete ${what}? It disappears from your iPhone too.`)) return;
+    if (!(await askConfirm(`Delete ${what}? It disappears from your iPhone too.`))) return;
     setBusy(true);
     try {
       await adminFetch('/api/admin/agenda', { action: 'delete', href: editing.item.href, etag: editing.etag, scope: editing.scope, recurrenceId: editing.item.recurrenceId });
@@ -390,19 +391,13 @@ export default function Agenda() {
               options={ALERTS.some((a) => a.value === String(editing.event.alarmMin ?? '')) ? ALERTS : [...ALERTS, { value: String(editing.event.alarmMin), label: `${editing.event.alarmMin} minutes before` }]}
             />
             {problem && <p className="text-sm text-red-800" role="alert">{problem}</p>}
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Button tone="dark" onClick={save} disabled={busy || !editing.event.startDate || (!editing.item && !editing.calendar)}>
-                {busy ? 'Saving...' : 'Save'}
-              </Button>
-              <Button onClick={() => setEditing(null)}>Cancel</Button>
-              {editing.item && (
-                <span className="ml-auto">
-                  <Button tone="danger" onClick={remove} disabled={busy}>
-                    Delete
-                  </Button>
-                </span>
-              )}
-            </div>
+            <FormActions
+              state={busy ? 'saving' : undefined}
+              onSave={save}
+              saveDisabled={!editing.event.startDate || (!editing.item && !editing.calendar)}
+              onCancel={() => setEditing(null)}
+              onDelete={editing.item ? remove : undefined}
+            />
           </div>
         </Dialog>
       )}

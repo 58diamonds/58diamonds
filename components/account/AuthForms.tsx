@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PasswordInput } from '@/components/PasswordInput';
 import { PrivacyNote } from '@/components/site/PrivacyNote';
 import { useSite } from '@/components/site/SiteProvider';
 import { href } from '@/lib/routes';
@@ -66,9 +67,10 @@ export function AuthForms() {
         {mode !== 'forgot' && (
           <label className="block">
             <span className="eyebrow">{t('account.password')}</span>
-            <input
+            <PasswordInput
               name="password"
-              type="password"
+              showLabel={t('account.show_password')}
+              hideLabel={t('account.hide_password')}
               required
               minLength={mode === 'sign-up' ? 8 : undefined}
               autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
@@ -134,7 +136,7 @@ export function NewPasswordForm({ onDone }: { onDone: () => void }) {
       <h2 className="font-display text-3xl">{t('account.new_password')}</h2>
       <label className="block">
         <span className="eyebrow">{t('account.password')}</span>
-        <input name="password" type="password" required minLength={8} autoComplete="new-password" className="field" />
+        <PasswordInput name="password" showLabel={t('account.show_password')} hideLabel={t('account.hide_password')} required minLength={8} autoComplete="new-password" className="field" />
         <span className="mt-1 block text-xs text-[var(--color-stone)]">{t('account.password_hint')}</span>
       </label>
       {error && <p role="alert" className="text-sm text-red-800">{error}</p>}

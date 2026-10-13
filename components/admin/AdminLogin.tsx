@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useState } from 'react';
+import { PasswordInput } from '@/components/PasswordInput';
 import { getAdminDb } from '@/lib/supabase';
 
 /** Admin sign-in: username and password. */
@@ -54,7 +55,7 @@ export function AdminLogin({ onDone }: { onDone: () => void }) {
           </label>
           <label className="block">
             <span className="label">Password</span>
-            <input name="password" type="password" required autoComplete="current-password" enterKeyHint="go" className={field} />
+            <PasswordInput name="password" required autoComplete="current-password" enterKeyHint="go" className={field} />
           </label>
           {error && <p className="text-sm text-red-800" role="alert">{error}</p>}
           <button type="submit" disabled={busy} className="btn btn-dark w-full">

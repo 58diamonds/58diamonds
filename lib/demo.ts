@@ -72,6 +72,7 @@ export const DEMO_SETTINGS: Settings = {
     { image_url: '/home/tile-hoops.jpg', section_id: SECTION(3), piece_id: PIECE(13) },
   ],
   header_logo: 'ink',
+  private_jeweller: false,
 };
 
 export const DEMO_SECTIONS: Section[] = [

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { passwordProblem } from '@/lib/password';
-import { canManage, isRole, ROLE_LABEL, type AdminRole } from '@/lib/roles';
+import { canManage, canSetPassword, isRole, ROLE_LABEL, type AdminRole } from '@/lib/roles';
 import { getAdminRole, getRequestUser } from '@/lib/server-auth';
 import { getServiceDb } from '@/lib/supabase';
 
@@ -58,7 +58,8 @@ export async function POST(req: Request) {
   if (!target) return fail('No such admin.', 404);
   if (userId === me?.id) return fail('You cannot do this for yourself. Ask another admin.');
   const targetRole: AdminRole = isRole(target.role) ? target.role : 'editor';
-  if (!canManage(role, targetRole)) return fail('Only an owner can change an owner.', 403);
+  const allowed = body.action === 'set-password' ? canSetPassword(role, targetRole) : canManage(role, targetRole);
+  if (!allowed) return fail('Only an owner can change an owner.', 403);
   const lastOwner = targetRole === 'owner' && !target.blocked && (await owners()) <= 1;
 
   if (body.action === 'set-password') {

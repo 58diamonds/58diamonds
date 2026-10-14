@@ -139,7 +139,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <aside className="hidden border-r border-[var(--color-line)] bg-[var(--color-pearl)] px-4 py-7 lg:sticky lg:top-0 lg:block lg:h-svh lg:overflow-y-auto">
         <Link href="/" className="mb-9 block px-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-ink.svg" alt="58 Diamonds" className="h-14 w-auto" />
+          <img src="/brand/logo-brown-gold.svg?v=3" alt="58 Diamonds" className="h-14 w-auto" />
         </Link>
         {nav}
         <div className="mt-10 space-y-2 px-3 text-[0.66rem] uppercase tracking-[0.22em] text-[var(--color-stone)]">
@@ -149,13 +149,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-pearl)] px-4 py-3 lg:hidden">
-        <Link href="/">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-ink.svg" alt="58 Diamonds" className="h-9 w-auto" />
-        </Link>
         <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="text-[0.66rem] uppercase tracking-[0.22em]">
           {open ? 'Close' : 'Menu'}
         </button>
+        <Link href="/">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-brown-gold.svg?v=3" alt="58 Diamonds" className="h-9 w-auto" />
+        </Link>
       </header>
       {open && (
         <div className="fixed inset-x-0 bottom-0 top-[3.85rem] z-30 overflow-y-auto bg-[var(--color-pearl)] px-4 py-6 lg:hidden">

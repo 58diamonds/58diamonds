@@ -73,7 +73,7 @@ export default async function LocaleLayout({
             whatsapp: settings.whatsapp_number,
           }}
         >
-          <SiteHeader links={header} logo={settings.header_logo} privateJeweller={settings.private_jeweller === true} />
+          <SiteHeader links={header} logo="brown-gold" privateJeweller={settings.private_jeweller === true} />
           <main id="main" className="pb-20">{children}</main>
           <SiteFooter links={footer} settings={settings} />
           <WhatsAppButton number={settings.whatsapp_number} label={t('whatsapp.label')} message={t('whatsapp.message')} />

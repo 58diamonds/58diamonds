@@ -1,3 +1,4 @@
+import type { ShippingRates } from './shipping';
 import type { L10n } from './i18n';
 
 /** Row shapes of the database (supabase/migrations/0001_init.sql). */
@@ -27,6 +28,8 @@ export interface Settings {
   shipping_flat: number;
   free_shipping_from: number | null;
   ship_to: string[];
+  /** Shipping per country (lib/shipping.ts); empty: the flat price for every country in ship_to. */
+  shipping_rates: ShippingRates;
   gift_wrap_enabled: boolean;
   gift_wrap_price: number;
   wishlist_enabled: boolean;

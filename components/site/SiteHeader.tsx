@@ -102,8 +102,8 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
 
         <Link href={href.home(locale)} className="block justify-self-center" aria-label="58 Diamonds">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-[5.5rem] w-auto md:h-[clamp(5.5rem,9vw,7.5rem)]" />
-          {privateJeweller && <PrivateJeweller logo={logo} className="mt-2 pl-[0.26em] text-[min(1.1rem,4.3vw)] md:mt-2 md:text-[1.05rem]" />}
+          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-[6.25rem] w-auto md:h-[clamp(6.25rem,10vw,8.5rem)]" />
+          {privateJeweller && <PrivateJeweller logo={logo} className="mt-2 pl-[0.26em] text-[0.82rem] md:mt-2.5 md:text-[0.9rem]" />}
         </Link>
 
         <div className="flex items-center justify-end gap-1">

@@ -234,28 +234,53 @@ body {
 }
 
 /*
- * Homepage hero: one full-width photo. Wide on computers, portrait on phones,
- * never covered by text or a fade.
+ * Homepage hero: the photo fills the first screen edge to edge, under the
+ * header (its height comes from SiteHeader), with the slogan and "Scroll to
+ * explore" on the photo.
  */
-.hero-photo {
-  display: block;
+.hero {
+  position: relative;
+  overflow: hidden;
+  height: calc(100svh - var(--header-h, 9rem));
+  min-height: 22rem;
+  background: var(--color-pearl);
+}
+.hero-photo,
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 2;
-  max-height: 86vh;
+  height: 100%;
   object-fit: cover;
   object-position: 50% 40%;
 }
-@media (max-width: 47.99rem) {
-  .hero-photo {
-    aspect-ratio: 4 / 5;
-  }
-}
-/* "Show the whole photo" in Admin > Homepage: no frame, nothing cropped. */
+/* "Show the whole photo" in Admin > Homepage: nothing cropped; the sides are the same photo, blurred. */
 .hero-photo.hero-whole {
-  aspect-ratio: auto;
-  max-height: 92vh;
   object-fit: contain;
+  object-position: 50% 50%;
+}
+.hero-backdrop {
+  filter: blur(40px) saturate(0.9);
+  transform: scale(1.15);
+}
+/* A soft shade low on the photo keeps the slogan readable on light photos. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background: linear-gradient(to top, rgb(56 48 42 / 0.42), rgb(56 48 42 / 0));
+  pointer-events: none;
+}
+.hero-text {
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 0 1.25rem clamp(1.25rem, 3vh, 2rem);
+  text-align: center;
+  color: var(--color-ivory);
+  text-shadow: 0 1px 12px rgb(56 48 42 / 0.45);
 }
 
 /* Small spaced capitals always use the sans, as in the menu. */

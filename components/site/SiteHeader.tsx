@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cart, cartCount } from '@/lib/cart';
 import { LOCALES } from '@/lib/i18n';
 import { href, type NavLink } from '@/lib/routes';
@@ -59,6 +59,17 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
   const count = cartCount(cart.use());
 
   useEffect(() => setOpen(false), [pathname]);
+  // The homepage photo fills the screen under the header, so it needs the header's height.
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty('--header-h', `${el.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => {
@@ -70,8 +81,8 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
   const iconLink = 'relative flex h-10 w-10 items-center justify-center transition-colors hover:text-[var(--color-gold)]';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[var(--color-ivory)]">
-      <div className="mx-auto grid max-w-[85rem] grid-cols-[1fr_auto_1fr] items-center px-4 pb-1.5 pt-3 sm:px-8 sm:pt-4">
+    <header ref={ref} className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[var(--color-ivory)]">
+      <div className="mx-auto grid max-w-[85rem] grid-cols-[1fr_auto_1fr] items-center px-4 pb-1.5 pt-3 sm:px-8 md:pb-0 md:pt-6">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -91,8 +102,8 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
 
         <Link href={href.home(locale)} className="block justify-self-center" aria-label="58 Diamonds">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-11 w-auto md:h-[clamp(3.25rem,5.4vw,4.4rem)]" />
-          {privateJeweller && <PrivateJeweller logo={logo} className="mt-1 pl-[0.26em] text-[0.55rem] md:text-[0.69rem]" />}
+          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-11 w-auto md:h-[clamp(4.25rem,7vw,6rem)]" />
+          {privateJeweller && <PrivateJeweller logo={logo} className="mt-1 pl-[0.26em] text-[0.55rem] md:mt-1.5 md:text-[0.85rem]" />}
         </Link>
 
         <div className="flex items-center justify-end gap-1">
@@ -119,7 +130,7 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
         </div>
       </div>
 
-      <nav className="hidden justify-center gap-[clamp(1.75rem,4vw,3.5rem)] pb-4 pt-2 md:flex" aria-label="Main">
+      <nav className="mx-auto hidden w-[min(92%,72rem)] justify-around pb-3 pt-7 md:flex" aria-label="Main">
         {links.map((l) =>
           l.external ? (
             <a key={l.id} href={l.href} target="_blank" rel="noreferrer" className="nav-link py-1">

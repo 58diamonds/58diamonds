@@ -6,7 +6,7 @@ import { Badge, Button, Card, Help, ImageField, Loading, PageTitle, SaveBar, Tog
 import { move } from '@/lib/admin-client';
 import { wornPhoto } from '@/lib/piece-view';
 import { getAdminDb } from '@/lib/supabase';
-import type { HeaderLogo, HomeBlock, HomeTile, Piece, Section, Settings } from '@/lib/types';
+import type { HomeBlock, HomeTile, Piece, Section, Settings } from '@/lib/types';
 
 const BLOCKS: Record<HomeBlock, { name: string; about: string }> = {
   tiles: { name: 'Squares', about: 'The category squares under the big photo, each opening that part of the collection.' },
@@ -20,13 +20,8 @@ const BLOCKS: Record<HomeBlock, { name: string; about: string }> = {
   contact: { name: 'Book an appointment', about: 'Address, Instagram and the appointment button.' },
 };
 
-const LOGOS: { value: HeaderLogo; label: string; src: string }[] = [
-  { value: 'ink', label: 'As it is', src: '/brand/logo-ink.svg?v=3' },
-  { value: 'black', label: 'Black', src: '/brand/logo-black.svg?v=3' },
-  { value: 'brown-gold', label: 'Gold', src: '/brand/logo-brown-gold.svg?v=3' },
-];
 
-/** The homepage: the logo on top, its photos, the squares, which blocks show and in which order. */
+/** The homepage: PRIVATE JEWELLER under the gold logo, its photos, the squares, which blocks show and in which order. */
 export default function HomeAdmin() {
   const db = getAdminDb();
   const [s, setS] = useState<Settings | null>(null);
@@ -67,24 +62,8 @@ export default function HomeAdmin() {
 
       <div className="grid gap-6">
         <Card title="Logo in the header">
-          <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Logo in the header">
-            {LOGOS.map((l) => (
-              <button
-                key={l.value}
-                type="button"
-                role="radio"
-                aria-checked={s.header_logo === l.value}
-                onClick={() => setS({ ...s, header_logo: l.value })}
-                className={`border p-4 text-center transition ${s.header_logo === l.value ? 'border-[var(--color-gold)] bg-[var(--color-ivory)]' : 'border-[var(--color-line)] hover:border-[var(--color-gold-soft)]'}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={l.src} alt="" className="mx-auto h-14 w-auto" />
-                <span className="label mt-3 block">{l.label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="mt-5">
-            <Toggle label="Show PRIVATE JEWELLER under the logo" checked={s.private_jeweller === true} onChange={(v) => setS({ ...s, private_jeweller: v })} hint="In the logo's colour, on every page and on the logo-only page." />
+          <div>
+            <Toggle label="Show PRIVATE JEWELLER under the logo" checked={s.private_jeweller === true} onChange={(v) => setS({ ...s, private_jeweller: v })} hint="The logo is always gold. This line shows under it on every page and on the logo-only page." />
           </div>
         </Card>
 
@@ -215,7 +194,7 @@ export default function HomeAdmin() {
 
       <SaveBar
         state={state}
-        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), header_logo: s.header_logo, private_jeweller: s.private_jeweller === true, hero_image_url: s.hero_image_url, hero_fit: s.hero_fit ?? 'cover', hero_focus: s.hero_focus ?? '50% 40%', about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
+        onSave={() => run(async () => db.from('settings').update({ home_blocks: shown, home_tiles: tiles.filter((x) => x.image_url || x.piece_id), private_jeweller: s.private_jeweller === true, hero_image_url: s.hero_image_url, hero_fit: s.hero_fit ?? 'cover', hero_focus: s.hero_focus ?? '50% 40%', about_image_url: s.about_image_url, updated_at: new Date().toISOString() }).eq('id', 1))}
       />
     </div>
   );

@@ -38,29 +38,24 @@ export default async function Home({ params }: Props) {
     .map((p) => pieceView(p, sections, settings, t, locale));
   const upcoming = splitEvents(events).upcoming.slice(0, 3);
   const about = pages.find((p) => p.slug === 'about');
-  const tiles = (settings.home_tiles ?? []).filter((x) => x.image_url || x.piece_id).slice(0, 6);
+  const tiles = (settings.home_tiles ?? []).filter((x) => x.image_url || x.piece_id).slice(0, 5);
   const paragraphs = (text: string) => text.split(/\n\s*\n/).map((p, i) => <p key={i} className="mt-4 first:mt-0">{p}</p>);
   const band = 'border-t border-[var(--color-line)] py-16 sm:py-24';
 
   const blocks: Record<HomeBlock, React.ReactNode> = {
     tiles: tiles.length > 0 && (
-      <section key="tiles" id="pieces" className="mx-auto max-w-[85rem] scroll-mt-28 px-4 sm:px-8">
-        <h2 className="font-display py-14 text-center text-[clamp(1.9rem,3.4vw,2.9rem)] leading-tight [text-wrap:balance] sm:py-20">
-          {t('home.tiles_title').split('\n').map((l, i) => (
-            <span key={i} className="block">{l}</span>
-          ))}
-        </h2>
-        <div className="grid grid-cols-2 gap-3 pb-16 sm:grid-cols-3 sm:gap-4 sm:pb-24 lg:grid-cols-6">
+      <section key="tiles" id="pieces" className="mx-auto max-w-[85rem] scroll-mt-[var(--header-h,9rem)] px-4 py-16 sm:px-8 sm:py-24">
+        <div className={`grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-8 lg:gap-x-12 ${tiles.length >= 5 ? 'lg:grid-cols-5' : tiles.length === 3 ? 'sm:grid-cols-3' : 'lg:grid-cols-4'}`}>
           {tiles.map((tile, i) => {
-            // The piece gives the name; a click opens its section of the collection.
+            // The category gives the name and the link; the piece only gives the photo.
             const piece = tile.piece_id ? pieces.find((p) => p.id === tile.piece_id) : undefined;
             const section = sections.find((s) => s.id === (piece?.section_id ?? tile.section_id));
-            const name = piece ? tr(piece.title, locale) : section ? tr(section.name, locale) : '';
+            const name = section ? tr(section.name, locale) : '';
             const photo = tile.image_url ?? (piece && (wornPhoto(piece.piece_images) ?? piece.piece_images[0])?.url) ?? null;
             if (!photo) return null;
             return (
-              <Link key={i} href={href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-2.5">
-                <span className="block aspect-square overflow-hidden bg-white">
+              <Link key={i} href={href.shop(locale, section?.slug)} className="group flex min-w-0 flex-col gap-4">
+                <span className="block aspect-[4/5] overflow-hidden bg-white">
                   <Photo src={photo} alt={name} className="h-full w-full transition duration-700 group-hover:scale-[1.04]" />
                 </span>
                 <span className="label text-center group-hover:text-[var(--color-gold)]">{name}</span>
@@ -248,22 +243,40 @@ function absolute(url: string | null): string | undefined {
   return url.startsWith('/') ? `${SITE_URL}${url}` : url;
 }
 
+/**
+ * The first screen: the photo fills the width and the height left under the
+ * header, with the slogan on it and "Scroll to explore" at the bottom.
+ */
 function Hero({ t, image, fit, focus }: { t: Awaited<ReturnType<typeof site>>['t']; image: string | null; fit?: string; focus?: string }) {
   const whole = fit === 'whole';
   const position = focus && /^\d{1,3}% \d{1,3}%$/.test(focus) ? focus : undefined;
   return (
-    <section className="relative bg-[var(--color-pearl)]">
+    <section className="hero">
       <h1 className="sr-only">58 Diamonds by Farah</h1>
       {image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={image} alt="" className={whole ? 'hero-photo hero-whole' : 'hero-photo'} style={!whole && position ? { objectPosition: position } : undefined} fetchPriority="high" />
+        <>
+          {/* "Show the whole photo": the same photo, softly blurred, fills the sides. */}
+          {whole && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={image} alt="" aria-hidden="true" className="hero-backdrop" />
+          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={image} alt="" className={whole ? 'hero-photo hero-whole' : 'hero-photo'} style={!whole && position ? { objectPosition: position } : undefined} fetchPriority="high" />
+        </>
       )}
-      <a href="#pieces" className="label absolute bottom-5 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5 !text-[var(--color-ink)]">
-        {t('home.scroll')}
-        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-          <path d="M5 9l7 7 7-7" />
-        </svg>
-      </a>
+      <div className="hero-text">
+        <p className="font-display text-[clamp(1.35rem,2.4vw,2.2rem)] leading-snug [text-wrap:balance]">
+          {t('home.tiles_title').split('\n').map((l, i) => (
+            <span key={i} className="block">{l}</span>
+          ))}
+        </p>
+        <a href="#pieces" className="label mt-5 inline-flex flex-col items-center gap-1.5 !text-[var(--color-ivory)] sm:mt-7">
+          {t('home.scroll')}
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+            <path d="M5 9l7 7 7-7" />
+          </svg>
+        </a>
+      </div>
     </section>
   );
 }

@@ -5,7 +5,7 @@ import { useAdminRole } from '@/components/admin/AdminShell';
 import { Badge, Button, Card, Help, Loading, PageTitle, SelectField, TextField } from '@/components/admin/ui';
 import { adminFetch } from '@/lib/admin-client';
 import { PASSWORD_RULE, passwordProblem } from '@/lib/password';
-import { canManage, isRole, ROLE_HELP, ROLE_LABEL, ROLES, type AdminRole } from '@/lib/roles';
+import { canManage, canSetPassword, isRole, ROLE_HELP, ROLE_LABEL, ROLES, type AdminRole } from '@/lib/roles';
 import { getAdminDb } from '@/lib/supabase';
 import { askConfirm } from '@/components/admin/confirm';
 import { PasswordInput } from '@/components/PasswordInput';
@@ -97,6 +97,7 @@ export default function AdminsAdmin() {
           <ul className="divide-y divide-[var(--color-line)]">
             {admins.map((a) => {
               const manageable = a.user_id !== me && canManage(myRole, a.role);
+              const passwordOnly = !manageable && a.user_id !== me && canSetPassword(myRole, a.role);
               return (
                 <li key={a.user_id} className="flex flex-wrap items-center gap-3 py-3">
                   <span className="flex-1">
@@ -147,6 +148,11 @@ export default function AdminsAdmin() {
                         Remove
                       </Button>
                     </>
+                  )}
+                  {passwordOnly && (
+                    <Button disabled={busy} onClick={() => setReset({ userId: a.user_id, password: '' })}>
+                      New password
+                    </Button>
                   )}
                   {reset?.userId === a.user_id && (
                     <span className="flex w-full flex-wrap items-center gap-3">

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { BagView } from '@/components/site/BagView';
 import { catalogFor } from '@/lib/catalog';
+import { deliveryCountries } from '@/lib/shipping';
 import { site } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -18,7 +19,7 @@ export default async function BagPage({ params }: Props) {
     <Suspense>
       <BagView
         catalog={catalog}
-        shipping={{ flat: settings.shipping_flat, freeFrom: settings.free_shipping_from }}
+        shipping={{ flat: settings.shipping_flat, freeFrom: settings.free_shipping_from, rates: settings.shipping_rates, countries: deliveryCountries(settings) }}
         giftWrap={settings.gift_wrap_enabled ? settings.gift_wrap_price : null}
       />
     </Suspense>

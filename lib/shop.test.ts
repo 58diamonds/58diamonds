@@ -73,6 +73,15 @@ describe('money', () => {
     expect(shippingFor(500, { shipping_flat: 15, free_shipping_from: 500 })).toBe(0);
     expect(shippingFor(0, { shipping_flat: 15, free_shipping_from: null })).toBe(0);
   });
+  it('charges per country when rates are set, and refuses countries without one', () => {
+    const s = { shipping_flat: 0, free_shipping_from: null, shipping_rates: { BE: { percent: 1, fixed: 50, round_to: 5 } } };
+    expect(shippingFor(1000, s, 'BE')).toBe(60);
+    expect(shippingFor(7500, s, 'be')).toBe(125);
+    expect(shippingFor(1234, s, 'BE')).toBe(65);
+    expect(shippingFor(1000, s, 'US')).toBeNull();
+    expect(shippingFor(1000, s, null)).toBeNull();
+    expect(shippingFor(1000, { ...s, free_shipping_from: 500 }, 'BE')).toBe(0);
+  });
   it('finds the VAT inside a VAT-inclusive price', () => {
     expect(vatIncluded(121, 21)).toBe(21);
     expect(vatIncluded(1000, 21)).toBe(173.55);

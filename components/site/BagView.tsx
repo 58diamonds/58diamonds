@@ -8,6 +8,7 @@ import type { CatalogItem } from '@/lib/catalog';
 import { HAS_DATABASE } from '@/lib/config';
 import { formatPrice } from '@/lib/format';
 import { href } from '@/lib/routes';
+import { countryName, type ShippingRates } from '@/lib/shipping';
 import { shippingFor } from '@/lib/shop';
 import { Photo } from './Photo';
 import { useSite } from './SiteProvider';
@@ -22,7 +23,7 @@ export function BagView({
   giftWrap,
 }: {
   catalog: CatalogItem[];
-  shipping: { flat: number; freeFrom: number | null };
+  shipping: { flat: number; freeFrom: number | null; rates: ShippingRates; countries: string[] };
   giftWrap: number | null;
 }) {
   const { locale, t, currency, features } = useSite();
@@ -31,6 +32,7 @@ export function BagView({
   const [wrap, setWrap] = useState(false);
   const [message, setMessage] = useState('');
   const [accepted, setAccepted] = useState(false);
+  const [country, setCountry] = useState(shipping.countries.includes('BE') ? 'BE' : (shipping.countries[0] ?? ''));
   const [state, setState] = useState<'idle' | 'busy' | 'unavailable' | 'error' | 'off'>('idle');
   const money = (n: number) => formatPrice(n, currency, locale);
 
@@ -46,9 +48,9 @@ export function BagView({
 
   const buyable = rows.filter((r) => r.item.purchasable && r.max > 0);
   const subtotal = buyable.reduce((s, r) => s + (r.item.price ?? 0) * Math.min(r.line.quantity, r.max), 0);
-  const ship = shippingFor(subtotal, { shipping_flat: shipping.flat, free_shipping_from: shipping.freeFrom });
+  const ship = shippingFor(subtotal, { shipping_flat: shipping.flat, free_shipping_from: shipping.freeFrom, shipping_rates: shipping.rates }, country);
   const wrapCost = wrap && giftWrap ? giftWrap : 0;
-  const total = subtotal + ship + wrapCost;
+  const total = subtotal + (ship ?? 0) + wrapCost;
 
   async function checkout() {
     setState('busy');
@@ -60,7 +62,7 @@ export function BagView({
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message, acceptTerms: accepted }),
+      body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message, acceptTerms: accepted, country }),
     }).catch(() => null);
     const json = (await res?.json().catch(() => ({}))) as { url?: string; error?: string; fixed?: typeof lines };
     if (res?.ok && json.url) {
@@ -166,6 +168,17 @@ export function BagView({
               )}
             </div>
           )}
+          <label className="mb-6 block">
+            <span className="eyebrow">{t('cart.country')}</span>
+            <select value={country} onChange={(e) => setCountry(e.target.value)} className="field">
+              {shipping.countries
+                .map((c) => [c, countryName(c, locale)] as const)
+                .sort((a, b) => a[1].localeCompare(b[1], locale))
+                .map(([c, name]) => (
+                  <option key={c} value={c}>{name}</option>
+                ))}
+            </select>
+          </label>
           <dl className="space-y-3">
             <div className="flex justify-between">
               <dt className="text-[var(--color-stone)]">{t('cart.subtotal')}</dt>
@@ -173,7 +186,7 @@ export function BagView({
             </div>
             <div className="flex justify-between">
               <dt className="text-[var(--color-stone)]">{t('cart.shipping')}</dt>
-              <dd>{ship ? money(ship) : t('cart.free')}</dd>
+              <dd>{ship === null ? '-' : ship ? money(ship) : t('cart.free')}</dd>
             </div>
             {wrapCost > 0 && (
               <div className="flex justify-between">
@@ -204,7 +217,7 @@ export function BagView({
                 )}
             </span>
           </label>
-          <button type="button" onClick={checkout} disabled={!buyable.length || !accepted || state === 'busy' || !features.shop} className="btn btn-dark mt-5 w-full disabled:opacity-50">
+          <button type="button" onClick={checkout} disabled={!buyable.length || !accepted || ship === null || state === 'busy' || !features.shop} className="btn btn-dark mt-5 w-full disabled:opacity-50">
             {state === 'busy' ? t('common.loading') : t('cart.checkout')}
           </button>
           {state === 'unavailable' && <p className="mt-4 text-sm text-red-800" role="alert">{t('cart.unavailable')}</p>}

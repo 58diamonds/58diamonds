@@ -1,3 +1,4 @@
+import { rateCost, type ShippingRates } from './shipping';
 import type { Piece, Section, Settings } from './types';
 
 /**
@@ -149,11 +150,22 @@ export function filterPieces(
   }
 }
 
-/** Shipping cost for a bag subtotal. */
-export function shippingFor(subtotal: number, settings: Pick<Settings, 'shipping_flat' | 'free_shipping_from'>): number {
+/**
+ * Shipping cost for a bag subtotal sent to `country`. With rates per country,
+ * a country without one gets null: it cannot be shipped to. Without any
+ * rates, the flat price applies everywhere.
+ */
+export function shippingFor(
+  subtotal: number,
+  settings: Pick<Settings, 'shipping_flat' | 'free_shipping_from'> & { shipping_rates?: ShippingRates | null },
+  country?: string | null,
+): number | null {
+  const rates = settings.shipping_rates ?? {};
+  const rate = country ? rates[country.toUpperCase()] : undefined;
+  if (Object.keys(rates).length && !rate) return null;
   if (subtotal <= 0) return 0;
   if (settings.free_shipping_from != null && subtotal >= Number(settings.free_shipping_from)) return 0;
-  return Number(settings.shipping_flat) || 0;
+  return rate ? rateCost(subtotal, rate) : Number(settings.shipping_flat) || 0;
 }
 
 /** VAT contained in a price that already includes it (Belgian retail prices do). */

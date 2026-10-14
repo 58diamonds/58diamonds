@@ -9,6 +9,7 @@ import { href } from '@/lib/routes';
 import { getRequestUser } from '@/lib/server-auth';
 import { getStripe, toCents } from '@/lib/stripe';
 import { getServiceDb } from '@/lib/supabase';
+import { deliveryCountries } from '@/lib/shipping';
 import { makeT } from '@/lib/t';
 import type { Piece, Section } from '@/lib/types';
 
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
     giftWrap?: boolean;
     giftMessage?: string;
     acceptTerms?: boolean;
+    country?: string;
   } | null;
   const locale: Locale = isLocale(body?.locale) ? body.locale : 'en';
   const bag = Array.isArray(body?.lines) ? body.lines.slice(0, 30) : [];
@@ -55,8 +57,13 @@ export async function POST(req: Request) {
 
   if (!settings.shop_enabled) return NextResponse.json({ error: 'closed' }, { status: 409 });
 
+  // The bag asks for the delivery country first: shipping depends on it.
+  const country = String(body?.country ?? '').toUpperCase();
+  if (!deliveryCountries(settings).includes(country)) return NextResponse.json({ error: 'country' }, { status: 400 });
+
   const giftMessage = (body?.giftMessage ?? '').toString().trim().slice(0, 300) || null;
-  const priced = priceBag(bag, live, visibleSections, settings, reserved, { giftWrap: Boolean(body?.giftWrap), locale });
+  const priced = priceBag(bag, live, visibleSections, settings, reserved, { giftWrap: Boolean(body?.giftWrap), locale, country });
+  if (priced.shipping === null) return NextResponse.json({ error: 'country' }, { status: 400 });
   if (priced.problems.length || !priced.lines.length) {
     return NextResponse.json({ error: 'unavailable', fixed: priced.fixed }, { status: 409 });
   }
@@ -115,7 +122,8 @@ export async function POST(req: Request) {
       // Business buyers can add their VAT number; it goes on the invoice.
       tax_id_collection: { enabled: true },
       shipping_address_collection: {
-        allowed_countries: settings.ship_to as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
+        // Only the country the shipping was priced for.
+        allowed_countries: [country] as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
       },
       shipping_options: [
         {

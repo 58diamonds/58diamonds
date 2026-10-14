@@ -13,6 +13,7 @@
   --color-gold-soft: #d8c4a0;
   --color-foil: #be9b5f;
   --color-line: #ddd5c8;
+  --color-18forge: #f37021; /* Forged by credit, hover and focus */
 
   --font-display: var(--font-cormorant), Garamond, 'Times New Roman', serif;
   --font-sans: var(--font-montserrat), 'Helvetica Neue', Arial, sans-serif;

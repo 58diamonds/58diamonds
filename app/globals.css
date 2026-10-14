@@ -242,6 +242,8 @@ body {
   position: relative;
   overflow: hidden;
   height: calc(100svh - var(--header-h, 9rem));
+  /* Fill down to the very bottom of the screen, under Safari's floating toolbar, so nothing below peeks through it. */
+  height: calc(100lvh - var(--header-h, 9rem));
   min-height: 22rem;
   background: var(--color-pearl);
 }
@@ -278,6 +280,8 @@ body {
   inset-inline: 0;
   bottom: 0;
   padding: 0 1.25rem clamp(1.25rem, 3vh, 2rem);
+  /* Keep the slogan and "Scroll to explore" above the toolbar. */
+  padding-bottom: calc(100lvh - 100svh + clamp(1.25rem, 3vh, 2rem));
   text-align: center;
   color: var(--color-ivory);
   text-shadow: 0 1px 12px rgb(56 48 42 / 0.45);

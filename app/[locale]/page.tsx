@@ -44,7 +44,12 @@ export default async function Home({ params }: Props) {
 
   const blocks: Record<HomeBlock, React.ReactNode> = {
     tiles: tiles.length > 0 && (
-      <section key="tiles" id="pieces" className="mx-auto max-w-[85rem] scroll-mt-[var(--header-h,9rem)] px-4 py-16 sm:px-8 sm:py-24">
+      <section key="tiles" id="pieces" className="mx-auto max-w-[85rem] scroll-mt-[var(--header-h,9rem)] px-4 pb-16 pt-12 sm:px-8 sm:pb-24 sm:pt-20">
+        <p className="font-display mx-auto mb-12 max-w-[40rem] text-center text-[clamp(1.4rem,2.6vw,2.1rem)] leading-snug text-[var(--color-ink)] [text-wrap:balance] sm:mb-16">
+          {t('home.tiles_title').split('\n').map((l, i) => (
+            <span key={i} className="block">{l}</span>
+          ))}
+        </p>
         <div className={`grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-8 lg:gap-x-12 ${tiles.length >= 5 ? 'lg:grid-cols-5' : tiles.length === 3 ? 'sm:grid-cols-3' : 'lg:grid-cols-4'}`}>
           {tiles.map((tile, i) => {
             // The category gives the name and the link; the piece only gives the photo.
@@ -245,7 +250,7 @@ function absolute(url: string | null): string | undefined {
 
 /**
  * The first screen: the photo fills the width and the height left under the
- * header, with the slogan on it and "Scroll to explore" at the bottom.
+ * header, with "Scroll to explore" at the bottom; the slogan sits under the photo.
  */
 function Hero({ t, image, fit, focus }: { t: Awaited<ReturnType<typeof site>>['t']; image: string | null; fit?: string; focus?: string }) {
   const whole = fit === 'whole';
@@ -265,12 +270,7 @@ function Hero({ t, image, fit, focus }: { t: Awaited<ReturnType<typeof site>>['t
         </>
       )}
       <div className="hero-text">
-        <p className="font-display text-[clamp(1.35rem,2.4vw,2.2rem)] leading-snug [text-wrap:balance]">
-          {t('home.tiles_title').split('\n').map((l, i) => (
-            <span key={i} className="block">{l}</span>
-          ))}
-        </p>
-        <a href="#pieces" className="label mt-5 inline-flex flex-col items-center gap-1.5 !text-[var(--color-ivory)] sm:mt-7">
+        <a href="#pieces" className="label inline-flex flex-col items-center gap-1.5 !text-[var(--color-ivory)]">
           {t('home.scroll')}
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
             <path d="M5 9l7 7 7-7" />

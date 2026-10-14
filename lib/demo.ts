@@ -44,6 +44,7 @@ export const DEMO_SETTINGS: Settings = {
   shipping_flat: 0,
   free_shipping_from: null,
   ship_to: ['BE', 'NL', 'LU', 'FR', 'DE'],
+  shipping_rates: {},
   gift_wrap_enabled: true,
   gift_wrap_price: 0,
   wishlist_enabled: true,

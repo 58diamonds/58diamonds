@@ -8,19 +8,12 @@ import { getAdminDb } from '@/lib/supabase';
 import type { Settings } from '@/lib/types';
 import { EU_VAT_RATES, HOME_COUNTRY, OSS_THRESHOLD } from '@/lib/vat';
 
-/** Countries she can ship to; Stripe asks for an address in one of these. */
-const COUNTRIES: [string, string][] = [
-  ['BE', 'Belgium'], ['NL', 'Netherlands'], ['LU', 'Luxembourg'], ['FR', 'France'], ['DE', 'Germany'],
-  ['GB', 'United Kingdom'], ['CH', 'Switzerland'], ['IT', 'Italy'], ['ES', 'Spain'], ['PT', 'Portugal'],
-  ['AT', 'Austria'], ['IE', 'Ireland'], ['DK', 'Denmark'], ['SE', 'Sweden'], ['NO', 'Norway'],
-  ['MC', 'Monaco'], ['US', 'United States'], ['CA', 'Canada'], ['AE', 'United Arab Emirates'],
-];
 
-/** Contact details, shop switches, shipping, invoices, sharing image. */
+/** Contact details, shop switches, gift wrap, invoices, sharing image. */
 export default function SettingsAdmin() {
   const db = getAdminDb();
   const [s, setS] = useState<Settings | null>(null);
-  const { state, run, setState } = useSave();
+  const { state, run } = useSave();
 
   useEffect(() => {
     db.from('settings').select('*').eq('id', 1).maybeSingle().then(({ data }) => {
@@ -42,7 +35,6 @@ export default function SettingsAdmin() {
 
   async function save() {
     const v = s!;
-    if (SHOP_LIVE && !v.ship_to.length) return setState({ error: 'Choose at least one country to ship to.' });
     await run(async () =>
       db
         .from('settings')
@@ -56,9 +48,6 @@ export default function SettingsAdmin() {
           site_hidden: v.site_hidden === true,
           wishlist_enabled: v.wishlist_enabled,
           newsletter_enabled: v.newsletter_enabled,
-          shipping_flat: v.shipping_flat ?? 0,
-          free_shipping_from: v.free_shipping_from,
-          ship_to: v.ship_to,
           gift_wrap_enabled: v.gift_wrap_enabled,
           gift_wrap_price: v.gift_wrap_price ?? 0,
           company_name: v.company_name?.trim() || null,
@@ -115,32 +104,14 @@ export default function SettingsAdmin() {
         </Card>
 
         {SHOP_LIVE && (
-        <Card title="Shipping and gift wrap">
+        <Card title="Gift wrap">
+          <p className="mb-4 text-sm text-[var(--color-stone)]">
+            Shipping prices per country are under <Link href="/shipping" className="underline underline-offset-4">Shipping</Link>.
+          </p>
           <div className="grid gap-5 sm:grid-cols-2">
-            <NumberField label="Shipping cost (€)" value={s.shipping_flat} onChange={(v) => set({ shipping_flat: v ?? 0 })} step={0.01} hint="Insured and tracked. 0 for free." />
-            <NumberField label="Free shipping from (€)" value={s.free_shipping_from} onChange={(free_shipping_from) => set({ free_shipping_from })} step={1} hint="Empty: never free." />
             <Toggle label="Offer gift wrap" checked={s.gift_wrap_enabled} onChange={(gift_wrap_enabled) => set({ gift_wrap_enabled })} />
             <NumberField label="Gift wrap price (€)" value={s.gift_wrap_price} onChange={(v) => set({ gift_wrap_price: v ?? 0 })} step={0.01} hint="0 for free." />
           </div>
-          <fieldset className="mt-6">
-            <legend className="text-sm">Ships to</legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {COUNTRIES.map(([code, name]) => {
-                const on = s.ship_to.includes(code);
-                return (
-                  <button
-                    key={code}
-                    type="button"
-                    className="chip"
-                    aria-pressed={on}
-                    onClick={() => set({ ship_to: on ? s.ship_to.filter((c) => c !== code) : [...s.ship_to, code] })}
-                  >
-                    {name}
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
         </Card>
         )}
 

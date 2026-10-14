@@ -124,6 +124,7 @@ export const TEXTS = {
   'cart.remove': t('Bag and checkout', 'Remove', 'Remove', 'Verwijderen', 'Retirer'),
   'cart.quantity': t('Bag and checkout', 'Quantity', 'Quantity', 'Aantal', 'Quantité'),
   'cart.subtotal': t('Bag and checkout', 'Subtotal', 'Subtotal', 'Subtotaal', 'Sous-total'),
+  'cart.country': t('Bag and checkout', 'Delivery country (shipping depends on it)', 'Delivery country', 'Land van levering', 'Pays de livraison'),
   'cart.shipping': t('Bag and checkout', 'Shipping', 'Shipping', 'Verzending', 'Livraison'),
   'cart.free': t('Bag and checkout', 'Free shipping', 'Free', 'Gratis', 'Offerte'),
   'cart.total': t('Bag and checkout', 'Total', 'Total', 'Totaal', 'Total'),

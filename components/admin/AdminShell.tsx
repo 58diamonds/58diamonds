@@ -38,6 +38,7 @@ const NAV: { group: string; items: { href: string; label: string }[] }[] = [
   ] },
   { group: 'Setup', items: [
     { href: '/settings', label: 'Settings' },
+    { href: '/shipping', label: 'Shipping' },
     { href: '/booking', label: 'Booking calendar' },
     { href: '/admins', label: 'Admins' },
   ] },

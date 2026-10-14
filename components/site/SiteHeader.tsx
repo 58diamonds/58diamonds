@@ -102,8 +102,8 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
 
         <Link href={href.home(locale)} className="block justify-self-center" aria-label="58 Diamonds">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-11 w-auto md:h-[clamp(4.25rem,7vw,6rem)]" />
-          {privateJeweller && <PrivateJeweller logo={logo} className="mt-1 pl-[0.26em] text-[0.55rem] md:mt-1.5 md:text-[0.85rem]" />}
+          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-[5.5rem] w-auto md:h-[clamp(5.5rem,9vw,7.5rem)]" />
+          {privateJeweller && <PrivateJeweller logo={logo} className="mt-2 pl-[0.26em] text-[min(1.1rem,4.3vw)] md:mt-2 md:text-[1.05rem]" />}
         </Link>
 
         <div className="flex items-center justify-end gap-1">
@@ -145,7 +145,7 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
       </nav>
 
       {open && (
-        <nav id="mobile-menu" className="fixed inset-x-0 bottom-0 top-[4.2rem] overflow-y-auto bg-[var(--color-ivory)] px-5 pb-10 pt-6 md:hidden" aria-label="Main">
+        <nav id="mobile-menu" className="fixed inset-x-0 bottom-0 top-[var(--header-h,8.5rem)] overflow-y-auto bg-[var(--color-ivory)] px-5 pb-10 pt-6 md:hidden" aria-label="Main">
           {links.map((l) =>
             l.external ? (
               <a key={l.id} href={l.href} target="_blank" rel="noreferrer" className="font-display block py-2 text-[1.75rem]">

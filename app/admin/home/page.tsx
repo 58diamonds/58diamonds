@@ -9,7 +9,7 @@ import { getAdminDb } from '@/lib/supabase';
 import type { HeaderLogo, HomeBlock, HomeTile, Piece, Section, Settings } from '@/lib/types';
 
 const BLOCKS: Record<HomeBlock, { name: string; about: string }> = {
-  tiles: { name: 'Squares', about: 'The heading and the photo squares that open a section of the collection.' },
+  tiles: { name: 'Squares', about: 'The category squares under the big photo, each opening that part of the collection.' },
   house: { name: 'The house', about: 'Heading and three short texts (made to order, certified stones, appointments).' },
   story: { name: 'About Farah', about: 'Photo, the start of her story and a link to the About page.' },
   featured: { name: 'Selected pieces', about: 'The pieces marked “Show on the homepage”.' },
@@ -105,8 +105,8 @@ export default function HomeAdmin() {
 
         <Card title="Squares">
           <Help>
-            Up to six squares under the heading, each one a piece from the collection. The name under the square is the piece&apos;s name, and a click opens its
-            part of the collection (a ring opens Rings). The photo is one of the piece&apos;s own photos, the worn photo first when the piece has one; to show another one, add it to the piece first.
+            Up to five squares under the big photo, one per category. The name under the square is the category (Rings, Bracelets...), and a click opens that
+            part of the collection. Choose a piece to pick the photo: it is one of the piece&apos;s own photos, the worn photo first when the piece has one.
           </Help>
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {tiles.map((tile, i) => {
@@ -128,8 +128,8 @@ export default function HomeAdmin() {
                     )}
                   </div>
                   <p className="mt-2 text-sm">
-                    {piece ? show(piece.title) : 'No piece chosen'}
-                    {sec && <span className="text-[var(--color-stone)]"> · opens {show(sec.name)}</span>}
+                    {sec ? show(sec.name) : 'No piece chosen'}
+                    {piece && <span className="text-[var(--color-stone)]"> · photo of {show(piece.title)}</span>}
                   </p>
                   {choices.length > 1 && (
                     <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Photo">
@@ -157,7 +157,7 @@ export default function HomeAdmin() {
               );
             })}
           </ul>
-          {tiles.length < 6 && (
+          {tiles.length < 5 && (
             <div className="mt-4">
               <Button
                 onClick={() => {

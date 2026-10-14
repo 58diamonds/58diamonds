@@ -100,10 +100,13 @@ export function SiteHeader({ links, logo = 'ink', privateJeweller = false }: { l
           <LanguageSwitch className="hidden font-sans md:inline" />
         </div>
 
-        <Link href={href.home(locale)} className="block justify-self-center" aria-label="58 Diamonds">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="mx-auto h-[6.25rem] w-auto md:h-[clamp(6.25rem,10vw,8.5rem)]" />
-          {privateJeweller && <PrivateJeweller logo={logo} className="mt-2 pl-[0.26em] text-[0.82rem] md:mt-2.5 md:text-[0.9rem]" />}
+        <Link href={href.home(locale)} className="block justify-self-center pb-1.5" aria-label="58 Diamonds">
+          {/* The box keeps the band height; the logo sits a little smaller inside it. */}
+          <span className="flex h-[6.25rem] items-center justify-center md:h-[clamp(6.25rem,10vw,8.5rem)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={LOGO_SRC[logo] ?? LOGO_SRC.ink} alt="58 Diamonds" className="h-[88%] w-auto" />
+          </span>
+          {privateJeweller && <PrivateJeweller logo={logo} className="mt-0.5 pl-[0.26em] text-[0.82rem] md:mt-1 md:text-[0.9rem]" />}
         </Link>
 
         <div className="flex items-center justify-end gap-1">

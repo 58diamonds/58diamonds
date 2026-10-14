@@ -6,7 +6,7 @@ export const ROLE_LABEL: Record<AdminRole, string> = { owner: 'Owner', admin: 'A
 
 export const ROLE_HELP: Record<AdminRole, string> = {
   owner: 'Everything, including all admins.',
-  admin: 'Everything, and can add, block or remove admins and editors. Not owners.',
+  admin: 'Everything, and can add, block or remove admins and editors. Can set a new password for an owner, nothing else.',
   editor: 'Website content and the collection only.',
 };
 
@@ -23,9 +23,14 @@ export function canOpen(role: AdminRole | null, href: string): boolean {
   return EDITOR_PATHS.some((p) => href === p || href.startsWith(`${p}/`));
 }
 
-/** May `actor` add, block, remove or set the password of someone with role `target`? */
+/** May `actor` add, block, remove or change the role of someone with role `target`? */
 export function canManage(actor: AdminRole | null, target: AdminRole): boolean {
   if (actor === 'owner') return true;
   if (actor === 'admin') return target !== 'owner';
   return false;
+}
+
+/** May `actor` set a new password for someone with role `target`? Admins may for owners too, so a forgotten owner password never locks the owner out. */
+export function canSetPassword(actor: AdminRole | null, target: AdminRole): boolean {
+  return canManage(actor, target) || (actor === 'admin' && target === 'owner');
 }

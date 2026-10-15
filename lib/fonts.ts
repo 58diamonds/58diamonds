@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Montserrat } from 'next/font/google';
+import { Cormorant_Garamond, Montserrat, Homemade_Apple } from 'next/font/google';
 
 export const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -17,3 +17,11 @@ export const montserrat = Montserrat({
 });
 
 export const fontVars = `${cormorant.variable} ${montserrat.variable}`;
+
+/** Handwriting, only for the "Coming soon..." line on the holding page. */
+export const script = Homemade_Apple({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-script',
+  display: 'swap',
+});

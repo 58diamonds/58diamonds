@@ -16,10 +16,18 @@ export function HoldingLines() {
   useEffect(() => {
     const el = box.current;
     if (!el) return;
+    // Drawn once per visit. On iPhone, pulling the page or the toolbar
+    // sliding in fires resize events; new random spots each time made the
+    // lines jump about, so only a real width change re-lays them, keeping
+    // the same draw.
+    const draw = LINES.map(() => Math.random());
+    let width = -1;
     const place = () => {
       const w = el.clientWidth;
+      if (w === width) return;
+      width = w;
       const ps = [...el.children] as HTMLElement[];
-      const pos = ps.map((p) => Math.random() * Math.max(0, w - p.offsetWidth));
+      const pos = ps.map((p, i) => draw[i] * Math.max(0, w - p.offsetWidth));
       const left = Math.min(...pos);
       const right = Math.max(...pos.map((x, i) => x + ps[i].offsetWidth));
       const shift = (w - (right - left)) / 2 - left;

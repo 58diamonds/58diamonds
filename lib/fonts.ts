@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Montserrat } from 'next/font/google';
+import { Cormorant_Garamond, Montserrat, Questrial } from 'next/font/google';
 
 export const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -16,4 +16,12 @@ export const montserrat = Montserrat({
   display: 'swap',
 });
 
-export const fontVars = `${cormorant.variable} ${montserrat.variable}`;
+/** The 58 DIAMONDS wordmark lettering, for PRIVATE JEWELLER under the logo. */
+export const questrial = Questrial({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-wordmark',
+  display: 'swap',
+});
+
+export const fontVars = `${cormorant.variable} ${montserrat.variable} ${questrial.variable}`;

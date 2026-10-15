@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { fontVars } from '@/lib/fonts';
+import { fontVars, pinyon } from '@/lib/fonts';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function HoldingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={fontVars}>
+    <html lang="en" className={`${fontVars} ${pinyon.variable}`}>
       <body>{children}</body>
     </html>
   );

@@ -1,9 +1,10 @@
+import { HoldingLines } from '@/components/site/HoldingLines';
 import { PrivateJeweller } from '@/components/site/PrivateJeweller';
 import { getSettings } from '@/lib/data';
 
 export const revalidate = 300;
 
-/** What the public sees while the site is hidden (Admin > Settings): the logo and a handwritten "Coming soon...". */
+/** What the public sees while the site is hidden (Admin > Settings): a handwritten "Coming soon...", the logo, and a few words from Farah. */
 export default async function Holding() {
   const settings = await getSettings();
   return (
@@ -11,9 +12,10 @@ export default async function Holding() {
       <h1 className="sr-only">58 Diamonds</h1>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <div>
+        <ComingSoon />
         <img src="/brand/logo-brown-gold.svg?v=3" alt="58 Diamonds" className="h-auto w-[min(24rem,calc(100vw-4rem))] sm:w-96" />
         {settings.private_jeweller === true && <PrivateJeweller logo="brown-gold" className="mt-5 pl-[0.26em] text-[0.85rem] sm:text-[0.85rem]" />}
-        <ComingSoon />
+        <HoldingLines />
       </div>
     </main>
   );
@@ -31,7 +33,7 @@ function ComingSoon() {
   const text = 'Coming soon...';
   const last = text.length - 1;
   return (
-    <p aria-label={text} className="mt-12 flex justify-center font-[family-name:var(--font-script)] text-[1.9rem] leading-none sm:mt-14 sm:text-[2.4rem]">
+    <p aria-label={text} className="mb-10 flex justify-center font-[family-name:var(--font-script)] text-[1.9rem] leading-none sm:mb-12 sm:text-[2.4rem]">
       {[...text].map((ch, i) => {
         const [dy, rot] = JITTER[i % JITTER.length];
         // Climbs 0.55em over the line, first letter lowest.

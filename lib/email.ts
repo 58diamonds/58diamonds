@@ -16,7 +16,7 @@ export interface Mail {
 
 export async function sendEmail(mail: Mail): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.MAIL_FROM || '58 Diamonds <orders@58diamonds.com>';
+  const from = process.env.MAIL_FROM || '58 Diamonds <sales@58diamonds.com>';
   if (!key) {
     console.info(`[email not sent: RESEND_API_KEY missing] ${mail.subject} -> ${mail.to}`);
     return false;

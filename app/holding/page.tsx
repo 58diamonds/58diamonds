@@ -1,10 +1,9 @@
-import { HoldingLines } from '@/components/site/HoldingLines';
 import { PrivateJeweller } from '@/components/site/PrivateJeweller';
 import { getSettings } from '@/lib/data';
 
 export const revalidate = 300;
 
-/** What the public sees while the site is hidden (Admin > Settings): a handwritten "Coming soon...", the logo, and a few words from Farah. */
+/** What the public sees while the site is hidden (Admin > Settings): a handwritten "Coming soon..." above the logo. */
 export default async function Holding() {
   const settings = await getSettings();
   return (
@@ -15,7 +14,6 @@ export default async function Holding() {
         <ComingSoon />
         <img src="/brand/logo-brown-gold.svg?v=3" alt="58 Diamonds" className="h-auto w-[min(24rem,calc(100vw-4rem))] sm:w-96" />
         {settings.private_jeweller === true && <PrivateJeweller logo="brown-gold" className="mt-5 pl-[0.26em] text-[0.85rem] sm:text-[0.85rem]" />}
-        <HoldingLines />
       </div>
     </main>
   );

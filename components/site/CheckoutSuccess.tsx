@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cart } from '@/lib/cart';
+import { CHECKOUT_KEY } from '@/lib/checkout-session';
 import { href } from '@/lib/routes';
 import { useSite } from './SiteProvider';
 
-/** After paying on Stripe: empty the bag and say thank you with the order number. */
+/** After paying: empty the bag and say thank you with the order number. */
 export function CheckoutSuccess() {
   const { locale, t } = useSite();
   const params = useSearchParams();
@@ -15,6 +16,9 @@ export function CheckoutSuccess() {
 
   useEffect(() => {
     cart.set([]);
+    try {
+      sessionStorage.removeItem(CHECKOUT_KEY);
+    } catch {}
     const order = params.get('order');
     const session = params.get('session');
     if (!order || !session) return;

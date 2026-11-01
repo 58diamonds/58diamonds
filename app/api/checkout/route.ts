@@ -4,8 +4,7 @@ import { priceBag, type BagLine } from '@/lib/checkout';
 import { SITE_URL } from '@/lib/config';
 import { getSettings, getTexts } from '@/lib/data';
 import { isLocale, type Locale } from '@/lib/i18n';
-import { reservedStock } from '@/lib/orders';
-import { href } from '@/lib/routes';
+import { cancelPendingOrder, reservedStock } from '@/lib/orders';
 import { getRequestUser } from '@/lib/server-auth';
 import { getStripe, toCents } from '@/lib/stripe';
 import { getServiceDb } from '@/lib/supabase';
@@ -20,8 +19,9 @@ const STRIPE_LOCALE: Record<Locale, 'en' | 'nl' | 'fr'> = { en: 'en', nl: 'nl', 
 
 /**
  * Start a payment: check the bag against live stock and prices, write a
- * pending order, and hand back the Stripe Checkout address. The order holds
- * its pieces for 30 minutes, the life of the Stripe page.
+ * pending order, and hand back what our own checkout page needs to show the
+ * payment form. The order holds its pieces for 30 minutes, the life of the
+ * Stripe session.
  */
 export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as {
@@ -39,7 +39,8 @@ export async function POST(req: Request) {
   if (body?.acceptTerms !== true) return NextResponse.json({ error: 'terms' }, { status: 400 });
 
   const stripe = getStripe();
-  if (!stripe) return NextResponse.json({ error: 'not_configured' }, { status: 503 });
+  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  if (!stripe || !publishableKey) return NextResponse.json({ error: 'not_configured' }, { status: 503 });
 
   const db = getServiceDb();
   const ids = [...new Set(bag.map((l) => String(l.pieceId)))].filter((id) => /^[0-9a-f-]{36}$/i.test(id));
@@ -111,6 +112,8 @@ export async function POST(req: Request) {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      // Paid on our own checkout page: the address and contact fields are ours, only the payment box is Stripe's.
+      ui_mode: 'elements',
       locale: STRIPE_LOCALE[locale],
       client_reference_id: order.id,
       metadata: { order_id: order.id, order_number: String(order.number) },
@@ -152,14 +155,36 @@ export async function POST(req: Request) {
           : []),
       ],
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      success_url: `${SITE_URL}/${locale}/checkout/success?order=${order.id}&session={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${SITE_URL}${href.bag(locale)}?cancelled=1`,
+      return_url: `${SITE_URL}/${locale}/checkout/success?order=${order.id}&session={CHECKOUT_SESSION_ID}`,
     });
     await db.from('orders').update({ stripe_session_id: session.id }).eq('id', order.id);
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ clientSecret: session.client_secret, publishableKey, country });
   } catch (e) {
     console.error('Stripe checkout failed:', e);
     await db.from('orders').update({ status: 'cancelled' }).eq('id', order.id);
     return NextResponse.json({ error: 'failed' }, { status: 502 });
   }
+}
+
+/**
+ * The buyer went back to the bag: close the Stripe session so its order stops
+ * holding the pieces straight away instead of after 30 minutes.
+ */
+export async function DELETE(req: Request) {
+  const body = (await req.json().catch(() => null)) as { clientSecret?: string } | null;
+  const secret = String(body?.clientSecret ?? '');
+  const id = secret.split('_secret_')[0];
+  const stripe = getStripe();
+  if (!stripe || !id.startsWith('cs_')) return NextResponse.json({ error: 'bad' }, { status: 400 });
+  try {
+    const session = await stripe.checkout.sessions.retrieve(id);
+    // Only the page that holds the session's secret may close it.
+    if (session.client_secret !== secret) return NextResponse.json({ error: 'bad' }, { status: 400 });
+    if (session.status === 'open') await stripe.checkout.sessions.expire(id);
+    const order = session.metadata?.order_id;
+    if (order) await cancelPendingOrder(order);
+  } catch {
+    return NextResponse.json({ error: 'failed' }, { status: 502 });
+  }
+  return NextResponse.json({ ok: true });
 }

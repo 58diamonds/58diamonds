@@ -29,7 +29,7 @@ the client runs the site from `/admin`.
 2. Environment variables (all environments), see `.env.example`:
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
    - `NEXT_PUBLIC_SITE_URL` = `https://DOMAIN`
-   - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+   - `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
    - `RESEND_API_KEY`, `MAIL_FROM`, optionally `ADMIN_EMAIL`
    - `CRON_SECRET` = any long random string (Vercel Cron sends it to the daily Instagram sync)
 3. Redeploy after changing variables.
@@ -42,7 +42,8 @@ the client runs the site from `/admin`.
 3. Developers > Webhooks > Add endpoint: `https://DOMAIN/api/stripe/webhook`, events
    `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
    `checkout.session.async_payment_failed`, `checkout.session.expired`. Copy the signing secret.
-4. Developers > API keys: copy the secret key. Test with test keys first, then swap to live keys.
+4. Developers > API keys: copy the secret key and the publishable key. Test with test keys first, then swap to live keys.
+   Payment happens on the site's own checkout page (/en/checkout); only the payment box comes from Stripe.
 5. Recommended: Radar rule "Review if amount > 5000 EUR" so large card orders are checked by hand.
 
 Without Stripe keys the bag works but checkout says payments are not set up yet.

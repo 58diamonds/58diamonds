@@ -63,6 +63,8 @@ Setup steps are in `docs/SETUP.md`, the layout in `README.md`.
 - Approved extras (2026-10-09): ring sizes with stock per size; Bancontact, iDEAL, Apple Pay, Google Pay, PayPal via Stripe; insured tracked shipping with a shipped email; PDF invoices with VAT (numbers YYYY-0001); legal pages; wishlist; gift wrap and message; newsletter signup. Declined: certificate PDF per piece.
 - Press tab shows only when switched on in admin AND at least one article is published.
 - Stock is held for 30 minutes during checkout (pending orders count as reserved).
+- 2026-11-01: Payment happens on our own checkout page (`/[locale]/checkout`, `components/site/CheckoutView.tsx`): contact, delivery and billing address and an optional company VAT number in the site's own fields, only the payment box is Stripe's (Checkout Sessions with `ui_mode: 'elements'`, styled to the ivory look). Needs `STRIPE_PUBLISHABLE_KEY` next to the secret key. "Back to your bag" closes the Stripe session so the pieces are free again at once.
+- 2026-11-01: Stripe sandbox "58 Diamonds sandbox" set up: webhook to /api/stripe/webhook (4 checkout.session events), payment methods cards, Apple Pay, Google Pay, Bancontact, iDEAL, PayPal and a few EU local methods; Klarna off.
 - Every fixed text lives in `lib/texts.ts` with EN/NL/FR defaults; the admin overrides them in `site_texts`.
 - `supabase/seed.sql` is generated from `lib/demo.ts` (`npm run seed:sql`).
 - Never put overlays or opacity over the jewelry in photos. Do not use the emerald-cut photo (04).

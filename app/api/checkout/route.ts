@@ -114,6 +114,11 @@ export async function POST(req: Request) {
       mode: 'payment',
       // Paid on our own checkout page: the address and contact fields are ours, only the payment box is Stripe's.
       ui_mode: 'elements',
+      // Prices stay in euros. Card, Bancontact and PayPal only (no Link, no other methods).
+      adaptive_pricing: { enabled: false },
+      // The Stripe dashboard may switch on more; these are hidden here.
+      excluded_payment_method_types: ['ideal', 'eps', 'blik', 'mb_way', 'satispay', 'klarna', 'amazon_pay', 'revolut_pay', 'sepa_debit', 'p24'],
+      wallet_options: { link: { display: 'never' } },
       locale: STRIPE_LOCALE[locale],
       client_reference_id: order.id,
       metadata: { order_id: order.id, order_number: String(order.number) },

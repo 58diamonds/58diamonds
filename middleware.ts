@@ -30,7 +30,10 @@ export async function middleware(req: NextRequest) {
     if (!SHOP_LIVE && SHOP_PATHS.admin.some((p) => under(inner, p))) return NextResponse.redirect(new URL('/', req.url));
     return NextResponse.rewrite(new URL(inner, req.url));
   }
-  if (await isSiteHidden()) {
+  // The thank-you page after paying stays reachable while the site is hidden:
+  // the return from the payment does not always carry the preview cookie.
+  const thanks = /^\/(en|nl|fr)\/checkout\/success\/?$/.test(pathname);
+  if (!thanks && (await isSiteHidden())) {
     const token = await previewToken();
     const given = req.nextUrl.searchParams.get(PREVIEW_PARAM);
     if (token && given === token) {

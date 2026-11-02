@@ -4,6 +4,7 @@ import { ADMIN_URL, SITE_URL } from './config';
 import { formatPrice } from './format';
 import type { Locale } from './i18n';
 import { href } from './routes';
+import { countryName } from './shipping';
 import type { T } from './t';
 import type { AppointmentRequest, Order, OrderItem } from './types';
 
@@ -12,42 +13,53 @@ import type { AppointmentRequest, Order, OrderItem } from './types';
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const nl2br = (s: string) => esc(s).replace(/\n/g, '<br>');
 
+/*
+ * Ivory, like the site and the invoice: ivory paper in a thin gold frame, the
+ * gold logo centred, Cormorant titles (Georgia where the font can't load),
+ * Montserrat text, small gold capitals for labels, espresso buttons.
+ */
+const SERIF = "'Cormorant Garamond',Georgia,'Times New Roman',serif";
+const SANS = "Montserrat,Helvetica,Arial,sans-serif";
+const label = (s: string) => `<span style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#8a6a3b">${esc(s)}</span>`;
+
 function layout(title: string, body: string): string {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(title)}</title></head>
-<body style="margin:0;background:#f8f5ef;color:#38302a;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef"><tr><td align="center" style="padding:32px 16px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
-<tr><td style="background:#38302a;padding:28px;text-align:center"><img src="${SITE_URL}/brand/logo-email.png" alt="58 Diamonds" width="150" style="display:inline-block;width:150px;height:auto"></td></tr>
-<tr><td style="background:#ffffff;padding:32px 28px">
-<h1 style="margin:0 0 18px;font-family:Georgia,serif;font-weight:normal;font-size:26px;color:#38302a">${esc(title)}</h1>
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Montserrat:wght@300;500&display=swap" rel="stylesheet"></head>
+<body style="margin:0;background:#f8f5ef;color:#38302a;font-family:${SANS};font-weight:300;font-size:14px;line-height:1.7">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef"><tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;border:1px solid #cdbfa8;background:#f8f5ef">
+<tr><td style="padding:40px 32px 6px;text-align:center"><img src="${SITE_URL}/brand/logo-gold-email.png" alt="58 Diamonds" width="140" style="display:inline-block;width:140px;height:auto;border:0"></td></tr>
+<tr><td style="padding:22px 32px 40px">
+<h1 style="margin:0 0 24px;font-family:${SERIF};font-style:italic;font-weight:400;font-size:32px;line-height:1.2;color:#38302a;text-align:center">${esc(title)}</h1>
 ${body}
 </td></tr>
-<tr><td style="padding:18px;text-align:center;color:#8a7f72;font-size:12px;letter-spacing:2px;text-transform:uppercase">58 Diamonds by Farah</td></tr>
-</table></td></tr></table></body></html>`;
+</table>
+<p style="margin:18px 0 0;text-align:center;font-family:${SANS};color:#8a7f72;font-size:10px;letter-spacing:3px;text-transform:uppercase">58 Diamonds by Farah</p>
+</td></tr></table></body></html>`;
 }
 
-const button = (url: string, label: string) =>
-  `<p style="margin:28px 0"><a href="${url}" style="display:inline-block;background:#38302a;color:#f8f5ef;text-decoration:none;padding:13px 26px;font-size:12px;letter-spacing:3px;text-transform:uppercase">${esc(label)}</a></p>`;
+const button = (url: string, text: string) =>
+  `<p style="margin:30px 0;text-align:center"><a href="${url}" style="display:inline-block;background:#38302a;color:#f8f5ef;text-decoration:none;padding:14px 30px;font-family:${SANS};font-weight:500;font-size:11px;letter-spacing:3px;text-transform:uppercase">${esc(text)}</a></p>`;
 
 function itemsTable(order: Order, items: OrderItem[], t: T, locale: Locale): string {
   const money = (n: number) => formatPrice(n, order.currency, locale);
   const rows = items
     .map(
-      (i) => `<tr><td style="padding:10px 0;border-bottom:1px solid #e2dacd">${esc(i.title)}${i.variant ? ` <span style="color:#8a7f72">(${esc(t('piece.size'))} ${esc(i.variant)})</span>` : ''}${i.quantity > 1 ? ` × ${i.quantity}` : ''}</td><td align="right" style="padding:10px 0;border-bottom:1px solid #e2dacd;white-space:nowrap">${money(i.unit_price * i.quantity)}</td></tr>`,
+      (i) => `<tr><td style="padding:14px 0;border-bottom:1px solid #e2dacd"><span style="font-family:${SERIF};font-size:19px">${esc(i.title)}${i.quantity > 1 ? ` × ${i.quantity}` : ''}</span>${i.variant ? `<br><span style="color:#8a7f72;font-size:12px">${esc(i.variant)}</span>` : ''}</td><td align="right" style="padding:14px 0;border-bottom:1px solid #e2dacd;white-space:nowrap;font-family:${SERIF};font-size:17px">${money(i.unit_price * i.quantity)}</td></tr>`,
     )
     .join('');
-  const line = (label: string, value: string, bold = false) =>
-    `<tr><td style="padding:6px 0;${bold ? 'font-weight:bold' : 'color:#6f675c'}">${esc(label)}</td><td align="right" style="padding:6px 0;${bold ? 'font-weight:bold' : 'color:#6f675c'}">${value}</td></tr>`;
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0">${rows}
+  const line = (name: string, value: string) => `<tr><td style="padding:5px 0;color:#6f675c">${esc(name)}</td><td align="right" style="padding:5px 0;color:#6f675c">${value}</td></tr>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0"><tr><td style="padding-bottom:8px;border-bottom:1px solid #8a6a3b">${label(t('invoice.piece'))}</td><td align="right" style="padding-bottom:8px;border-bottom:1px solid #8a6a3b">${label(t('invoice.price'))}</td></tr>${rows}
+<tr><td style="padding-top:12px"></td><td></td></tr>
 ${line(t('cart.subtotal'), money(order.subtotal))}
 ${line(t('cart.shipping'), order.shipping ? money(order.shipping) : esc(t('cart.free')))}
-${line(t('cart.total'), money(order.total), true)}
-</table><p style="color:#8a7f72;font-size:13px;margin:0">${esc(t('cart.vat'))}</p>`;
+<tr><td style="padding:12px 0 0;border-top:1px solid #8a6a3b">${label(t('cart.total'))}</td><td align="right" style="padding:8px 0 0;border-top:1px solid #8a6a3b;font-family:${SERIF};font-size:22px">${money(order.total)}</td></tr>
+</table><p style="color:#8a7f72;font-size:12px;margin:6px 0 0;text-align:right">${esc(t('cart.vat'))}</p>`;
 }
 
-function address(order: Order): string {
+function address(order: Order, locale: Locale = 'en'): string {
   const a = order.shipping_address ?? {};
-  return [order.name, a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country].filter(Boolean).map((x) => esc(String(x))).join('<br>');
+  return [order.name, a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country ? countryName(a.country, locale) : null].filter(Boolean).map((x) => esc(String(x))).join('<br>');
 }
 
 /**
@@ -77,7 +89,7 @@ export function orderConfirmation(order: Order, items: OrderItem[], t: T, locale
     ? `<p style="margin:18px 0 0">${esc(t('cart.gift_wrap'))}${order.gift_message ? `<br><em>“${nl2br(order.gift_message)}”</em>` : ''}</p>`
     : '';
   const html = layout(subject, `<p>${nl2br(t('email.order_intro'))}</p>${itemsTable(order, items, t, locale)}${gift}
-<p style="margin:22px 0 0"><strong>${esc(t('account.delivery'))}</strong><br>${address(order)}</p>
+<p style="margin:26px 0 0">${label(t('account.delivery'))}<br>${address(order, locale)}</p>
 <p style="margin:22px 0 0">${nl2br(t('email.order_next'))}</p>${button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>${withdrawal.html}`);
   const text = `${subject}\n\n${t('email.order_intro')}\n\n${items.map((i) => `- ${i.title}${i.variant ? ` (${i.variant})` : ''} x${i.quantity}`).join('\n')}\n\n${t('cart.total')}: ${formatPrice(order.total, order.currency, locale)}\n\n${t('email.order_next')}\n${url}\n\n${t('email.sign_off')}\n\n${withdrawal.text}`;
   return { subject, html, text };
@@ -87,7 +99,7 @@ export function orderShipped(order: Order, t: T, locale: Locale) {
   const subject = t('email.shipped_subject', { number: order.number });
   const url = `${SITE_URL}${href.order(locale, order.number)}`;
   const tracking = order.tracking_number
-    ? `<p><strong>${esc(t('account.tracking'))}</strong><br>${order.carrier ? `${esc(order.carrier)}: ` : ''}${esc(order.tracking_number)}</p>`
+    ? `<p>${label(t('account.tracking'))}<br>${order.carrier ? `${esc(order.carrier)}: ` : ''}${esc(order.tracking_number)}</p>`
     : '';
   const html = layout(subject, `<p>${nl2br(t('email.shipped_intro'))}</p>${tracking}${order.tracking_url ? button(order.tracking_url, t('account.track')) : button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>`);
   const text = `${subject}\n\n${t('email.shipped_intro')}\n\n${order.carrier ?? ''} ${order.tracking_number ?? ''}\n${order.tracking_url ?? url}\n\n${t('email.sign_off')}`;

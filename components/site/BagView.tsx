@@ -89,7 +89,7 @@ export function BagView({
   if (!rows.length) {
     return (
       <div className="mx-auto max-w-xl px-5 py-28 text-center">
-        <h1 className="font-display text-5xl">{t('cart.title')}</h1>
+        <h1 className="page-title">{t('cart.title')}</h1>
         {cancelled && <p className="mt-6 text-[var(--color-stone)]">{t('checkout.cancel_text')}</p>}
         <p className="mt-6 text-[var(--color-stone)]">{t('cart.empty')}</p>
         <Link href={href.shop(locale)} className="btn btn-dark mt-10">
@@ -101,7 +101,7 @@ export function BagView({
 
   return (
     <div className="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
-      <h1 className="font-display text-center text-5xl sm:text-6xl">{t('cart.title')}</h1>
+      <h1 className="page-title text-center">{t('cart.title')}</h1>
       {cancelled && (
         <p className="mx-auto mt-6 max-w-xl text-center text-[var(--color-stone)]" role="status">
           <strong className="font-normal text-[var(--color-ink)]">{t('checkout.cancel_title')}.</strong> {t('checkout.cancel_text')}

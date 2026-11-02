@@ -118,6 +118,8 @@ export interface PieceImage {
   position: number;
   /** Photo on a model: the homepage squares and the collection hover use it. */
   worn: boolean;
+  /** Gold colour this photo shows, if the piece comes in several. */
+  metal_id: string | null;
 }
 
 export interface PieceVariant {
@@ -127,6 +129,8 @@ export interface PieceVariant {
   label: string;
   /** Gold colour of this option (an attribute of kind metal), if any. */
   metal_id: string | null;
+  /** Own price in euro, VAT included; null = the piece's price. */
+  price: number | null;
   stock: number;
   position: number;
 }

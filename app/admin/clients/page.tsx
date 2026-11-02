@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Help, Loading, PageTitle, inputCls } from '@/components/admin/ui';
 import { downloadCsv } from '@/lib/admin-client';
 import { formatPrice } from '@/lib/format';
@@ -25,6 +26,7 @@ interface Row {
   orders: number;
   spent: number;
   last: string | null;
+  list: Order[];
 }
 
 const SOLD = ['paid', 'processing', 'shipped', 'delivered'];
@@ -38,11 +40,13 @@ export default function ClientsAdmin() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [subs, setSubs] = useState<Subscriber[]>([]);
   const [query, setQuery] = useState('');
+  // The client whose orders are shown under their line.
+  const [open, setOpen] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
       db.from('customers').select('*'),
-      db.from('orders').select('id, customer_id, email, name, phone, status, total, currency, created_at').neq('status', 'pending'),
+      db.from('orders').select('id, number, customer_id, email, name, phone, status, total, currency, created_at').neq('status', 'pending'),
       db.from('newsletter_subscribers').select('*').order('created_at', { ascending: false }),
     ]).then(([c, o, n]) => {
       setCustomers((c.data ?? []) as Customer[]);
@@ -55,7 +59,7 @@ export default function ClientsAdmin() {
     const map = new Map<string, Row>();
     const get = (email: string) => {
       const key = email.trim().toLowerCase();
-      if (!map.has(key)) map.set(key, { email: key, name: '', phone: null, account: false, orders: 0, spent: 0, last: null });
+      if (!map.has(key)) map.set(key, { email: key, name: '', phone: null, account: false, orders: 0, spent: 0, last: null, list: [] });
       return map.get(key)!;
     };
     for (const c of customers ?? []) Object.assign(get(c.email), { name: c.name, phone: c.phone, account: true });
@@ -64,6 +68,7 @@ export default function ClientsAdmin() {
       const r = get(o.email);
       r.name ||= o.name;
       r.phone ||= o.phone;
+      r.list.push(o);
       if (SOLD.includes(o.status)) {
         r.orders += 1;
         r.spent += Number(o.total);
@@ -106,7 +111,7 @@ export default function ClientsAdmin() {
 
       {tab === 'clients' ? (
         <>
-          <Help>Everyone with an account or a paid order. Clients manage their own details from their account.</Help>
+          <Help>Everyone with an account or a paid order, grouped by email address. Tap a client to see their orders. Clients manage their own details from their account.</Help>
           <div className="overflow-x-auto border border-[var(--color-line)] bg-white">
             <table className="w-full text-left text-sm">
               <thead className="text-xs uppercase tracking-[0.12em] text-[var(--color-stone)]">
@@ -120,9 +125,13 @@ export default function ClientsAdmin() {
               </thead>
               <tbody className="divide-y divide-[var(--color-line)]">
                 {rows.map((r) => (
-                  <tr key={r.email}>
+                  <Fragment key={r.email}>
+                    <tr className="cursor-pointer hover:bg-[var(--color-pearl)]/50" onClick={() => setOpen(open === r.email ? null : r.email)} aria-expanded={open === r.email}>
                     <td className="p-3">
-                      <span className="block">{r.name || '(no name)'} {r.account && <Badge>Account</Badge>}</span>
+                      <span className="block">
+                        {r.name || '(no name)'} {r.account && <Badge>Account</Badge>}{' '}
+                        {r.list.length > 0 && <span className="text-xs text-[var(--color-stone)]">{open === r.email ? '▲' : '▼'}</span>}
+                      </span>
                       <a href={`mailto:${r.email}`} className="text-xs text-[var(--color-stone)] underline underline-offset-2">{r.email}</a>
                     </td>
                     <td className="p-3">{r.phone}</td>
@@ -130,6 +139,31 @@ export default function ClientsAdmin() {
                     <td className="p-3 text-right">{r.spent ? formatPrice(r.spent, 'EUR', 'en') : ''}</td>
                     <td className="p-3">{day(r.last)}</td>
                   </tr>
+                    {open === r.email && (
+                      <tr className="bg-[var(--color-pearl)]/40">
+                        <td colSpan={5} className="p-3">
+                          {r.list.length === 0 ? (
+                            <p className="text-[var(--color-stone)]">No orders yet.</p>
+                          ) : (
+                            <ul className="space-y-1">
+                              {[...r.list]
+                                .sort((a, b) => b.created_at.localeCompare(a.created_at))
+                                .map((o) => (
+                                  <li key={o.id}>
+                                    <Link href={`/orders/${o.id}`} className="flex flex-wrap gap-x-5 underline-offset-2 hover:underline">
+                                      <span>#{o.number}</span>
+                                      <span>{day(o.created_at)}</span>
+                                      <span className="capitalize">{o.status}</span>
+                                      <span>{formatPrice(Number(o.total), o.currency ?? 'EUR', 'en')}</span>
+                                    </Link>
+                                  </li>
+                                ))}
+                            </ul>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
                 {rows.length === 0 && (
                   <tr>

@@ -106,6 +106,7 @@ export const TEXTS = {
   'piece.add': t('Piece page', 'Add to bag button', 'Add to bag', 'In winkeltas', 'Ajouter au panier'),
   'piece.added': t('Piece page', 'Added message', 'Added to your bag', 'Toegevoegd aan uw winkeltas', 'Ajouté à votre panier'),
   'piece.size': t('Piece page', 'Size label', 'Size', 'Maat', 'Taille'),
+  'piece.from': t('Piece page', 'Price when options cost different amounts ({price} is the lowest)', 'From {price}', 'Vanaf {price}', 'À partir de {price}'),
   'piece.colour': t('Piece page', 'Gold colour label', 'Gold colour', 'Goudkleur', "Couleur de l'or"),
   'piece.choose_colour': t('Piece page', 'Choose a gold colour', 'Choose a gold colour', 'Kies een goudkleur', "Choisissez une couleur d'or"),
   'piece.choose_size': t('Piece page', 'Choose a size', 'Choose a size', 'Kies een maat', 'Choisissez une taille'),

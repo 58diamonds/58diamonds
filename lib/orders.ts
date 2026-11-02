@@ -97,7 +97,7 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
   const vars = pageVars(settings);
   const mail = orderConfirmation(order, order.order_items, t, locale, { email: vars.email });
   const formText = form ? plainText(fill(tr(form.body, locale), vars)) : '';
-  const formPdf = formText ? await withdrawalPdf(tr(form!.title, locale), formText, settings) : null;
+  const formPdf = formText ? await withdrawalPdf(tr(form!.title, locale), formText, settings, t) : null;
   await sendEmail({
     to: order.email,
     ...mail,

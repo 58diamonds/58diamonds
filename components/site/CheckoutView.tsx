@@ -150,26 +150,35 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
       name: a.name.trim(),
       address: { country: a.country, line1: a.line1.trim(), line2: a.line2.trim() || null, postal_code: a.postal.trim(), city: a.city.trim() },
     });
-    if (business) {
-      const r = await checkout.updateTaxIdInfo({ businessName: company.trim(), taxId: { type: 'eu_vat', value: vat.replace(/[\s.]/g, '').toUpperCase() } });
-      if (r.type === 'error') {
-        setBusy(false);
-        return setError(r.error.message);
-      }
-    }
-    const shippingAddress = contact(delivery);
-    const r = await checkout
-      .confirm({
-        email: fixedEmail ? undefined : email.trim(),
-        phoneNumber: phone.trim(),
-        shippingAddress,
-        billingAddress: sameBilling ? shippingAddress : contact(billing),
-      })
-      .catch(() => ({ type: 'error' as const, error: { message: t('cart.error') } }));
-    // On success the browser is already on its way to the thank-you page.
-    if (r.type === 'error') {
+    const fail = (message?: string) => {
       setBusy(false);
-      setError(r.error.message);
+      setError(message || t('cart.error'));
+    };
+    // Stripe can throw straight away (not only reject), and a payment that
+    // never answers must not leave the button spinning for ever.
+    const timeout = new Promise<{ type: 'error'; error: { message: string } }>((resolve) =>
+      setTimeout(() => resolve({ type: 'error', error: { message: t('cart.error') } }), 120000),
+    );
+    try {
+      if (business) {
+        const r = await checkout.updateTaxIdInfo({ businessName: company.trim(), taxId: { type: 'eu_vat', value: vat.replace(/[\s.]/g, '').toUpperCase() } });
+        if (r.type === 'error') return fail(r.error.message);
+      }
+      const shippingAddress = contact(delivery);
+      const r = await Promise.race([
+        checkout.confirm({
+          ...(fixedEmail ? {} : { email: email.trim() }),
+          phoneNumber: phone.trim(),
+          shippingAddress,
+          billingAddress: sameBilling ? shippingAddress : contact(billing),
+        }),
+        timeout,
+      ]);
+      // On success the browser is already on its way to the thank-you page.
+      if (r.type === 'error') fail(r.error.message);
+    } catch (err) {
+      console.error('checkout confirm failed', err);
+      fail(err instanceof Error ? err.message : undefined);
     }
   }
 
@@ -222,7 +231,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         <section>
           <h2 className="font-display text-3xl">{t('checkout.payment')}</h2>
           <div className="mt-6">
-            <PaymentElement options={{ layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never', link: 'never' }, fields: { billingDetails: { address: 'never', email: 'never', phone: 'never', name: 'auto' } } }} />
+            <PaymentElement options={{ layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never', link: 'never' }, fields: { billingDetails: { address: 'never', email: 'never', phone: 'never', name: 'auto' } } }} onLoadError={(e) => setError(e.error.message || t('cart.error'))} />
           </div>
         </section>
       </div>

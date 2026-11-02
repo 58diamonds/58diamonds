@@ -4,13 +4,16 @@ import { getPage, getSettings, getTexts } from './data';
 import { adminAddress, sendEmail } from './email';
 import { adminNewOrder, orderConfirmation, orderShipped } from './emails';
 import { fill, isLocale, tr, type Locale } from './i18n';
-import { invoicePdf } from './invoice';
+import { invoicePdf, withdrawalPdf } from './invoice';
 import { pageVars } from './site';
 import { getServiceDb } from './supabase';
 import { makeT } from './t';
 import { HOME_COUNTRY, vatForSale } from './vat';
 import { vatIncluded } from './shop';
 import type { Address, Order, OrderItem } from './types';
+
+/** Page markdown as plain lines: links keep their words, no bold or heading marks. */
+const plainText = (md: string) => md.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\*\*/g, '').replace(/^#+\s*/gm, '').trim();
 
 /** Order work done on the server with full rights: after payment, on shipping, for invoices. */
 
@@ -92,15 +95,17 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
   const [{ t, locale }, settings, form] = await Promise.all([translatorFor(order.locale), getSettings(), getPage('withdrawal')]);
   const pdf = await invoicePdf(order, order.order_items, settings, t, locale);
   const vars = pageVars(settings);
-  const mail = orderConfirmation(order, order.order_items, t, locale, {
-    email: vars.email,
-    withdrawalForm: form ? fill(tr(form.body, locale), vars) : '',
-  });
+  const mail = orderConfirmation(order, order.order_items, t, locale, { email: vars.email });
+  const formText = form ? plainText(fill(tr(form.body, locale), vars)) : '';
+  const formPdf = formText ? await withdrawalPdf(tr(form!.title, locale), formText, settings) : null;
   await sendEmail({
     to: order.email,
     ...mail,
     replyTo: settings.email,
-    attachments: [{ filename: `invoice-${order.invoice_number ?? order.number}.pdf`, content: pdf }],
+    attachments: [
+      { filename: `invoice-${order.invoice_number ?? order.number}.pdf`, content: pdf },
+      ...(formPdf ? [{ filename: `${t('email.form_file')}.pdf`, content: formPdf }] : []),
+    ],
   });
   const admin = adminAddress(settings.email);
   if (admin) await sendEmail({ to: admin, ...adminNewOrder(order, order.order_items, result.oversold) });

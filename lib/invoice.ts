@@ -5,6 +5,7 @@ import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import { formatDate, formatPrice } from './format';
 import type { Locale } from './i18n';
+import { countryName } from './shipping';
 import { vatIncluded } from './shop';
 import type { T } from './t';
 import type { Order, OrderItem, Settings } from './types';
@@ -202,7 +203,7 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
     a.line1,
     a.line2,
     [a.postal_code, a.city].filter(Boolean).join(' '),
-    a.country,
+    a.country ? countryName(a.country, locale) : null,
     order.buyer_vat ? `${t('invoice.buyer_vat')} ${order.buyer_vat}` : null,
     order.email,
   ].filter((l): l is string => Boolean(l));

@@ -12,7 +12,7 @@ export function AccountApp() {
   return (
     <div className="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
       <header className="mb-14 text-center">
-        <h1 className="font-display text-5xl sm:text-6xl">{t('account.title')}</h1>
+        <h1 className="page-title">{t('account.title')}</h1>
         {!session && <p className="mx-auto mt-5 max-w-lg text-[var(--color-stone)]">{t('account.intro')}</p>}
       </header>
       {!HAS_DATABASE ? (

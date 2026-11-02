@@ -97,6 +97,15 @@ export function orderShipped(order: Order, t: T, locale: Locale) {
   return { subject, html, text };
 }
 
+/** Client account: confirm the email after signing up, or choose a new password. */
+export function accountEmail(kind: 'welcome' | 'reset', url: string, t: T) {
+  const subject = t(`email.${kind}_subject`);
+  const intro = t(`email.${kind}_intro`);
+  const label = t(`email.${kind}_button`);
+  const html = layout(subject, `<p>${nl2br(intro)}</p>${button(url, label)}<p>${nl2br(t('email.sign_off'))}</p>`);
+  return { subject, html, text: `${subject}\n\n${intro}\n\n${url}\n\n${t('email.sign_off')}` };
+}
+
 /** Double opt-in: the link that turns a signup into a subscription. */
 export function newsletterConfirm(confirmUrl: string, t: T) {
   const subject = t('email.newsletter_subject');

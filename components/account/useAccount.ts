@@ -14,26 +14,41 @@ export function useAccount() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(!HAS_DATABASE);
   const [recovering, setRecovering] = useState(false);
+  const [linkExpired, setLinkExpired] = useState(false);
 
   useEffect(() => {
     if (!HAS_DATABASE) return;
     const db = getBrowserDb();
-    db.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setReady(true);
-    });
+    // Arriving from one of our account emails: ?reset=… (new password) or ?confirm=… (new account).
+    const params = new URLSearchParams(window.location.search);
+    const reset = params.get('reset');
+    const confirm = params.get('confirm');
+    const fromEmail = reset || confirm;
+    if (fromEmail) window.history.replaceState(null, '', window.location.pathname);
+    const verify = fromEmail
+      ? db.auth.verifyOtp({ token_hash: fromEmail, type: reset ? 'recovery' : 'email' }).then(({ error }) => {
+          if (error) setLinkExpired(true);
+          else if (reset) setRecovering(true);
+        })
+      : Promise.resolve();
+    verify.then(() =>
+      db.auth.getSession().then(({ data }) => {
+        setSession(data.session);
+        setReady(true);
+      }),
+    );
     const { data: sub } = db.auth.onAuthStateChange((event, s) => {
       setSession(s);
       if (event === 'PASSWORD_RECOVERY') setRecovering(true);
       if (event === 'SIGNED_IN' && s) {
-        void claim(s.access_token);
+        void claim(s.access_token, { name: s.user.user_metadata?.name, locale: s.user.user_metadata?.locale });
         void mergeWishlist();
       }
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  return { session, ready, recovering, setRecovering };
+  return { session, ready, recovering, setRecovering, linkExpired };
 }
 
 /** Make sure the profile exists and attach earlier guest orders (server side). */

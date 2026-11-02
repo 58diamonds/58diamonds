@@ -1,10 +1,10 @@
 'use client';
 
-import { loadStripe, type Appearance, type Stripe } from '@stripe/stripe-js';
+import { loadStripe, type Appearance, type Stripe, type StripeAddressElement } from '@stripe/stripe-js';
 import { CheckoutElementsProvider, PaymentElement, ShippingAddressElement, useCheckoutElements } from '@stripe/react-stripe-js/checkout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CHECKOUT_KEY, type PendingCheckout } from '@/lib/checkout-session';
 import type { Locale } from '@/lib/i18n';
 import { href } from '@/lib/routes';
@@ -108,6 +108,8 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Stripe's delivery address form, read when Pay is pressed.
+  const addressForm = useRef<StripeAddressElement | null>(null);
 
   if (result.type === 'loading') return <p className="mt-16 text-center text-[var(--color-stone)]">{t('common.loading')}</p>;
   if (result.type === 'error') return <Closed />;
@@ -177,12 +179,14 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         const r = await checkout.updateTaxIdInfo({ businessName: company.trim(), taxId: { type: 'eu_vat', value: vat.replace(/[\s.]/g, '').toUpperCase() } });
         if (r.type === 'error') return fail(r.error.message);
       }
-      // The delivery address is already on the session, from Stripe's address form.
-      // Stripe's address form checks itself and marks what is missing.
-      const v = await checkout.validateElements();
-      if (v.type === 'error') return fail(v.error.message || t('checkout.delivery_missing'));
-      const shippingAddress = v.session.shippingAddress ?? checkout.shippingAddress;
-      if (!shippingAddress) return fail(t('checkout.delivery_missing'));
+      // Stripe's address form marks what it still needs and gives us the address.
+      await checkout.validateElements().catch(() => null);
+      const a = await addressForm.current?.getValue();
+      if (!a?.complete) return fail(t('checkout.delivery_missing'));
+      const shippingAddress = {
+        name: a.value.name,
+        address: { ...a.value.address, line2: a.value.address.line2 || null },
+      };
       const r = await Promise.race([
         checkout.confirm({
           ...(fixedEmail ? {} : { email: email.trim() }),
@@ -223,7 +227,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         <section>
           <h2 className="font-display text-3xl">{t('checkout.delivery')}</h2>
           <div className="mt-6">
-            <ShippingAddressElement options={{ display: { name: 'full' } }} />
+            <ShippingAddressElement options={{ display: { name: 'full' } }} onReady={(el) => (addressForm.current = el as unknown as StripeAddressElement)} />
           </div>
           <label className="mt-6 flex cursor-pointer items-start gap-3 text-base">
             <input type="checkbox" checked={sameBilling} onChange={(e) => setSameBilling(e.target.checked)} className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />

@@ -134,7 +134,7 @@ export const TEXTS = {
   'cart.vat': t('Bag and checkout', 'VAT note', 'Prices include VAT.', 'Prijzen inclusief btw.', 'Prix TVA comprise.'),
   'cart.gift': t('Bag and checkout', 'Gift message label', 'Gift message (optional)', 'Cadeauboodschap (optioneel)', 'Message cadeau (facultatif)'),
   'cart.checkout': t('Bag and checkout', 'Checkout button', 'Checkout', 'Afrekenen', 'Commander'),
-  'cart.secure': t('Bag and checkout', 'Secure payment note', 'Secure payment by card, Bancontact, iDEAL, Apple Pay, Google Pay or PayPal.', 'Veilig betalen met kaart, Bancontact, iDEAL, Apple Pay, Google Pay of PayPal.', 'Paiement sécurisé par carte, Bancontact, iDEAL, Apple Pay, Google Pay ou PayPal.'),
+  'cart.secure': t('Bag and checkout', 'Secure payment note', 'Secure payment by card, Bancontact or PayPal.', 'Veilig betalen met kaart, Bancontact of PayPal.', 'Paiement sécurisé par carte, Bancontact ou PayPal.'),
   'cart.unavailable': t('Bag and checkout', 'Piece no longer available', 'Sorry, one of the pieces in your bag is no longer available. Your bag has been updated.', 'Sorry, een van de stukken in uw winkeltas is niet meer beschikbaar. Uw winkeltas is aangepast.', "Désolée, une pièce de votre panier n'est plus disponible. Votre panier a été mis à jour.", true),
   'cart.error': t('Bag and checkout', 'Checkout error', 'Something went wrong. Please try again, or contact us.', 'Er ging iets mis. Probeer opnieuw of neem contact op.', "Une erreur s'est produite. Réessayez ou contactez-nous."),
   'checkout.thanks_title': t('Bag and checkout', 'After payment: title', 'Thank you', 'Dank u', 'Merci'),

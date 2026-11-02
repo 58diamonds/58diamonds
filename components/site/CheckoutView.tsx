@@ -222,7 +222,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         <section>
           <h2 className="font-display text-3xl">{t('checkout.payment')}</h2>
           <div className="mt-6">
-            <PaymentElement options={{ layout: 'tabs', fields: { billingDetails: { address: 'never', email: 'never', phone: 'never', name: 'auto' } } }} />
+            <PaymentElement options={{ layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never', link: 'never' }, fields: { billingDetails: { address: 'never', email: 'never', phone: 'never', name: 'auto' } } }} />
           </div>
         </section>
       </div>

@@ -19,6 +19,8 @@ export function variantViews(variants: PieceVariant[], attributes: Attribute[], 
         metal: metal ? tr(metal.label, locale) : null,
         name: variantName(v, attributes, locale),
         stock: v.stock,
+        /** Own price, if it differs from the piece's. */
+        price: v.price == null ? null : Number(v.price),
       };
     });
 }

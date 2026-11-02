@@ -49,7 +49,7 @@ export function BagView({
     .filter((r): r is NonNullable<typeof r> => r !== null);
 
   const buyable = rows.filter((r) => r.item.purchasable && r.max > 0);
-  const subtotal = buyable.reduce((s, r) => s + (r.item.price ?? 0) * Math.min(r.line.quantity, r.max), 0);
+  const subtotal = buyable.reduce((s, r) => s + (r.variant?.price ?? r.item.price ?? 0) * Math.min(r.line.quantity, r.max), 0);
   const ship = shippingFor(subtotal, { shipping_flat: shipping.flat, free_shipping_from: shipping.freeFrom, shipping_rates: shipping.rates }, country);
   const wrapCost = wrap && giftWrap ? giftWrap : 0;
   const total = subtotal + (ship ?? 0) + wrapCost;
@@ -128,7 +128,7 @@ export function BagView({
                         </p>
                       )}
                     </div>
-                    <p className="whitespace-nowrap">{ok ? money((item.price ?? 0) * Math.min(line.quantity, max)) : ''}</p>
+                    <p className="whitespace-nowrap">{ok ? money((variant?.price ?? item.price ?? 0) * Math.min(line.quantity, max)) : ''}</p>
                   </div>
                   {!ok && <p className="mt-2 text-sm text-[var(--color-gold)]">{t('shop.sold_out')}</p>}
                   <div className="mt-auto flex items-center gap-6 pt-4 text-sm">

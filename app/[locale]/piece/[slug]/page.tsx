@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BuyBox } from '@/components/site/BuyBox';
+import { PieceOptions, PiecePrice } from '@/components/site/PieceOptions';
 import { Gallery } from '@/components/site/Gallery';
 import { JsonLd } from '@/components/site/JsonLd';
 import { PieceCard } from '@/components/site/PieceCard';
@@ -91,17 +92,24 @@ export default async function PiecePage({ params }: Props) {
           )}
         </nav>
 
+        <PieceOptions options={variantViews(piece.piece_variants, attributes, locale)}>
         <div className="mt-8 grid gap-12 md:grid-cols-2 md:gap-16">
           <Gallery
             title={title}
-            images={piece.piece_images.map((i) => ({ id: i.id, url: i.url, alt: tr(i.alt, locale) || title }))}
+            images={piece.piece_images.map((i) => {
+              const colour = i.metal_id ? attributes.find((a) => a.id === i.metal_id) : null;
+              return { id: i.id, url: i.url, alt: tr(i.alt, locale) || title, metal: colour ? tr(colour.label, locale) : null };
+            })}
           />
 
           <div className="md:pt-6">
             <h1 className="font-display text-5xl leading-tight">{title}</h1>
-            <p className={`mt-4 text-[0.78rem] uppercase tracking-[0.24em] ${view.status === 'available' ? 'text-[var(--color-ink)]' : 'text-[var(--color-gold)]'}`}>
-              {view.priceText}
-            </p>
+            <PiecePrice
+              text={view.priceText}
+              basePrice={piece.price == null ? null : Number(piece.price)}
+              showsPrice={view.status === 'available'}
+              className={`mt-4 text-[0.78rem] uppercase tracking-[0.24em] ${view.status === 'available' ? 'text-[var(--color-ink)]' : 'text-[var(--color-gold)]'}`}
+            />
             {description && (
               <div className="prose-site mt-8 text-lg leading-relaxed text-[var(--color-stone)]">
                 {paragraphs(description).map((p, i) => (
@@ -115,7 +123,6 @@ export default async function PiecePage({ params }: Props) {
               title={title}
               purchasable={view.purchasable}
               stock={pieceStock(piece)}
-              variants={variantViews(piece.piece_variants, attributes, locale)}
             />
 
             {(details || specs.metal || specs.weight || specs.stones) && (
@@ -140,6 +147,7 @@ export default async function PiecePage({ params }: Props) {
             {view.purchasable && <p className="mt-6 text-sm text-[var(--color-stone)]">{t('piece.shipping_note')}</p>}
           </div>
         </div>
+        </PieceOptions>
 
         {related.length > 0 && (
           <section className="mt-28">

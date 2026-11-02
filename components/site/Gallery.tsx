@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { usePieceChoice } from './PieceOptions';
 import { Photo } from './Photo';
 
-export function Gallery({ images, title }: { images: { id: string; url: string; alt: string }[]; title: string }) {
+export function Gallery({ images: all, title }: { images: { id: string; url: string; alt: string; metal?: string | null }[]; title: string }) {
+  const { colour } = usePieceChoice();
+  // With a gold colour chosen: that colour's photos first, then the ones that fit every colour.
+  const own = colour ? all.filter((i) => i.metal === colour) : [];
+  const images = own.length ? [...own, ...all.filter((i) => !i.metal)] : all;
   const [index, setIndex] = useState(0);
-  const current = images[index];
+  useEffect(() => setIndex(0), [colour]);
+  const current = images[index] ?? images[0];
   return (
     <div>
       <div className="overflow-hidden bg-[var(--color-pearl)]">

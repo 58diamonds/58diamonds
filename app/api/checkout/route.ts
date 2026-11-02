@@ -6,7 +6,7 @@ import { getSettings, getTexts } from '@/lib/data';
 import { isLocale, type Locale } from '@/lib/i18n';
 import { cancelPendingOrder, reservedStock } from '@/lib/orders';
 import { getRequestUser } from '@/lib/server-auth';
-import { getStripe, toCents } from '@/lib/stripe';
+import { getStripe, publishableKey as stripePublishableKey, toCents } from '@/lib/stripe';
 import { getServiceDb } from '@/lib/supabase';
 import { deliveryCountries } from '@/lib/shipping';
 import { makeT } from '@/lib/t';
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   if (body?.acceptTerms !== true) return NextResponse.json({ error: 'terms' }, { status: 400 });
 
   const stripe = getStripe();
-  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  const publishableKey = stripePublishableKey();
   if (!stripe || !publishableKey) return NextResponse.json({ error: 'not_configured' }, { status: 503 });
 
   const db = getServiceDb();

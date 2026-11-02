@@ -12,3 +12,15 @@ export function getStripe(): Stripe | null {
 }
 
 export const toCents = (amount: number) => Math.round(Number(amount) * 100);
+
+/**
+ * The publishable key for the payment box on our checkout page. Publishable keys
+ * are public by design. Without STRIPE_PUBLISHABLE_KEY, test mode uses the
+ * 58 Diamonds sandbox key; live mode must set it.
+ */
+const SANDBOX_PUBLISHABLE_KEY = 'pk_test_51TvnA99PKDlmryeeiS0yr57gecfmgJizifnT4Su0ZJ4ynDL48UPHsJ5iyKWr9Baay3CLkKCwt7z7pgAQZuI6lXkZ00GXAAun50';
+
+export function publishableKey(): string | null {
+  if (process.env.STRIPE_PUBLISHABLE_KEY) return process.env.STRIPE_PUBLISHABLE_KEY;
+  return process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_') ? SANDBOX_PUBLISHABLE_KEY : null;
+}

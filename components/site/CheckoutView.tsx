@@ -187,6 +187,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
     <form onSubmit={pay} noValidate className="mt-12 grid gap-14 pb-24 lg:grid-cols-[3fr_2fr]">
       <div className="space-y-12">
         <section>
+          <p className="mb-8 text-base text-[var(--color-stone)]">{t('checkout.all_required')}</p>
           <h2 className="font-display text-3xl">{t('checkout.contact')}</h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
             {fixedEmail ? (
@@ -349,7 +350,11 @@ function Field({
       <input
         {...rest}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        // Phone autofill often adds a stray space at the start or end: drop it.
+        onChange={(e) => onChange(e.target.value.replace(/^\s+/, ''))}
+        onBlur={(e) => {
+          if (e.target.value !== e.target.value.trim()) onChange(e.target.value.trim());
+        }}
         aria-invalid={invalid || undefined}
         className={`field ${invalid ? 'border-[var(--color-gold)]' : ''}`}
       />

@@ -1,5 +1,5 @@
 import { tr, type Locale } from './i18n';
-import { pieceStock, purchasable, shippingFor } from './shop';
+import { optionPrice, pieceStock, purchasable, shippingFor } from './shop';
 import type { Attribute, Piece, Section, Settings } from './types';
 import { variantName } from './variant';
 
@@ -79,7 +79,7 @@ export function priceBag(
       variantLabel: variant ? variantName(variant, opts.attributes ?? [], opts.locale) || null : null,
       title: tr(piece.title, opts.locale),
       image: piece.piece_images?.[0]?.url ?? null,
-      unitPrice: Number(piece.price),
+      unitPrice: optionPrice(piece, variant) ?? Number(piece.price),
       quantity: take,
     });
   }

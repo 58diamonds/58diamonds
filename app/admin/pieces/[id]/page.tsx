@@ -65,7 +65,7 @@ export default function PieceEditor() {
       setPiece({ ...row, price: row.price == null ? null : Number(row.price), weight_g: row.weight_g == null ? null : Number(row.weight_g) });
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.visible && row.slug === slugify(row.title.en ?? '')));
       setImages([...row.piece_images].sort((x, y) => x.position - y.position));
-      setVariants([...row.piece_variants].sort((x, y) => x.position - y.position));
+      setVariants([...row.piece_variants].sort((x, y) => x.position - y.position).map((v) => ({ ...v, price: v.price == null ? null : Number(v.price) })));
       setSections((s.data ?? []) as Section[]);
       setAttrs((a.data ?? []) as Attribute[]);
     })();
@@ -80,7 +80,7 @@ export default function PieceEditor() {
     try {
       for (const f of Array.from(files)) {
         const url = await uploadImage(f, `pieces/${piece!.id}`);
-        setImages((imgs) => [...imgs, { id: crypto.randomUUID(), url, alt: {}, position: imgs.length, worn: false, isNew: true }]);
+        setImages((imgs) => [...imgs, { id: crypto.randomUUID(), url, alt: {}, position: imgs.length, worn: false, metal_id: null, isNew: true }]);
       }
     } catch (e) {
       setState({ error: e instanceof Error ? e.message : 'Upload failed.' });
@@ -129,14 +129,14 @@ export default function PieceEditor() {
         const r = await db.from('piece_variants').delete().in('id', del.variants);
         if (r.error) return r;
       }
-      const imgRows = images.map((im, position) => ({ id: im.id, piece_id: p.id, url: im.url, alt: im.alt, position, worn: im.worn }));
+      const imgRows = images.map((im, position) => ({ id: im.id, piece_id: p.id, url: im.url, alt: im.alt, position, worn: im.worn, metal_id: im.metal_id ?? null }));
       if (imgRows.length) {
         const r = await db.from('piece_images').upsert(imgRows);
         if (r.error) return r;
       }
       const varRows = variants
         .filter((v) => v.label.trim() || v.metal_id)
-        .map((v, position) => ({ id: v.id, piece_id: p.id, label: v.label.trim(), metal_id: v.metal_id ?? null, stock: Math.max(0, Math.floor(v.stock || 0)), position }));
+        .map((v, position) => ({ id: v.id, piece_id: p.id, label: v.label.trim(), metal_id: v.metal_id ?? null, price: v.price == null || Number.isNaN(Number(v.price)) ? null : Number(v.price), stock: Math.max(0, Math.floor(v.stock || 0)), position }));
       if (varRows.length) {
         const r = await db.from('piece_variants').upsert(varRows);
         if (r.error) return r;
@@ -170,6 +170,8 @@ export default function PieceEditor() {
   const metals = attrs.filter((a) => a.kind === 'metal');
   const stones = attrs.filter((a) => a.kind === 'stone');
   const sizeStock = variants.reduce((s, v) => s + (v.stock || 0), 0);
+  // Gold colours the piece is offered in: photos can be tied to one of them.
+  const optionColours = metals.filter((m) => variants.some((v) => v.metal_id === m.id));
 
   return (
     <div>
@@ -213,6 +215,21 @@ export default function PieceEditor() {
                   />
                   Worn photo
                 </label>
+                {optionColours.length > 0 && (
+                  <select
+                    value={im.metal_id ?? ''}
+                    onChange={(e) => setImages(images.map((x) => (x.id === im.id ? { ...x, metal_id: e.target.value || null } : x)))}
+                    className={`${inputCls} !mt-2 !py-1.5 text-xs`}
+                    aria-label="Gold colour shown"
+                  >
+                    <option value="">All colours</option>
+                    {optionColours.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.label.en} only
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -230,7 +247,7 @@ export default function PieceEditor() {
             <Button onClick={() => file.current?.click()} disabled={uploading}>
               {uploading ? 'Uploading...' : 'Add photos'}
             </Button>
-            <span className="text-xs text-[var(--color-stone)]">The first photo is the main one. Tick the worn photo: the collection shows it on hover and the homepage squares use it. Large photos are made smaller automatically.</span>
+            <span className="text-xs text-[var(--color-stone)]">The first photo is the main one. Tick the worn photo: the collection shows it on hover and the homepage squares use it. Large photos are made smaller automatically. When the piece comes in several gold colours, choose which colour a photo shows: the site switches to those photos when a customer picks that colour.</span>
           </div>
           <input ref={file} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addPhotos(e.target.files)} />
         </Card>
@@ -314,7 +331,7 @@ export default function PieceEditor() {
             <p className="text-sm">Gold colours and sizes</p>
             <p className="mb-3 text-xs text-[var(--color-stone)]">
               {SHOP_LIVE
-                ? 'One line per option the customer can buy: a gold colour, a size (rings, chain lengths), or both, e.g. Rose gold + 52. Each line has its own stock. Without lines, the stock below is used.'
+                ? 'One line per option the customer can buy: a gold colour, a size (rings, chain lengths), or both, e.g. Rose gold + 52. Each line has its own stock. Leave its price empty to use the price above, or type a different price for that option: the site then says "From" the lowest price and shows the right one when the customer chooses. Without lines, the stock below is used.'
                 : 'One line per option: a gold colour, a size (rings, chain lengths), or both. Visitors can filter the collection by size.'}
             </p>
             {variants.length > 0 && (
@@ -335,6 +352,19 @@ export default function PieceEditor() {
                       ))}
                     </select>
                     <input value={v.label} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, label: e.target.value } : x)))} className={`${inputCls} !mt-0 w-24`} aria-label="Size" placeholder="Size" />
+                    <label className="flex items-center gap-2 text-sm">
+                      €
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        value={v.price ?? ''}
+                        placeholder={piece.price == null ? 'Price' : String(piece.price)}
+                        onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, price: e.target.value === '' ? null : Number(e.target.value) } : x)))}
+                        className={`${inputCls} !mt-0 w-28`}
+                        aria-label="Own price (empty: the piece's price)"
+                      />
+                    </label>
                     {SHOP_LIVE && (
                       <label className="flex items-center gap-2 text-sm">
                         in stock
@@ -357,7 +387,7 @@ export default function PieceEditor() {
               </ul>
             )}
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', metal_id: null, stock: 1, position: variants.length, isNew: true }])}>Add an option</Button>
+              <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', metal_id: null, price: null, stock: 1, position: variants.length, isNew: true }])}>Add an option</Button>
             </div>
             {SHOP_LIVE &&
               (variants.length > 0 ? (

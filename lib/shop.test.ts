@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeFilterCount, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
+import { activeFilterCount, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
 import type { Piece, Section } from './types';
 
 const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, cover_url: null, position: 0, visible: true, show_prices: true };
@@ -16,8 +16,8 @@ const sectionOf = () => section;
 describe('stock and buying', () => {
   it('counts stock per size when a piece has sizes', () => {
     const ring = piece('r', { stock: 0, piece_variants: [
-      { id: 'a', piece_id: 'r', label: '52', metal_id: null, stock: 1, position: 0 },
-      { id: 'b', piece_id: 'r', label: '54', metal_id: null, stock: 2, position: 1 },
+      { id: 'a', piece_id: 'r', label: '52', metal_id: null, price: null, stock: 1, position: 0 },
+      { id: 'b', piece_id: 'r', label: '54', metal_id: null, price: null, stock: 2, position: 1 },
     ] });
     expect(pieceStock(ring)).toBe(3);
   });
@@ -88,7 +88,7 @@ describe('money', () => {
   });
 
   it('filters by size and lists sizes in a natural order', () => {
-    const v = (id: string, label: string) => ({ id, piece_id: id, label, metal_id: null, stock: 1, position: 0 });
+    const v = (id: string, label: string) => ({ id, piece_id: id, label, metal_id: null, price: null, stock: 1, position: 0 });
     const rings = [
       piece('r1', { piece_variants: [v('a', '52'), v('b', '54')] }),
       piece('r2', { piece_variants: [v('c', '9'), v('d', '54 ')] }),
@@ -110,5 +110,18 @@ describe('stones', () => {
     const run = (stone: string) => filterPieces([both, old], parseShopQuery({ stone }), attrs, sectionOf).map((p) => p.id);
     expect(run('ruby')).toEqual(['both']);
     expect(run('diamond')).toEqual(['both', 'old']);
+  });
+});
+
+describe('option prices', () => {
+  const opt = (id: string, price: number | null) => ({ id, piece_id: 'p', label: id, metal_id: null, price, stock: 1, position: 0 });
+  it('uses the piece price for options without their own', () => {
+    const p = piece('p', { price: 1000, piece_variants: [opt('a', null), opt('b', 1200)] });
+    expect(priceRange(p)).toEqual({ min: 1000, max: 1200 });
+    expect(optionPrice(p, p.piece_variants[1])).toBe(1200);
+    expect(optionPrice(p, p.piece_variants[0])).toBe(1000);
+  });
+  it('is a single price without options', () => {
+    expect(priceRange(piece('q', { price: 500 }))).toEqual({ min: 500, max: 500 });
   });
 });

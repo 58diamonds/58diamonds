@@ -114,6 +114,9 @@ export async function POST(req: Request) {
       mode: 'payment',
       // Paid on our own checkout page: the address and contact fields are ours, only the payment box is Stripe's.
       ui_mode: 'elements',
+      // Prices stay in euros, and no Stripe Link sign-up inside our checkout.
+      adaptive_pricing: { enabled: false },
+      excluded_payment_method_types: ['link'],
       locale: STRIPE_LOCALE[locale],
       client_reference_id: order.id,
       metadata: { order_id: order.id, order_number: String(order.number) },

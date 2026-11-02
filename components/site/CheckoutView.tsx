@@ -158,12 +158,14 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
       }
     }
     const shippingAddress = contact(delivery);
-    const r = await checkout.confirm({
-      email: fixedEmail ? undefined : email.trim(),
-      phoneNumber: phone.trim(),
-      shippingAddress,
-      billingAddress: sameBilling ? shippingAddress : contact(billing),
-    });
+    const r = await checkout
+      .confirm({
+        email: fixedEmail ? undefined : email.trim(),
+        phoneNumber: phone.trim(),
+        shippingAddress,
+        billingAddress: sameBilling ? shippingAddress : contact(billing),
+      })
+      .catch(() => ({ type: 'error' as const, error: { message: t('cart.error') } }));
     // On success the browser is already on its way to the thank-you page.
     if (r.type === 'error') {
       setBusy(false);
@@ -249,7 +251,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
           </div>
         </dl>
         <p className="mt-2 text-xs text-[var(--color-stone)]">{t('cart.vat')}</p>
-        <button type="submit" disabled={busy || !checkout.canConfirm} className="btn btn-dark mt-7 w-full disabled:opacity-50">
+        <button type="submit" disabled={busy} className="btn btn-dark mt-7 w-full disabled:opacity-50">
           {busy ? t('common.loading') : t('checkout.pay', { total })}
         </button>
         {error && (

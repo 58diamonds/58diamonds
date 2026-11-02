@@ -142,6 +142,7 @@ export const TEXTS = {
   'checkout.cancel_title': t('Bag and checkout', 'Payment cancelled: title', 'Payment cancelled', 'Betaling geannuleerd', 'Paiement annulé'),
   'checkout.cancel_text': t('Bag and checkout', 'Payment cancelled: text', 'Nothing was charged. Your bag is still waiting for you.', 'Er werd niets aangerekend. Uw winkeltas staat nog klaar.', "Rien n'a été débité. Votre panier vous attend.", true),
   'checkout.title': t('Bag and checkout', 'Checkout page: title', 'Checkout', 'Afrekenen', 'Paiement'),
+  'checkout.all_required': t('Bag and checkout', 'Checkout: note above the form', 'All fields are required, unless marked optional.', 'Alle velden zijn verplicht, tenzij aangeduid als optioneel.', 'Tous les champs sont obligatoires, sauf mention facultatif.'),
   'checkout.contact': t('Bag and checkout', 'Checkout: contact heading', 'Contact', 'Contact', 'Contact'),
   'checkout.email': t('Bag and checkout', 'Checkout: email', 'Email', 'E-mail', 'E-mail'),
   'checkout.phone': t('Bag and checkout', 'Checkout: phone', 'Phone', 'Telefoon', 'Téléphone'),

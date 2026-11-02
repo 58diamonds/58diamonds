@@ -336,6 +336,12 @@ export const TEXTS = {
   'invoice.to': t('Invoices', 'Billed to', 'Billed to', 'Gefactureerd aan', 'Facturé à'),
   'invoice.gift_wrap': t('Invoices', 'Gift wrap line', 'Gift wrapping', 'Geschenkverpakking', 'Emballage cadeau'),
   'invoice.paid': t('Invoices', 'Paid line', 'Paid', 'Betaald', 'Payé'),
+  'invoice.from': t('Invoices', 'Seller heading', 'From', 'Van', 'De'),
+  'invoice.order': t('Invoices', 'Order number label', 'Order', 'Bestelling', 'Commande'),
+  'invoice.piece': t('Invoices', 'Column heading: piece', 'Piece', 'Juweel', 'Bijou'),
+  'invoice.price': t('Invoices', 'Column heading: price', 'Price', 'Prijs', 'Prix'),
+  'invoice.total_paid': t('Invoices', 'Grand total label', 'Total paid', 'Totaal betaald', 'Total payé'),
+  'invoice.thanks': t('Invoices', 'Thank-you line under the totals (leave empty for none)', 'Thank you for choosing a piece made with love, to carry with joy.', 'Bedankt voor uw keuze voor een juweel gemaakt met liefde, om met vreugde te dragen.', "Merci d'avoir choisi un bijou fait avec amour, à porter avec joie."),
 
   // Other
   'notfound.title': t('Other', 'Page not found: title', 'Page not found', 'Pagina niet gevonden', 'Page introuvable'),

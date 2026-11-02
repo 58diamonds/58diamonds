@@ -1,6 +1,7 @@
 import { tr, type Locale } from './i18n';
 import { pieceStock, purchasable, shippingFor } from './shop';
-import type { Piece, Section, Settings } from './types';
+import type { Attribute, Piece, Section, Settings } from './types';
+import { variantName } from './variant';
 
 export interface BagLine {
   pieceId: string;
@@ -42,7 +43,7 @@ export function priceBag(
   sections: Section[],
   settings: Settings,
   reserved: Map<string, number>,
-  opts: { giftWrap: boolean; locale: Locale; country?: string | null },
+  opts: { giftWrap: boolean; locale: Locale; country?: string | null; attributes?: Attribute[] },
 ): PricedBag {
   const lines: PricedLine[] = [];
   const problems: BagLine[] = [];
@@ -75,7 +76,7 @@ export function priceBag(
     lines.push({
       piece,
       variantId: variant?.id ?? null,
-      variantLabel: variant?.label ?? null,
+      variantLabel: variant ? variantName(variant, opts.attributes ?? [], opts.locale) || null : null,
       title: tr(piece.title, opts.locale),
       image: piece.piece_images?.[0]?.url ?? null,
       unitPrice: Number(piece.price),

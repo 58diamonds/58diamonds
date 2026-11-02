@@ -123,7 +123,10 @@ export interface PieceImage {
 export interface PieceVariant {
   id: string;
   piece_id: string;
+  /** Size (may be empty when the option is only a gold colour). */
   label: string;
+  /** Gold colour of this option (an attribute of kind metal), if any. */
+  metal_id: string | null;
   stock: number;
   position: number;
 }

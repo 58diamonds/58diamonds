@@ -16,8 +16,8 @@ const sectionOf = () => section;
 describe('stock and buying', () => {
   it('counts stock per size when a piece has sizes', () => {
     const ring = piece('r', { stock: 0, piece_variants: [
-      { id: 'a', piece_id: 'r', label: '52', stock: 1, position: 0 },
-      { id: 'b', piece_id: 'r', label: '54', stock: 2, position: 1 },
+      { id: 'a', piece_id: 'r', label: '52', metal_id: null, stock: 1, position: 0 },
+      { id: 'b', piece_id: 'r', label: '54', metal_id: null, stock: 2, position: 1 },
     ] });
     expect(pieceStock(ring)).toBe(3);
   });
@@ -88,7 +88,7 @@ describe('money', () => {
   });
 
   it('filters by size and lists sizes in a natural order', () => {
-    const v = (id: string, label: string) => ({ id, piece_id: id, label, stock: 1, position: 0 });
+    const v = (id: string, label: string) => ({ id, piece_id: id, label, metal_id: null, stock: 1, position: 0 });
     const rings = [
       piece('r1', { piece_variants: [v('a', '52'), v('b', '54')] }),
       piece('r2', { piece_variants: [v('c', '9'), v('d', '54 ')] }),

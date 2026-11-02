@@ -38,7 +38,7 @@ export async function ShopView({
   // Only offer filter values that exist in this section.
   const used = (kind: 'metal' | 'stone') =>
     attributes
-      .filter((a) => a.kind === kind && inSection.some((p) => (kind === 'metal' ? p.metal_id === a.id : stonesOf(p).includes(a.id))))
+      .filter((a) => a.kind === kind && inSection.some((p) => (kind === 'metal' ? p.metal_id === a.id || (p.piece_variants ?? []).some((v) => v.metal_id === a.id) : stonesOf(p).includes(a.id))))
       .map((a) => ({ slug: a.slug, label: tr(a.label, locale) }));
 
   const qs = shopQueryString({ ...query, sort: query.sort });

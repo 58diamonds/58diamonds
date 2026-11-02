@@ -106,6 +106,8 @@ export const TEXTS = {
   'piece.add': t('Piece page', 'Add to bag button', 'Add to bag', 'In winkeltas', 'Ajouter au panier'),
   'piece.added': t('Piece page', 'Added message', 'Added to your bag', 'Toegevoegd aan uw winkeltas', 'Ajouté à votre panier'),
   'piece.size': t('Piece page', 'Size label', 'Size', 'Maat', 'Taille'),
+  'piece.colour': t('Piece page', 'Gold colour label', 'Gold colour', 'Goudkleur', "Couleur de l'or"),
+  'piece.choose_colour': t('Piece page', 'Choose a gold colour', 'Choose a gold colour', 'Kies een goudkleur', "Choisissez une couleur d'or"),
   'piece.choose_size': t('Piece page', 'Choose a size', 'Choose a size', 'Kies een maat', 'Choisissez une taille'),
   'piece.left': t('Piece page', 'Few left ({n} is the number)', 'Only {n} left', 'Nog {n} beschikbaar', 'Plus que {n}'),
   'piece.ask': t('Piece page', 'WhatsApp button', 'Ask about this piece', 'Vraag naar dit juweel', 'Une question sur ce bijou'),

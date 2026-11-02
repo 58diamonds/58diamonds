@@ -112,7 +112,9 @@ export function filterPieces(
 ): Piece[] {
   const shownPrice = (p: Piece) => (priceVisible(p, sectionOf(p)) ? Number(p.price) : null);
   const out = pieces.filter((p) => {
-    if (q.metal.length && !(p.metal_id && q.metal.includes(attrs.metal.get(p.metal_id) ?? ''))) return false;
+    // A piece offered in several gold colours matches each of them.
+    const metals = [p.metal_id, ...(p.piece_variants ?? []).map((v) => v.metal_id)].filter((m): m is string => !!m);
+    if (q.metal.length && !metals.some((m) => q.metal.includes(attrs.metal.get(m) ?? ''))) return false;
     if (q.stone.length && !stonesOf(p).some((id) => q.stone.includes(attrs.stone.get(id) ?? ''))) return false;
     if (q.size.length && !(p.piece_variants ?? []).some((v) => q.size.includes(v.label.trim()))) return false;
     if (q.min != null || q.max != null) {

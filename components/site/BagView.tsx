@@ -124,7 +124,7 @@ export function BagView({
                       </Link>
                       {variant && (
                         <p className="mt-1 text-sm text-[var(--color-stone)]">
-                          {t('piece.size')} {variant.label}
+                          {variant.metal ? variant.name : `${t('piece.size')} ${variant.label}`}
                         </p>
                       )}
                     </div>

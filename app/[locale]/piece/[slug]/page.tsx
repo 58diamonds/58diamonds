@@ -13,6 +13,7 @@ import { pieceView } from '@/lib/piece-view';
 import { href } from '@/lib/routes';
 import { pieceStock, priceVisible } from '@/lib/shop';
 import { pieceSpecs } from '@/lib/specs';
+import { variantViews } from '@/lib/variant';
 import { alternates, site } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -114,7 +115,7 @@ export default async function PiecePage({ params }: Props) {
               title={title}
               purchasable={view.purchasable}
               stock={pieceStock(piece)}
-              variants={piece.piece_variants.map((v) => ({ id: v.id, label: v.label, stock: v.stock }))}
+              variants={variantViews(piece.piece_variants, attributes, locale)}
             />
 
             {(details || specs.metal || specs.weight || specs.stones) && (

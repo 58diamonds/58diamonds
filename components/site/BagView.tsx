@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { cart, setQuantity } from '@/lib/cart';
+import { CHECKOUT_KEY, type PendingCheckout } from '@/lib/checkout-session';
 import type { CatalogItem } from '@/lib/catalog';
 import { HAS_DATABASE } from '@/lib/config';
 import { formatPrice } from '@/lib/format';
@@ -28,6 +29,7 @@ export function BagView({
 }) {
   const { locale, t, currency, features } = useSite();
   const lines = cart.use();
+  const router = useRouter();
   const cancelled = useSearchParams().get('cancelled') === '1';
   const [wrap, setWrap] = useState(false);
   const [message, setMessage] = useState('');
@@ -64,9 +66,16 @@ export function BagView({
       headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message, acceptTerms: accepted, country }),
     }).catch(() => null);
-    const json = (await res?.json().catch(() => ({}))) as { url?: string; error?: string; fixed?: typeof lines };
-    if (res?.ok && json.url) {
-      window.location.href = json.url;
+    const json = (await res?.json().catch(() => ({}))) as Partial<PendingCheckout> & { error?: string; fixed?: typeof lines };
+    if (res?.ok && json.clientSecret && json.publishableKey) {
+      const pending: PendingCheckout = { clientSecret: json.clientSecret, publishableKey: json.publishableKey, country: json.country ?? country };
+      try {
+        sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify(pending));
+      } catch {
+        setState('error');
+        return;
+      }
+      router.push(href.checkout(locale));
       return;
     }
     if (json.error === 'unavailable' && json.fixed) {

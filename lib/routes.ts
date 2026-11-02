@@ -8,6 +8,7 @@ export const href = {
   shop: (l: Locale, section?: string | null) => (section ? `/${l}/shop/${section}` : `/${l}/shop`),
   piece: (l: Locale, slug: string) => `/${l}/piece/${slug}`,
   bag: (l: Locale) => `/${l}/bag`,
+  checkout: (l: Locale) => `/${l}/checkout`,
   wishlist: (l: Locale) => `/${l}/wishlist`,
   account: (l: Locale) => `/${l}/account`,
   order: (l: Locale, number: number) => `/${l}/account/orders/${number}`,

@@ -1,5 +1,5 @@
 import { rateCost, type ShippingRates } from './shipping';
-import type { Piece, Section, Settings } from './types';
+import type { Piece, PieceVariant, Section, Settings } from './types';
 
 /**
  * Shop rules in one place, shared by the pages, the bag and the checkout API.
@@ -19,6 +19,19 @@ export function priceVisible(
   section: Pick<Section, 'show_prices'> | null | undefined,
 ): boolean {
   return piece.price != null && piece.show_price && (section ? section.show_prices : true);
+}
+
+/** The price of one option: its own, or the piece's. */
+export function optionPrice(piece: Pick<Piece, 'price'>, variant?: Pick<PieceVariant, 'price'> | null): number | null {
+  if (variant?.price != null) return Number(variant.price);
+  return piece.price == null ? null : Number(piece.price);
+}
+
+/** Lowest and highest price over the piece's options (just the piece's price without options). */
+export function priceRange(piece: Pick<Piece, 'price' | 'piece_variants'>): { min: number; max: number } | null {
+  const all = piece.piece_variants?.length ? piece.piece_variants.map((v) => optionPrice(piece, v)) : [optionPrice(piece)];
+  const prices = all.filter((n): n is number => n != null);
+  return prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
 }
 
 /** Can it go in the bag? A visible price, for sale, and something left. */

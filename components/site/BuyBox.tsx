@@ -7,17 +7,8 @@ import { whatsappLink } from '@/lib/format';
 import { href } from '@/lib/routes';
 import { WhatsAppIcon } from './icons';
 import { useSite } from './SiteProvider';
+import { usePieceChoice } from './PieceOptions';
 import { WishlistButton } from './WishlistButton';
-
-interface Variant {
-  id: string;
-  /** Size, may be empty. */
-  label: string;
-  /** Gold colour, if the piece comes in several. */
-  metal: string | null;
-  name: string;
-  stock: number;
-}
 
 /** Gold colour and size choice, add to bag, and the ways to ask about a piece. */
 export function BuyBox({
@@ -25,30 +16,21 @@ export function BuyBox({
   title,
   purchasable,
   stock,
-  variants,
 }: {
   pieceId: string;
   title: string;
   purchasable: boolean;
   stock: number;
-  variants: Variant[];
 }) {
   const { locale, t, whatsapp } = useSite();
   const lines = cart.use();
   // Gold colours on offer, in the order the options were set up.
+  // The choice is shared with the photos and the price above.
+  const { options: variants, colour, setColour, optionId: variantId, setOptionId: setVariantId } = usePieceChoice();
   const colours = [...new Set(variants.map((v) => v.metal).filter((m): m is string => !!m))];
-  const [colour, setColour] = useState<string | null>(() => {
-    const open = [...new Set(variants.filter((v) => v.stock > 0).map((v) => v.metal).filter(Boolean))];
-    return open.length === 1 ? open[0] : null;
-  });
   // Sizes shown: those of the chosen colour (all of them when there are no colours).
   const forColour = colours.length ? variants.filter((v) => v.metal === colour) : variants;
   const sized = forColour.filter((v) => v.label);
-  const [variantId, setVariantId] = useState<string | null>(() => {
-    const pool = colours.length ? variants.filter((v) => v.metal === colour) : variants;
-    const available = pool.filter((v) => v.stock > 0);
-    return available.length === 1 ? available[0].id : null;
-  });
   const [added, setAdded] = useState(false);
   const [needSize, setNeedSize] = useState(false);
 

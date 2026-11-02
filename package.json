@@ -16,6 +16,8 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^7.0.1",
+    "@stripe/stripe-js": "^10.2.0",
     "@supabase/supabase-js": "^2.117.3",
     "ical.js": "^2.2.1",
     "next": "^15.5.27",

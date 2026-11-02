@@ -8,7 +8,7 @@ import { useAccount } from './useAccount';
 
 export function AccountApp() {
   const { t } = useSite();
-  const { session, ready, recovering, setRecovering } = useAccount();
+  const { session, ready, recovering, setRecovering, linkExpired } = useAccount();
   return (
     <div className="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
       <header className="mb-14 text-center">
@@ -24,7 +24,14 @@ export function AccountApp() {
       ) : session ? (
         <AccountHome session={session} />
       ) : (
-        <AuthForms />
+        <>
+          {linkExpired && (
+            <p role="alert" className="mx-auto mb-8 max-w-md text-sm text-red-800">
+              {t('account.link_expired')}
+            </p>
+          )}
+          <AuthForms />
+        </>
       )}
     </div>
   );

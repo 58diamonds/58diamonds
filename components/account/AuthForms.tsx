@@ -4,11 +4,16 @@ import { useState } from 'react';
 import { PasswordInput } from '@/components/PasswordInput';
 import { PrivacyNote } from '@/components/site/PrivacyNote';
 import { useSite } from '@/components/site/SiteProvider';
-import { href } from '@/lib/routes';
 import { getBrowserDb } from '@/lib/supabase';
-import { claim } from './useAccount';
 
 type Mode = 'sign-in' | 'sign-up' | 'forgot';
+
+/** Our own branded "confirm your email" and "new password" emails (app/api/account/email). */
+async function accountEmail(body: Record<string, string>): Promise<{ error?: string }> {
+  const res = await fetch('/api/account/email', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).catch(() => null);
+  if (!res) return { error: 'Network error' };
+  return res.ok ? {} : ((await res.json().catch(() => ({}))) as { error?: string });
+}
 
 /** Sign in, create an account, or ask for a new password, with email and password. */
 export function AuthForms() {
@@ -24,7 +29,6 @@ export function AuthForms() {
     const password = String(form.get('password') ?? '');
     const name = String(form.get('name') ?? '').trim();
     const db = getBrowserDb();
-    const back = `${window.location.origin}${href.account(locale)}`;
     setBusy(true);
     setMessage(null);
     try {
@@ -32,12 +36,11 @@ export function AuthForms() {
         const { error } = await db.auth.signInWithPassword({ email, password });
         if (error) setMessage({ kind: 'error', text: t('account.wrong') });
       } else if (mode === 'sign-up') {
-        const { data, error } = await db.auth.signUp({ email, password, options: { emailRedirectTo: back, data: { name, locale } } });
-        if (error) setMessage({ kind: 'error', text: error.message });
-        else if (data.session) await claim(data.session.access_token, { name, locale });
+        const res = await accountEmail({ kind: 'sign-up', email, password, name, locale });
+        if (res.error) setMessage({ kind: 'error', text: res.error });
         else setMessage({ kind: 'ok', text: t('account.check_email') });
       } else {
-        await db.auth.resetPasswordForEmail(email, { redirectTo: back });
+        await accountEmail({ kind: 'reset', email, locale });
         setMessage({ kind: 'ok', text: t('account.reset_sent') });
       }
     } finally {

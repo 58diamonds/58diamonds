@@ -115,11 +115,24 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const fixedEmail = checkout.email;
 
   const missing = (v: string) => tried && !v.trim();
-  const needed = [
-    fixedEmail ? 'x' : email,
-    phone,
-    ...(sameBilling ? [] : [billing.name, billing.line1, billing.postal, billing.city]),
-    ...(business ? [company, vat] : []),
+  // Each required field of ours, with the label to name it when it is empty.
+  const needed: [string, string][] = [
+    [t('checkout.email'), fixedEmail ? 'x' : email],
+    [t('checkout.phone'), phone],
+    ...(sameBilling
+      ? []
+      : ([
+          [t('checkout.name'), billing.name],
+          [t('checkout.line1'), billing.line1],
+          [t('checkout.postal'), billing.postal],
+          [t('checkout.city'), billing.city],
+        ] as [string, string][])),
+    ...(business
+      ? ([
+          [t('checkout.company'), company],
+          [t('checkout.vat'), vat],
+        ] as [string, string][])
+      : []),
   ];
 
   async function back() {
@@ -139,10 +152,11 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
     e.preventDefault();
     setTried(true);
     setError(null);
-    if (needed.some((v) => !v.trim())) {
+    const empty = needed.filter(([, v]) => !v.trim()).map(([label]) => label);
+    if (empty.length) {
       // Also lets Stripe's address and card forms mark what they still need.
       checkout.validateElements().catch(() => null);
-      return setError(t('checkout.required'));
+      return setError(`${t('checkout.required')} ${empty.join(', ')}`);
     }
     setBusy(true);
     const contact = (a: Address) => ({
@@ -166,9 +180,9 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
       // The delivery address is already on the session, from Stripe's address form.
       // Stripe's address form checks itself and marks what is missing.
       const v = await checkout.validateElements();
-      if (v.type === 'error') return fail(v.error.message || t('checkout.required'));
+      if (v.type === 'error') return fail(v.error.message || t('checkout.delivery_missing'));
       const shippingAddress = v.session.shippingAddress ?? checkout.shippingAddress;
-      if (!shippingAddress) return fail(t('checkout.required'));
+      if (!shippingAddress) return fail(t('checkout.delivery_missing'));
       const r = await Promise.race([
         checkout.confirm({
           ...(fixedEmail ? {} : { email: email.trim() }),

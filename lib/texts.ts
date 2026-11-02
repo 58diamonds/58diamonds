@@ -163,7 +163,8 @@ export const TEXTS = {
   'checkout.summary': t('Bag and checkout', 'Checkout: order summary heading', 'Your order', 'Uw bestelling', 'Votre commande'),
   'checkout.back': t('Bag and checkout', 'Checkout: back to bag', 'Back to your bag', 'Terug naar uw winkeltas', 'Retour au panier'),
   'checkout.expired': t('Bag and checkout', 'Checkout: session missing or expired', 'This checkout is no longer open. Please go back to your bag and start again.', 'Deze betaling is niet meer open. Ga terug naar uw winkeltas en begin opnieuw.', "Ce paiement n'est plus ouvert. Retournez à votre panier pour recommencer.", true),
-  'checkout.required': t('Bag and checkout', 'Checkout: missing fields', 'Please fill in the fields marked in gold.', 'Vul de velden in het goud in.', 'Veuillez remplir les champs en doré.'),
+  'checkout.required': t('Bag and checkout', 'Checkout: missing fields (the field names follow)', 'Please fill in:', 'Vul nog in:', 'Veuillez remplir :'),
+  'checkout.delivery_missing': t('Bag and checkout', 'Checkout: delivery address incomplete', 'Please complete the delivery address.', 'Vul het leveringsadres volledig in.', "Veuillez compléter l'adresse de livraison."),
 
   // Account
   'account.title': t('Client account', 'Account title', 'My account', 'Mijn account', 'Mon compte'),

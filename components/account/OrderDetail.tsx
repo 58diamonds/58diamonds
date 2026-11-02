@@ -45,7 +45,7 @@ export function OrderDetail({ number }: { number: number }) {
         ← {t('account.back')}
       </Link>
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <h1 className="font-display text-5xl">{t('account.order', { number: `#${order.number}` })}</h1>
+        <h1 className="page-title">{t('account.order', { number: `#${order.number}` })}</h1>
         <StatusBadge status={order.status} />
       </div>
       <p className="mt-2 text-[var(--color-stone)]">{t('account.ordered_on', { date: formatDate(order.created_at, locale) })}</p>

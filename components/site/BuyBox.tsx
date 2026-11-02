@@ -11,11 +11,15 @@ import { WishlistButton } from './WishlistButton';
 
 interface Variant {
   id: string;
+  /** Size, may be empty. */
   label: string;
+  /** Gold colour, if the piece comes in several. */
+  metal: string | null;
+  name: string;
   stock: number;
 }
 
-/** Size choice, add to bag, and the ways to ask about a piece. */
+/** Gold colour and size choice, add to bag, and the ways to ask about a piece. */
 export function BuyBox({
   pieceId,
   title,
@@ -31,14 +35,36 @@ export function BuyBox({
 }) {
   const { locale, t, whatsapp } = useSite();
   const lines = cart.use();
+  // Gold colours on offer, in the order the options were set up.
+  const colours = [...new Set(variants.map((v) => v.metal).filter((m): m is string => !!m))];
+  const [colour, setColour] = useState<string | null>(() => {
+    const open = [...new Set(variants.filter((v) => v.stock > 0).map((v) => v.metal).filter(Boolean))];
+    return open.length === 1 ? open[0] : null;
+  });
+  // Sizes shown: those of the chosen colour (all of them when there are no colours).
+  const forColour = colours.length ? variants.filter((v) => v.metal === colour) : variants;
+  const sized = forColour.filter((v) => v.label);
   const [variantId, setVariantId] = useState<string | null>(() => {
-    const available = variants.filter((v) => v.stock > 0);
+    const pool = colours.length ? variants.filter((v) => v.metal === colour) : variants;
+    const available = pool.filter((v) => v.stock > 0);
     return available.length === 1 ? available[0].id : null;
   });
   const [added, setAdded] = useState(false);
   const [needSize, setNeedSize] = useState(false);
 
   const chosen = variants.find((v) => v.id === variantId) ?? null;
+  const colourOpen = (c: string) => variants.some((v) => v.metal === c && v.stock > 0);
+
+  function pickColour(c: string) {
+    setColour(c);
+    setAdded(false);
+    setNeedSize(false);
+    const options = variants.filter((v) => v.metal === c);
+    // A colour without sizes, or with one size left, is chosen straight away.
+    const open = options.filter((v) => v.stock > 0);
+    const same = chosen?.label ? options.find((v) => v.label === chosen.label && v.stock > 0) : null;
+    setVariantId(same?.id ?? (open.length === 1 || !options.some((v) => v.label) ? open[0]?.id ?? null : null));
+  }
   const max = variants.length ? chosen?.stock ?? 0 : stock;
   const inBag = lines.find((l) => l.pieceId === pieceId && l.variantId === (variants.length ? variantId : null))?.quantity ?? 0;
   const left = variants.length ? chosen?.stock : stock;
@@ -55,11 +81,31 @@ export function BuyBox({
 
   return (
     <div className="mt-10">
-      {purchasable && variants.length > 0 && (
+      {purchasable && colours.length > 0 && (
+        <fieldset className="mb-8">
+          <legend className="eyebrow mb-3">{t('piece.colour')}</legend>
+          <div className="flex flex-wrap gap-2">
+            {colours.map((c) => (
+              <button
+                key={c}
+                type="button"
+                disabled={!colourOpen(c)}
+                aria-pressed={c === colour}
+                onClick={() => pickColour(c)}
+                className="chip justify-center disabled:cursor-not-allowed disabled:line-through disabled:opacity-40"
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+          {needSize && !colour && <p className="mt-3 text-sm text-red-800" role="alert">{t('piece.choose_colour')}</p>}
+        </fieldset>
+      )}
+      {purchasable && sized.length > 0 && (
         <fieldset className="mb-8">
           <legend className="eyebrow mb-3">{t('piece.size')}</legend>
           <div className="flex flex-wrap gap-2">
-            {variants.map((v) => (
+            {sized.map((v) => (
               <button
                 key={v.id}
                 type="button"
@@ -76,13 +122,19 @@ export function BuyBox({
               </button>
             ))}
           </div>
-          {needSize && <p className="mt-3 text-sm text-red-800" role="alert">{t('piece.choose_size')}</p>}
+          {needSize && (!colours.length || colour) && <p className="mt-3 text-sm text-red-800" role="alert">{t('piece.choose_size')}</p>}
         </fieldset>
       )}
-      {!purchasable && variants.length > 0 && (
+      {!purchasable && colours.length > 0 && (
+        <p className="mb-3">
+          <span className="eyebrow mr-3">{t('piece.colour')}</span>
+          {colours.join(' · ')}
+        </p>
+      )}
+      {!purchasable && variants.some((v) => v.label) && (
         <p className="mb-8">
           <span className="eyebrow mr-3">{t('piece.size')}</span>
-          {variants.map((v) => v.label).join(' · ')}
+          {[...new Set(variants.map((v) => v.label).filter(Boolean))].join(' · ')}
         </p>
       )}
 

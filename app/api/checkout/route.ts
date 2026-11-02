@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { priceBag, type BagLine } from '@/lib/checkout';
 import { SITE_URL } from '@/lib/config';
-import { getSettings, getTexts } from '@/lib/data';
+import { getAttributes, getSettings, getTexts } from '@/lib/data';
 import { isLocale, type Locale } from '@/lib/i18n';
 import { cancelPendingOrder, reservedStock } from '@/lib/orders';
 import { getRequestUser } from '@/lib/server-auth';
@@ -44,12 +44,13 @@ export async function POST(req: Request) {
 
   const db = getServiceDb();
   const ids = [...new Set(bag.map((l) => String(l.pieceId)))].filter((id) => /^[0-9a-f-]{36}$/i.test(id));
-  const [{ data: pieces }, { data: sections }, settings, reserved, user] = await Promise.all([
+  const [{ data: pieces }, { data: sections }, settings, reserved, user, attributes] = await Promise.all([
     db.from('pieces').select('*, piece_images(*), piece_variants(*)').in('id', ids).eq('visible', true),
     db.from('sections').select('*').eq('visible', true),
     getSettings(),
     reservedStock(),
     getRequestUser(req),
+    getAttributes(),
   ]);
   const visibleSections = (sections ?? []) as Section[];
   const live = ((pieces ?? []) as Piece[])
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
   if (!deliveryCountries(settings).includes(country)) return NextResponse.json({ error: 'country' }, { status: 400 });
 
   const giftMessage = (body?.giftMessage ?? '').toString().trim().slice(0, 300) || null;
-  const priced = priceBag(bag, live, visibleSections, settings, reserved, { giftWrap: Boolean(body?.giftWrap), locale, country });
+  const priced = priceBag(bag, live, visibleSections, settings, reserved, { giftWrap: Boolean(body?.giftWrap), locale, country, attributes });
   if (priced.shipping === null) return NextResponse.json({ error: 'country' }, { status: 400 });
   if (priced.problems.length || !priced.lines.length) {
     return NextResponse.json({ error: 'unavailable', fixed: priced.fixed }, { status: 409 });

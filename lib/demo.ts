@@ -148,7 +148,7 @@ function piece(
       worn: url === worn,
     })),
     piece_variants: sizes
-      ? RING_SIZES.map((label, i) => ({ id: `${pid.slice(0, -4)}${String(100 + i).padStart(4, '0')}`, piece_id: pid, label, stock: sizes[i] ?? 0, position: i }))
+      ? RING_SIZES.map((label, i) => ({ id: `${pid.slice(0, -4)}${String(100 + i).padStart(4, '0')}`, piece_id: pid, label, metal_id: null, stock: sizes[i] ?? 0, position: i }))
       : [],
     ...rest,
     stone_ids: [rest.stone_id === undefined ? ATTR(11) : rest.stone_id].filter((x): x is string => Boolean(x)),

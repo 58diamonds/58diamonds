@@ -135,8 +135,8 @@ export default function PieceEditor() {
         if (r.error) return r;
       }
       const varRows = variants
-        .filter((v) => v.label.trim())
-        .map((v, position) => ({ id: v.id, piece_id: p.id, label: v.label.trim(), stock: Math.max(0, Math.floor(v.stock || 0)), position }));
+        .filter((v) => v.label.trim() || v.metal_id)
+        .map((v, position) => ({ id: v.id, piece_id: p.id, label: v.label.trim(), metal_id: v.metal_id ?? null, stock: Math.max(0, Math.floor(v.stock || 0)), position }));
       if (varRows.length) {
         const r = await db.from('piece_variants').upsert(varRows);
         if (r.error) return r;
@@ -148,7 +148,7 @@ export default function PieceEditor() {
     if (ok) {
       set({ slug });
       setImages((xs) => xs.map((x) => ({ ...x, isNew: false })));
-      setVariants((xs) => xs.filter((v) => v.label.trim()).map((x) => ({ ...x, isNew: false })));
+      setVariants((xs) => xs.filter((v) => v.label.trim() || v.metal_id).map((x) => ({ ...x, isNew: false })));
     }
   }
 
@@ -311,17 +311,30 @@ export default function PieceEditor() {
           </div>
 
           <div className="mt-6 border-t border-[var(--color-line)] pt-5">
-            <p className="text-sm">Sizes</p>
+            <p className="text-sm">Gold colours and sizes</p>
             <p className="mb-3 text-xs text-[var(--color-stone)]">
               {SHOP_LIVE
-                ? 'For rings (or chain lengths). Each size has its own stock. Without sizes, the stock below is used. Visitors can filter the collection by size.'
-                : 'For rings (or chain lengths). Visitors can filter the collection by these sizes.'}
+                ? 'One line per option the customer can buy: a gold colour, a size (rings, chain lengths), or both, e.g. Rose gold + 52. Each line has its own stock. Without lines, the stock below is used.'
+                : 'One line per option: a gold colour, a size (rings, chain lengths), or both. Visitors can filter the collection by size.'}
             </p>
             {variants.length > 0 && (
               <ul className="mb-3 space-y-2">
                 {variants.map((v, i) => (
                   <li key={v.id} className="flex flex-wrap items-center gap-2">
-                    <input value={v.label} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, label: e.target.value } : x)))} className={`${inputCls} !mt-0 w-24`} aria-label="Size" />
+                    <select
+                      value={v.metal_id ?? ''}
+                      onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, metal_id: e.target.value || null } : x)))}
+                      className={`${inputCls} !mt-0 w-40`}
+                      aria-label="Gold colour"
+                    >
+                      <option value="">No colour</option>
+                      {metals.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label.en}
+                        </option>
+                      ))}
+                    </select>
+                    <input value={v.label} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, label: e.target.value } : x)))} className={`${inputCls} !mt-0 w-24`} aria-label="Size" placeholder="Size" />
                     {SHOP_LIVE && (
                       <label className="flex items-center gap-2 text-sm">
                         in stock
@@ -344,7 +357,7 @@ export default function PieceEditor() {
               </ul>
             )}
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', stock: 1, position: variants.length, isNew: true }])}>Add a size</Button>
+              <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', metal_id: null, stock: 1, position: variants.length, isNew: true }])}>Add an option</Button>
             </div>
             {SHOP_LIVE &&
               (variants.length > 0 ? (

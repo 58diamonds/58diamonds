@@ -52,23 +52,20 @@ function address(order: Order): string {
 
 /**
  * What the law asks to confirm on a durable medium after a sale: the
- * withdrawal right and its exceptions, the guarantee, links to the terms, and
- * the model withdrawal form itself (the "withdrawal" page, filled in).
+ * withdrawal right and its exceptions, the guarantee and links to the terms,
+ * as a short note at the foot of the email. The model withdrawal form itself
+ * travels as a PDF attachment (lib/invoice.ts withdrawalPdf).
  */
 export interface OrderLegal {
   email: string;
-  withdrawalForm: string;
 }
 
-const plain = (md: string) => md.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*#]/g, '');
-
 function withdrawalBlock(legal: OrderLegal, t: T, locale: Locale) {
-  const vars = { email: legal.email, terms: `${SITE_URL}${href.page(locale, 'terms')}`, returns: `${SITE_URL}${href.page(locale, 'returns')}` };
-  const body = t('email.withdrawal', vars);
-  const form = plain(legal.withdrawalForm).trim();
-  const html = `<h2 style="margin:30px 0 10px;font-family:Georgia,serif;font-weight:normal;font-size:19px">${esc(t('email.withdrawal_title'))}</h2>
-<p style="margin:0;font-size:14px">${nl2br(body)}</p>${form ? `<div style="margin:16px 0 0;padding:16px;background:#f8f5ef;font-size:13px;color:#6f675c">${nl2br(form)}</div>` : ''}`;
-  const text = `${t('email.withdrawal_title')}\n${body}${form ? `\n\n${form}` : ''}`;
+  const vars = { email: legal.email, form: `${SITE_URL}${href.page(locale, 'withdrawal')}`, terms: `${SITE_URL}${href.page(locale, 'terms')}`, returns: `${SITE_URL}${href.page(locale, 'returns')}` };
+  const body = t('email.withdrawal_note', vars);
+  const link = (url: string, label: string) => `<a href="${url}" style="color:#8a7a62">${esc(label)}</a>`;
+  const html = `<p style="margin:34px 0 0;padding-top:14px;border-top:1px solid #e2dacd;font-size:12px;color:#8a7a62">${nl2br(body)}<br>${link(vars.form, t('email.link_form'))} · ${link(vars.terms, t('email.link_terms'))} · ${link(vars.returns, t('email.link_returns'))}</p>`;
+  const text = `${body}\n${t('email.link_form')}: ${vars.form}\n${t('email.link_terms')}: ${vars.terms}\n${t('email.link_returns')}: ${vars.returns}`;
   return { html, text };
 }
 

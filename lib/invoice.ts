@@ -137,6 +137,50 @@ function drawFooterLine(page: PDFPage, font: PDFFont, line: string) {
   page.drawText(s, { x: (595.28 - font.widthOfTextAtSize(s, 7)) / 2, y: 40, size: 7, font, color: MUTED });
 }
 
+/**
+ * The model withdrawal form as a one-page PDF, sent with the order email so
+ * the client keeps it on a durable medium without it filling the email.
+ */
+export async function withdrawalPdf(title: string, body: string, settings: Settings): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create();
+  const company = settings.company_name || '58 Diamonds';
+  pdf.setTitle(title);
+  pdf.setAuthor(company);
+  pdf.setCreator(company);
+  pdf.setProducer(company);
+  const page = pdf.addPage([595.28, 841.89]);
+  const regular = await pdf.embedFont(StandardFonts.Helvetica);
+  const serif = await pdf.embedFont(StandardFonts.TimesRoman);
+  const left = 56;
+  const width = 595.28 - 112;
+  let y = 841.89 - 72;
+  page.drawText('58 DIAMONDS', { x: left, y, size: 22, font: serif, color: INK });
+  y -= 40;
+  page.drawText(clean(title), { x: left, y, size: 15, font: serif, color: GOLD });
+  y -= 30;
+  for (const para of body.split('\n')) {
+    const words = clean(para).split(' ');
+    let line = '';
+    const flush = () => {
+      page.drawText(line, { x: left, y, size: 10.5, font: regular, color: INK });
+      y -= 15;
+      line = '';
+    };
+    for (const w of words) {
+      const next = line ? `${line} ${w}` : w;
+      if (regular.widthOfTextAtSize(next, 10.5) > width && line) {
+        flush();
+        line = w;
+      } else line = next;
+    }
+    if (line) flush();
+    // room to write after a field label
+    else y -= 6;
+    if (para.trim().endsWith(':')) y -= 22;
+  }
+  return pdf.save();
+}
+
 /** Keep only what WinAnsi (the standard PDF fonts) can encode. */
 function clean(s: string): string {
   return s

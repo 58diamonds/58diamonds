@@ -100,8 +100,6 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const result = useCheckoutElements();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  // Stripe's address form (suggests addresses while typing) fills this in.
-  const [deliveryDone, setDeliveryDone] = useState(false);
   const [sameBilling, setSameBilling] = useState(true);
   const [billing, setBilling] = useState<Address>(() => emptyAddress(pending.country));
   const [business, setBusiness] = useState(false);
@@ -120,7 +118,6 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const needed = [
     fixedEmail ? 'x' : email,
     phone,
-    deliveryDone ? 'x' : '',
     ...(sameBilling ? [] : [billing.name, billing.line1, billing.postal, billing.city]),
     ...(business ? [company, vat] : []),
   ];
@@ -142,7 +139,11 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
     e.preventDefault();
     setTried(true);
     setError(null);
-    if (needed.some((v) => !v.trim())) return setError(t('checkout.required'));
+    if (needed.some((v) => !v.trim())) {
+      // Also lets Stripe's address and card forms mark what they still need.
+      checkout.validateElements().catch(() => null);
+      return setError(t('checkout.required'));
+    }
     setBusy(true);
     const contact = (a: Address) => ({
       name: a.name.trim(),
@@ -163,7 +164,10 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         if (r.type === 'error') return fail(r.error.message);
       }
       // The delivery address is already on the session, from Stripe's address form.
-      const shippingAddress = checkout.shippingAddress;
+      // Stripe's address form checks itself and marks what is missing.
+      const v = await checkout.validateElements();
+      if (v.type === 'error') return fail(v.error.message || t('checkout.required'));
+      const shippingAddress = v.session.shippingAddress ?? checkout.shippingAddress;
       if (!shippingAddress) return fail(t('checkout.required'));
       const r = await Promise.race([
         checkout.confirm({
@@ -205,7 +209,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         <section>
           <h2 className="font-display text-3xl">{t('checkout.delivery')}</h2>
           <div className="mt-6">
-            <ShippingAddressElement options={{ display: { name: 'full' } }} onChange={(e) => setDeliveryDone(e.complete)} />
+            <ShippingAddressElement options={{ display: { name: 'full' } }} />
           </div>
           <label className="mt-6 flex cursor-pointer items-start gap-3 text-base">
             <input type="checkbox" checked={sameBilling} onChange={(e) => setSameBilling(e.target.checked)} className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />

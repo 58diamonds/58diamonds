@@ -6,7 +6,7 @@ Read this first, update it last. Every session, on any computer or account.
 |---|---|
 | **Working branch** | `main` (Vercel deploys `main` only, live on https://58diamonds.vercel.app) |
 | **Last change** | 2026-11-02: ivory emails merged (PR #74). 2026-10-28: holding page lines removed, emails sent from sales@58diamonds.com |
-| **Next step** | Not recorded. Add it here at the end of the next session |
+| **Next step** | Test "Translate from English" in Admin > Pieces (do not save). Confirm Farah's iPhone and PC have the sales@58diamonds.com mailbox |
 | **History** | Dated log in `docs/project-notes.md` |
 | **Last session** | 2026-11-05, cloud session (account: szaidman@gmail.com): added "From the other account" below. Before that: 2026-11-05, cloud session (account: sacha@eighteendiamonds.com): added this file |
 

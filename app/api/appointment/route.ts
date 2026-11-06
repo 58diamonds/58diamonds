@@ -17,6 +17,7 @@ export async function POST(req: Request) {
   const name = str(b.name, 200);
   const email = str(b.email, 200) || null;
   const phone = str(b.phone, 50) || null;
+  const whatsapp = b.whatsapp === true && Boolean(phone);
   const piece = str(b.piece, 200);
   const message = (piece ? `About: ${piece}\n\n` : '') + str(b.message, 3500);
   if (!name || (!email && !phone) || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
@@ -25,11 +26,11 @@ export async function POST(req: Request) {
   // A time picked in the booking calendar: checked, held and sent to Farah to approve.
   if (typeof b.start === 'number' && Number.isFinite(b.start)) {
     if (!HAS_DATABASE) return NextResponse.json({ ok: true });
-    const r = await createBooking({ name, email, phone, message, locale: isLocale(b.locale) ? b.locale : 'en', start: b.start });
+    const r = await createBooking({ name, email, phone, message, locale: isLocale(b.locale) ? b.locale : 'en', start: b.start, whatsapp });
     if ('ok' in r) return NextResponse.json({ ok: true });
     return NextResponse.json({ error: r.error }, { status: r.error === 'failed' ? 500 : 409 });
   }
-  const row = { name, email, phone, preferred_date: str(b.preferred_date, 100) || null, message, locale: isLocale(b.locale) ? b.locale : 'en' };
+  const row = { name, email, phone, preferred_date: str(b.preferred_date, 100) || null, message, locale: isLocale(b.locale) ? b.locale : 'en', whatsapp_ok: whatsapp };
   if (!HAS_DATABASE) return NextResponse.json({ ok: true });
   const { error } = await getServiceDb().from('appointment_requests').insert(row);
   if (error) return NextResponse.json({ error: 'failed' }, { status: 500 });

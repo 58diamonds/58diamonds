@@ -74,6 +74,7 @@ export const DEMO_SETTINGS: Settings = {
   ],
   header_logo: 'ink',
   private_jeweller: false,
+  whatsapp_messages: {},
 };
 
 export const DEMO_SECTIONS: Section[] = [

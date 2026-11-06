@@ -10,8 +10,9 @@ import { isLocale, type Locale } from './i18n';
 import { buildEvent, type EventInput } from './ics';
 import { href } from './routes';
 import { getServiceDb } from './supabase';
+import { notifyWhatsApp } from './whatsapp';
 import { makeT } from './t';
-import { zonedClock } from './booking';
+import { formatWhen, zonedClock } from './booking';
 
 /**
  * A booking's life: requested (held in Farah's "58 Diamonds requests"
@@ -37,9 +38,10 @@ export interface BookingRow {
   caldav_uid: string | null;
   decision_token: string;
   client_token: string;
+  whatsapp_ok: boolean;
 }
 
-const COLUMNS = 'id,name,email,phone,message,locale,starts_at,ends_at,status,caldav_href,caldav_uid,decision_token,client_token';
+const COLUMNS = 'id,name,email,phone,message,locale,starts_at,ends_at,status,caldav_href,caldav_uid,decision_token,client_token,whatsapp_ok';
 
 export async function getBooking(id: string): Promise<BookingRow | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
@@ -120,7 +122,7 @@ async function writeEvent(b: BookingRow, calendar: string, pending: boolean): Pr
 export type BookResult = { ok: true } | { error: 'off' | 'taken' | 'invalid' | 'failed' };
 
 /** A client picked a time on the site. */
-export async function createBooking(input: { name: string; email: string | null; phone: string | null; message: string; locale: string; start: number }): Promise<BookResult> {
+export async function createBooking(input: { name: string; email: string | null; phone: string | null; message: string; locale: string; start: number; whatsapp?: boolean }): Promise<BookResult> {
   const cfg = await getBookingConfig();
   if (!bookingLive(cfg)) return { error: 'off' };
   const now = Date.now();
@@ -142,6 +144,7 @@ export async function createBooking(input: { name: string; email: string | null;
       ends_at: new Date(end).toISOString(),
       status: 'pending',
       preferred_date: null,
+      whatsapp_ok: Boolean(input.whatsapp && input.phone),
     })
     .select(COLUMNS)
     .single();
@@ -158,6 +161,7 @@ export async function createBooking(input: { name: string; email: string | null;
   const to = adminAddress(settings.email);
   if (to) await sendEmail({ to, ...adminNewBooking(b, decideLink(b)), replyTo: b.email });
   if (b.email) await sendEmail({ to: b.email, ...bookingReceived(b, await tFor(b.locale), loc(b.locale)) });
+  await whatsappBooking(b, 'booking_received');
   return { ok: true };
 }
 
@@ -186,6 +190,7 @@ export async function decideBooking(b: BookingRow, action: 'approve' | 'decline'
         attachments: [{ filename: '58-diamonds.ics', content: new TextEncoder().encode(ics) }],
       });
     }
+    await whatsappBooking(b, 'booking_confirmed');
     return { ok: true };
   }
 
@@ -196,6 +201,7 @@ export async function decideBooking(b: BookingRow, action: 'approve' | 'decline'
     .eq('id', b.id);
   clearAgendaCache();
   if (b.email) await sendEmail({ to: b.email, ...bookingDeclined(b, t, locale, note, `${SITE_URL}${href.contact(locale)}`) });
+  await whatsappBooking(b, 'booking_declined');
   return { ok: true };
 }
 
@@ -235,7 +241,16 @@ export async function moveBooking(b: BookingRow, start: number): Promise<{ ok: t
       attachments: [{ filename: '58-diamonds.ics', content: new TextEncoder().encode(ics) }],
     });
   }
+  if (b.status === 'confirmed') await whatsappBooking(moved, 'booking_confirmed');
   return { ok: true };
+}
+
+/** The WhatsApp message next to a booking email, when switched on and the client agreed. */
+async function whatsappBooking(b: BookingRow, message: 'booking_received' | 'booking_confirmed' | 'booking_declined') {
+  const locale = loc(b.locale);
+  const when = formatWhen(Date.parse(b.starts_at), locale);
+  const params = message === 'booking_confirmed' ? [b.name, when, await place()] : [b.name, when];
+  await notifyWhatsApp({ settings: await getSettings(), message, consent: b.whatsapp_ok, phone: b.phone, locale, params });
 }
 
 export { place as bookingPlace, tFor as bookingT, loc as bookingLocale };

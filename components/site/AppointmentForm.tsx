@@ -2,7 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useState } from 'react';
+import { withCountryCode } from '@/lib/phone';
 import { BookingPicker } from './BookingPicker';
+import { PhoneField } from './PhoneField';
 import { PrivacyNote } from './PrivacyNote';
 import { useSite } from './SiteProvider';
 
@@ -31,7 +33,8 @@ export function AppointmentForm() {
     const get = (k: string) => String(form.get(k) ?? '').trim();
     // A field people cannot see. Bots fill it in; people do not.
     if (get('website')) return setStatus('sent');
-    if (!get('email') && !get('phone')) return setError(t('form.reach'));
+    const phone = withCountryCode(get('phone_country'), get('phone'));
+    if (!get('email') && !phone) return setError(t('form.reach'));
     if (useCalendar && !start && !apptDay) return setError(t('booking.need_time'));
     const askDay = useCalendar && Boolean(apptDay);
 
@@ -43,7 +46,7 @@ export function AppointmentForm() {
       body: JSON.stringify({
         name: get('name'),
         email: get('email') || null,
-        phone: get('phone') || null,
+        phone: phone || null,
         preferred_date: askDay ? apptDay : useCalendar ? null : get('preferred_date') || null,
         start: useCalendar && !askDay ? start : undefined,
         message: get('message'),
@@ -87,10 +90,7 @@ export function AppointmentForm() {
         <span className="eyebrow">{t('form.email')}</span>
         <input name="email" type="email" maxLength={200} autoComplete="email" className="field" />
       </label>
-      <label>
-        <span className="eyebrow">{t('form.phone')}</span>
-        <input name="phone" type="tel" maxLength={50} autoComplete="tel" className="field" />
-      </label>
+      <PhoneField label={t('form.phone')} locale={locale} />
       <div className="sm:col-span-2">
         <div className={manual ? 'hidden' : ''}>
           <BookingPicker value={start} onChange={setStart} onLive={onLive} reloadKey={reloadKey} onAppointmentDay={setApptDay} />

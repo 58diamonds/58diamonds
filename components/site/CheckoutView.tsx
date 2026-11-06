@@ -7,8 +7,10 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CHECKOUT_KEY, type PendingCheckout } from '@/lib/checkout-session';
 import type { Locale } from '@/lib/i18n';
+import { DEFAULT_DIAL_COUNTRY, DIAL_COUNTRIES, withCountryCode } from '@/lib/phone';
 import { href } from '@/lib/routes';
 import { countryName } from '@/lib/shipping';
+import { PhoneField } from './PhoneField';
 import { useSite } from './SiteProvider';
 
 /** The Stripe payment box, dressed like the rest of the site. */
@@ -100,6 +102,10 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const result = useCheckoutElements();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  // The phone's country starts as the country the shipping was priced for.
+  const [phoneCountry, setPhoneCountry] = useState(() =>
+    DIAL_COUNTRIES.some((c) => c.code === pending.country) ? pending.country : DEFAULT_DIAL_COUNTRY,
+  );
   const [sameBilling, setSameBilling] = useState(true);
   const [billing, setBilling] = useState<Address>(() => emptyAddress(pending.country));
   const [business, setBusiness] = useState(false);
@@ -190,7 +196,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
       const r = await Promise.race([
         checkout.confirm({
           ...(fixedEmail ? {} : { email: email.trim() }),
-          phoneNumber: phone.trim(),
+          phoneNumber: withCountryCode(phoneCountry, phone),
           billingAddress: sameBilling ? shippingAddress : contact(billing),
         }),
         timeout,
@@ -220,7 +226,15 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
             ) : (
               <Field label={t('checkout.email')} value={email} onChange={setEmail} type="email" autoComplete="email" invalid={missing(email)} />
             )}
-            <Field label={t('checkout.phone')} value={phone} onChange={setPhone} type="tel" autoComplete="tel" invalid={missing(phone)} />
+            <PhoneField
+              label={t('checkout.phone')}
+              locale={locale}
+              country={phoneCountry}
+              onCountryChange={setPhoneCountry}
+              value={phone}
+              onChange={setPhone}
+              invalid={missing(phone)}
+            />
           </div>
         </section>
 

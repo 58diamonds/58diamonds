@@ -22,9 +22,9 @@ Code: `lib/whatsapp.ts` (sending), `lib/whatsapp-messages.ts` (the list), migrat
 
 ## Setting it up
 
-1. **Choose the number.** Either Farah's current WhatsApp Business number (+32 485 94 09 11), kept in her WhatsApp Business app at the same time ("coexistence": one chat per client, she sees the automatic messages in her app; Meta may refuse some accounts), or a new number used only by the site.
+1. **Choose the number.** Either Farah's current WhatsApp Business number (+32 485 94 09 11), kept in her WhatsApp Business app at the same time ("coexistence": one chat per client, she sees the automatic messages in her app; Meta may refuse some accounts), or a new number used only by the site (suggested: a Belgian prepaid SIM or eSIM, not yet on WhatsApp; after verification it can stay in a drawer, but keep it active with the yearly top-up, because Meta can ask to verify the number again and a cancelled number is given to someone else). With a site-only number, client replies reach the server, not a phone: add a "Message Farah" button to the templates that opens her usual number, or build a WhatsApp inbox in Admin.
 2. **Meta Business account** at business.facebook.com, then **business verification** (Settings > Security center) with Farah De Roeck's details, VAT BE0711.864.093.
-3. **WhatsApp account**: at developers.facebook.com create an app (type Business), add the WhatsApp product, and add the number. For coexistence pick "connect your WhatsApp Business app" and scan the QR code with Farah's phone. For a new number, verify it by SMS or call.
+3. **WhatsApp account**: directly with Meta, no partner needed (pages on business.whatsapp.com push "solution providers"; skip them). At developers.facebook.com/apps register as a developer, Create app, pick the WhatsApp use case, link it to the 58 Diamonds portfolio, then WhatsApp > API Setup > Add phone number (Meta first shows a free test number; that is normal). For coexistence pick "connect your WhatsApp Business app" and scan the QR code with Farah's phone. For a new number, verify it by SMS or call.
 4. **Profile**: display name "58 Diamonds" (Meta approves it), the logo as profile photo, the website and address.
 5. **Payment method** in WhatsApp Manager > Settings > Payment methods. Meta charges per message (see "Cost" below).
 6. **Templates**: in WhatsApp Manager > Message templates, create the five templates below. Category **Utility**, the name exactly as written, one language each for English, Dutch and French. Body as below, footer "58 Diamonds". Meta asks for a sample for each {{n}}: the examples below do.
@@ -84,7 +84,7 @@ Samples: {{1}} Sacha, {{2}} 1001, {{3}} DHL 1234567890
 
 ## Cost
 
-Meta charges each Utility message sent to a client who has not written to the number in the last 24 hours; inside those 24 hours they are free. Belgium is in Meta's "Rest of Western Europe" price group. Current prices: developers.facebook.com/docs/whatsapp/pricing.
+Meta bills Farah's card directly (WhatsApp Manager > Payment methods); nothing goes through the site. The automatic messages are Utility templates: about EUR 0.0142 each for Belgian numbers ("Rest of Western Europe", rate from 1 October 2026, VAT excluded), more for some countries (France about 0.025, Germany about 0.046), set by the client's number. Since 1 October 2026 sources disagree on whether templates sent within 24 hours of the client writing are still free, so count every message. The "first 1,000 free" a month are service messages (replies typed within 24 hours of the client writing), not these templates. Example: 40 bookings and 10 orders a month, two messages each, about EUR 1.50. No monthly fee from Meta. Other cost: the SIM. Current prices: developers.facebook.com/docs/whatsapp/pricing.
 
 ## Changing the wording later
 

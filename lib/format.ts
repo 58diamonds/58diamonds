@@ -38,13 +38,26 @@ export function slugify(input: string): string {
 }
 
 /**
- * wa.me link with a prefilled message.
+ * A phone number in international form, digits only, as wa.me wants it.
  *
- * wa.me wants the number in international form with digits only, so "+32 470
- * 12 34 56" and "0032470123456" both become 32470123456.
+ * "+32 470 12 34 56" and "0032470123456" both become 32470123456. A local
+ * number with no country code ("0484 22 30 90", as clients type it in the
+ * form) is taken as Belgian: the leading 0 becomes 32. "+32 (0)484..." loses
+ * the 0 after the country code.
  */
+export function internationalDigits(number: string | null | undefined): string {
+  const raw = (number ?? '').trim();
+  let digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('00')) digits = digits.slice(2);
+  else if (!raw.startsWith('+') && digits.startsWith('0')) digits = `32${digits.slice(1)}`;
+  if (digits.startsWith('320')) digits = `32${digits.slice(3)}`;
+  return digits;
+}
+
+/** wa.me link with a prefilled message. */
 export function whatsappLink(number: string | null | undefined, message?: string): string | null {
-  const digits = (number ?? '').replace(/\D/g, '').replace(/^00/, '');
+  const digits = internationalDigits(number);
   if (!digits) return null;
   return `https://wa.me/${digits}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
 }

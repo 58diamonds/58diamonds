@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Badge, Help, PageTitle, Button } from '@/components/admin/ui';
 import { adminFetch } from '@/lib/admin-client';
 import { zonedClock, zonedDate, zonedTime } from '@/lib/booking';
+import { whatsappLink } from '@/lib/format';
 import { getAdminDb } from '@/lib/supabase';
 import type { AppointmentRequest } from '@/lib/types';
 import { askConfirm } from '@/components/admin/confirm';
@@ -82,7 +83,7 @@ export default function RequestsAdmin() {
       {shown.length === 0 && <p className="text-sm text-[var(--color-stone)]">No open requests.</p>}
       <ul className="space-y-3">
         {shown.map((r) => {
-          const wa = r.phone ? `https://wa.me/${r.phone.replace(/\D/g, '').replace(/^00/, '')}` : null;
+          const wa = whatsappLink(r.phone);
           return (
             <li key={r.id} className={`border bg-white border-[var(--color-line)] p-4 ${r.handled ? 'opacity-60' : ''}`}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">

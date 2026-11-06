@@ -8,6 +8,7 @@ import { adminFetch } from '@/lib/admin-client';
 import { getAdminDb } from '@/lib/supabase';
 import type { Settings } from '@/lib/types';
 import { EU_VAT_RATES, HOME_COUNTRY, OSS_THRESHOLD } from '@/lib/vat';
+import { WHATSAPP_MESSAGES } from '@/lib/whatsapp-messages';
 
 
 /** Contact details, shop switches, gift wrap, invoices, sharing image. */
@@ -27,6 +28,7 @@ export default function SettingsAdmin() {
         gift_wrap_price: Number(data.gift_wrap_price),
         vat_rate: Number(data.vat_rate),
         eu_vat_rates: data.eu_vat_rates ?? {},
+        whatsapp_messages: data.whatsapp_messages ?? {},
       });
     });
   }, [db]);
@@ -59,6 +61,7 @@ export default function SettingsAdmin() {
           ...(SHOP_LIVE ? { oss_registered: v.oss_registered, eu_vat_rates: v.eu_vat_rates } : {}),
           invoice_footer: v.invoice_footer?.trim() || null,
           og_image_url: v.og_image_url,
+          whatsapp_messages: v.whatsapp_messages ?? {},
           updated_at: new Date().toISOString(),
         })
         .eq('id', 1),
@@ -82,6 +85,24 @@ export default function SettingsAdmin() {
             <div className="sm:col-span-2">
               <TextField label="Address for appointments" value={s.address ?? ''} onChange={(address) => set({ address })} multiline rows={3} hint="Empty: “by appointment” only." />
             </div>
+          </div>
+        </Card>
+
+        <Card title="WhatsApp messages">
+          <p className="mb-4 text-sm text-[var(--color-stone)]">
+            Sent to the client on WhatsApp at the same moment as the email, only to clients who ticked “Also send me updates on WhatsApp”. The box shows on the
+            form and at checkout once a message is on and the WhatsApp account is connected. Until then nothing is sent.
+          </p>
+          <div className="grid gap-5">
+            {WHATSAPP_MESSAGES.filter((m) => SHOP_LIVE || !m.key.startsWith('order_')).map((m) => (
+              <Toggle
+                key={m.key}
+                label={m.label}
+                checked={s.whatsapp_messages?.[m.key] === true}
+                onChange={(on) => set({ whatsapp_messages: { ...s.whatsapp_messages, [m.key]: on } })}
+                hint={m.hint}
+              />
+            ))}
           </div>
         </Card>
 

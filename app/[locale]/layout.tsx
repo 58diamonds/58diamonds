@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { SiteHeader } from '@/components/site/SiteHeader';
 import { SiteProvider } from '@/components/site/SiteProvider';
+import { whatsappOffered } from '@/lib/whatsapp';
 import { WhatsAppButton } from '@/components/site/WhatsAppButton';
 import { SITE_NAME, SITE_URL } from '@/lib/config';
 import { getFeatures, getMenu, getPages, getSections, getSettings, getTexts } from '@/lib/data';
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
             texts: Object.fromEntries(Object.entries(texts).map(([k, v]) => [k, tr(v, locale)])),
             features: { shop: features.shop, accounts: features.accounts, wishlist: features.wishlist, newsletter: features.newsletter },
             whatsapp: settings.whatsapp_number,
+            whatsappUpdates: whatsappOffered(settings),
           }}
         >
           <SiteHeader links={header} logo="brown-gold" privateJeweller={settings.private_jeweller === true} />

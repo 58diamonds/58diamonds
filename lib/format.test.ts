@@ -14,6 +14,12 @@ describe('whatsappLink', () => {
     expect(whatsappLink('+32 470 12 34 56', 'Hi')).toBe('https://wa.me/32470123456?text=Hi');
     expect(whatsappLink('0032470123456', '')).toBe('https://wa.me/32470123456');
   });
+  it('reads a local number without country code as Belgian', () => {
+    expect(whatsappLink('0484223090')).toBe('https://wa.me/32484223090');
+    expect(whatsappLink('0484 22 30 90')).toBe('https://wa.me/32484223090');
+    expect(whatsappLink('+32 (0)484 22 30 90')).toBe('https://wa.me/32484223090');
+    expect(whatsappLink('+33 6 12 34 56 78')).toBe('https://wa.me/33612345678');
+  });
   it('is absent without a number', () => {
     expect(whatsappLink(null, 'Hi')).toBeNull();
   });

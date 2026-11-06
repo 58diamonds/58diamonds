@@ -1,7 +1,7 @@
 import 'server-only';
 import { formatWhen } from './booking';
 import { ADMIN_URL, SITE_URL } from './config';
-import { formatPrice } from './format';
+import { formatPrice, whatsappLink } from './format';
 import type { Locale } from './i18n';
 import { href } from './routes';
 import { countryName } from './shipping';
@@ -197,7 +197,7 @@ const bookingRows = (r: Booking) =>
 export function adminNewBooking(r: Booking, decideUrl: string, reminder = false) {
   const when = formatWhen(Date.parse(r.starts_at), 'en');
   const subject = `${reminder ? 'Waiting for your answer: ' : ''}Appointment request from ${r.name}, ${when}`;
-  const wa = r.phone ? `https://wa.me/${r.phone.replace(/\D/g, '').replace(/^00/, '')}` : null;
+  const wa = whatsappLink(r.phone);
   const html = layout(
     subject,
     `<p>${bookingRows(r)}</p>${r.message ? `<p>${nl2br(r.message)}</p>` : ''}<p>The time is held in your "58 Diamonds requests" calendar until you answer.</p>${button(`${decideUrl}&action=approve`, 'Approve')}${button(`${decideUrl}&action=decline`, 'Decline')}${wa ? `<p><a href="${wa}" style="color:#8a6a3b">Message ${esc(r.name)} on WhatsApp</a></p>` : ''}`,

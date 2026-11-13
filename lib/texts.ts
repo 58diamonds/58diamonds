@@ -247,6 +247,7 @@ export const TEXTS = {
   'form.privacy_link': t('Contact', 'Link to the privacy page under forms', 'Privacy', 'Privacy', 'Confidentialité'),
   'form.send': t('Contact', 'Form: send button', 'Send my request', 'Verstuur mijn aanvraag', 'Envoyer ma demande'),
   'form.sent': t('Contact', 'Form: thank you', 'Thank you. We will be in touch very soon.', 'Dank u. We nemen snel contact met u op.', 'Merci. Nous revenons vers vous très vite.'),
+  'form.whatsapp_ok': t('Contact', 'Form and checkout: WhatsApp box (shown when WhatsApp messages are on)', 'Also send me updates on WhatsApp', 'Stuur mij ook updates via WhatsApp', "Envoyez-moi aussi les nouvelles sur WhatsApp"),
   'form.reach': t('Contact', 'Form: email or phone needed', 'Please leave an email or a phone number so we can reply.', 'Laat een e-mailadres of telefoonnummer achter zodat we kunnen antwoorden.', 'Laissez un e-mail ou un numéro de téléphone pour que nous puissions répondre.'),
   'booking.type': t('Booking calendar', 'Kind of appointment', 'Private appointment', 'Privéafspraak', 'Rendez-vous privé'),
   'booking.pick_day': t('Booking calendar', 'Heading above the calendar', 'Choose a day', 'Kies een dag', 'Choisissez un jour'),

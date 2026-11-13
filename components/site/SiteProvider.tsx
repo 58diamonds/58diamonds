@@ -10,6 +10,8 @@ export interface SiteContext {
   texts: Record<string, string>;
   features: { shop: boolean; accounts: boolean; wishlist: boolean; newsletter: boolean };
   whatsapp: string | null;
+  /** WhatsApp messages are connected and on: the form and checkout offer the WhatsApp box. */
+  whatsappUpdates?: boolean;
 }
 
 const Ctx = createContext<SiteContext | null>(null);

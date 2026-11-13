@@ -194,3 +194,24 @@ export async function DELETE(req: Request) {
   }
   return NextResponse.json({ ok: true });
 }
+
+/** The buyer ticked the WhatsApp box: kept on the pending order for the messages after payment. */
+export async function PATCH(req: Request) {
+  const body = (await req.json().catch(() => null)) as { clientSecret?: string; whatsapp?: boolean } | null;
+  const secret = String(body?.clientSecret ?? '');
+  const id = secret.split('_secret_')[0];
+  const stripe = getStripe();
+  if (!stripe || !id.startsWith('cs_')) return NextResponse.json({ error: 'bad' }, { status: 400 });
+  try {
+    const session = await stripe.checkout.sessions.retrieve(id);
+    // Only the page that holds the session's secret may change its order.
+    if (session.client_secret !== secret) return NextResponse.json({ error: 'bad' }, { status: 400 });
+    const order = session.metadata?.order_id;
+    if (order) {
+      await getServiceDb().from('orders').update({ whatsapp_ok: body?.whatsapp === true }).eq('id', order).eq('status', 'pending');
+    }
+  } catch {
+    return NextResponse.json({ error: 'failed' }, { status: 502 });
+  }
+  return NextResponse.json({ ok: true });
+}

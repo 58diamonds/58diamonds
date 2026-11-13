@@ -59,6 +59,8 @@ export interface Settings {
   header_logo: HeaderLogo;
   /** Show PRIVATE JEWELLER under the header logo. */
   private_jeweller: boolean;
+  /** Automatic WhatsApp messages switched on (lib/whatsapp-messages.ts keys). */
+  whatsapp_messages: Record<string, boolean>;
 }
 
 export interface Page {
@@ -263,6 +265,8 @@ export interface Order {
   gift_wrap: boolean;
   gift_message: string | null;
   note: string | null;
+  /** The client ticked the WhatsApp box at checkout. */
+  whatsapp_ok?: boolean;
   invoice_number: string | null;
   invoiced_at: string | null;
   created_at: string;
@@ -292,4 +296,6 @@ export interface AppointmentRequest {
   status?: 'pending' | 'confirmed' | 'declined' | 'cancelled' | null;
   decided_at?: string | null;
   decision_note?: string | null;
+  /** The client ticked the WhatsApp box on the form. */
+  whatsapp_ok?: boolean;
 }

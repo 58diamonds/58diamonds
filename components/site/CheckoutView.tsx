@@ -97,7 +97,7 @@ type Address = { name: string; line1: string; line2: string; postal: string; cit
 const emptyAddress = (country: string): Address => ({ name: '', line1: '', line2: '', postal: '', city: '', country });
 
 function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout; countries: string[]; locale: Locale }) {
-  const { t } = useSite();
+  const { t, whatsappUpdates } = useSite();
   const router = useRouter();
   const result = useCheckoutElements();
   const [email, setEmail] = useState('');
@@ -106,6 +106,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const [phoneCountry, setPhoneCountry] = useState(() =>
     DIAL_COUNTRIES.some((c) => c.code === pending.country) ? pending.country : DEFAULT_DIAL_COUNTRY,
   );
+  const [whatsapp, setWhatsapp] = useState(false);
   const [sameBilling, setSameBilling] = useState(true);
   const [billing, setBilling] = useState<Address>(() => emptyAddress(pending.country));
   const [business, setBusiness] = useState(false);
@@ -193,6 +194,14 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         name: a.value.name,
         address: { ...a.value.address, line2: a.value.address.line2 || null },
       };
+      // The WhatsApp box is kept on the order, for the messages after payment.
+      if (whatsappUpdates && whatsapp) {
+        await fetch('/api/checkout', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ clientSecret: pending.clientSecret, whatsapp: true }),
+        }).catch(() => null);
+      }
       const r = await Promise.race([
         checkout.confirm({
           ...(fixedEmail ? {} : { email: email.trim() }),
@@ -236,6 +245,12 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
               invalid={missing(phone)}
             />
           </div>
+          {whatsappUpdates && (
+            <label className="mt-6 flex cursor-pointer items-start gap-3 text-base">
+              <input type="checkbox" checked={whatsapp} onChange={(e) => setWhatsapp(e.target.checked)} className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />
+              <span>{t('form.whatsapp_ok')}</span>
+            </label>
+          )}
         </section>
 
         <section>

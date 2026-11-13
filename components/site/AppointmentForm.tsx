@@ -12,7 +12,7 @@ type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 /** The appointment request form. Farah sees requests under Requests in the admin and gets an email. */
 export function AppointmentForm() {
-  const { locale, t } = useSite();
+  const { locale, t, whatsappUpdates } = useSite();
   const piece = useSearchParams().get('piece');
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,7 @@ export function AppointmentForm() {
         name: get('name'),
         email: get('email') || null,
         phone: phone || null,
+        whatsapp: Boolean(whatsappUpdates && phone && form.get('whatsapp')),
         preferred_date: askDay ? apptDay : useCalendar ? null : get('preferred_date') || null,
         start: useCalendar && !askDay ? start : undefined,
         message: get('message'),
@@ -91,6 +92,12 @@ export function AppointmentForm() {
         <input name="email" type="email" maxLength={200} autoComplete="email" className="field" />
       </label>
       <PhoneField label={t('form.phone')} locale={locale} />
+      {whatsappUpdates && (
+        <label className="flex cursor-pointer items-start gap-3 text-base sm:col-span-2">
+          <input type="checkbox" name="whatsapp" className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />
+          <span>{t('form.whatsapp_ok')}</span>
+        </label>
+      )}
       <div className="sm:col-span-2">
         <div className={manual ? 'hidden' : ''}>
           <BookingPicker value={start} onChange={setStart} onLive={onLive} reloadKey={reloadKey} onAppointmentDay={setApptDay} />

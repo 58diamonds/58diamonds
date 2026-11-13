@@ -6,8 +6,11 @@ import { adminNewOrder, orderConfirmation, orderShipped } from './emails';
 import { fill, isLocale, tr, type Locale } from './i18n';
 import { invoicePdf, withdrawalPdf } from './invoice';
 import { pageVars } from './site';
+import { href } from './routes';
 import { getServiceDb } from './supabase';
+import { SITE_URL } from './config';
 import { makeT } from './t';
+import { notifyWhatsApp } from './whatsapp';
 import { HOME_COUNTRY, vatForSale } from './vat';
 import { vatIncluded } from './shop';
 import type { Address, Order, OrderItem } from './types';
@@ -107,6 +110,7 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
       ...(formPdf ? [{ filename: `${t('email.form_file')}.pdf`, content: formPdf }] : []),
     ],
   });
+  await notifyWhatsApp({ settings, message: 'order_confirmed', consent: order.whatsapp_ok, phone: order.phone, locale, params: [order.name, order.number] });
   const admin = adminAddress(settings.email);
   if (admin) await sendEmail({ to: admin, ...adminNewOrder(order, order.order_items, result.oversold) });
 }
@@ -163,7 +167,10 @@ export async function sendShippedEmail(orderId: string) {
   const order = await loadOrder(orderId);
   if (!order) return false;
   const [{ t, locale }, settings] = await Promise.all([translatorFor(order.locale), getSettings()]);
-  return sendEmail({ to: order.email, ...orderShipped(order, t, locale), replyTo: settings.email });
+  const sent = await sendEmail({ to: order.email, ...orderShipped(order, t, locale), replyTo: settings.email });
+  const tracking = [order.carrier, order.tracking_number].filter(Boolean).join(' ') || order.tracking_url || `${SITE_URL}${href.order(locale, order.number)}`;
+  await notifyWhatsApp({ settings, message: 'order_shipped', consent: order.whatsapp_ok, phone: order.phone, locale, params: [order.name, order.number, tracking] });
+  return sent;
 }
 
 /** What checkouts in progress are holding (last 31 minutes), per variant or piece. */

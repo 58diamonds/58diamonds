@@ -8,7 +8,29 @@ Read this first, update it last. Every session, on any computer or account.
 | **Last change** | 2026-11-06: country picker in front of the phone number on the appointment form and at checkout; WhatsApp link to clients with a local number fixed (Belgian 0 becomes +32). 2026-11-02: ivory emails merged (PR #74). 2026-10-28: holding page lines removed, emails sent from sales@58diamonds.com |
 | **Next step** | WhatsApp messages: Farah creates the Meta business portfolio and starts verification (business.facebook.com), then the WhatsApp app directly at developers.facebook.com/apps, no partner. Number: a new dedicated prepaid SIM is being considered, not decided; if site-only, add a "Message Farah" button to the templates (not built). Then templates, keys in Vercel, run migration 0016, merge PR #75 (branch `whatsapp-notifications`). Steps and costs in `docs/whatsapp.md`. Test "Translate from English" in Admin > Pieces (do not save). Confirm Farah's iPhone and PC have the sales@58diamonds.com mailbox |
 | **History** | Dated log in `docs/project-notes.md` |
-| **Last session** | 2026-11-13, Mac session: PR #75 (`whatsapp-notifications`) brought up to date with main (rebased; conflicts were docs only, main's newer STATUS, notes and `docs/whatsapp.md` kept); typecheck, 105 tests and build pass. Not merged, nothing deployed, migration 0016 not run. Before that: 2026-11-12, web chat (szaidman@gmail.com): added handoff notes so every session auto-loads the handoff rule (read this file first, update it last). Before that: 2026-11-06, cloud session from iPhone (account: sacha@eighteendiamonds.com): WhatsApp number fix, country picker on the appointment form and checkout, then automatic WhatsApp messages on branch `whatsapp-notifications` (waiting for Meta setup), then setup questions: direct with Meta, new number, costs. Before that: 2026-11-05, cloud session (account: szaidman@gmail.com): added "From the other account" below. Before that: 2026-11-05, cloud session (account: sacha@eighteendiamonds.com): added this file |
+| **Last session** | 2026-11-13, Mac session: PR #75 (`whatsapp-notifications`) brought up to date with main (rebased; conflicts were docs only, main's newer STATUS, notes and `docs/whatsapp.md` kept); typecheck, 105 tests and build pass. Not merged, nothing deployed, migration 0016 not run. Before that: 2026-11-12, web chat (szaidman@gmail.com): added the handoff rule (now in this file). Before that: 2026-11-06, cloud session from iPhone (account: sacha@eighteendiamonds.com): WhatsApp number fix, country picker on the appointment form and checkout, then automatic WhatsApp messages on branch `whatsapp-notifications` (waiting for Meta setup), then setup questions: direct with Meta, new number, costs. Before that: 2026-11-05, cloud session (account: szaidman@gmail.com): added "From the other account" below. Before that: 2026-11-05, cloud session (account: sacha@eighteendiamonds.com): added this file |
+
+## Handoff (every session, any account, device or cloud session)
+
+STATUS.md on main is the shared handoff between Sacha's accounts, devices (iPhone, PC, Mac) and cloud sessions.
+
+1. **First:** `git pull` main, read this file, and check `git log` on main since the date in **Last session** (another session may have worked since). Don't ask Sacha to re-explain anything this file already says.
+2. **While working:** keep a short running note of what changes, what was decided and what is left unfinished.
+3. **Last:** update this file and commit it to main when a task is finished, before stopping or handing off, when Sacha switches account or device, before usage runs out, and whenever the session ends. Never skip this because the task felt small.
+
+Keep this file short: overwrite stale parts instead of only appending. It holds the date and which account/device wrote it, the current state (what works, what shipped, version/build numbers), what was done, next steps in order, blockers and things only Sacha can do (Mac-only steps, sign-ins, store uploads), and decisions and rules to keep.
+
+Never write secrets here. If pushing to main is not possible, give Sacha the exact text of this file to paste.
+
+## General
+
+- Ask before sending mail or messages, publishing, deleting, spending money or live Stripe writes.
+- If a connector or API is missing, say which one and help set it up rather than giving manual steps.
+
+## Project facts
+
+- Paid client site for Farah (she receives the appointment requests). Extra features are priced separately: flag anything that goes beyond the agreed scope.
+- Deploys from main on Vercel, under a separate Vercel account from Sacha's other projects.
 
 ## Rules
 

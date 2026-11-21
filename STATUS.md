@@ -1,6 +1,6 @@
 # 58 Diamonds: status
 
-**Updated:** 2026-11-19 19:27 (handoff run, Mac, no code change). This file lives on branch `status-handoff`, not `main`: pushing `main` deploys Vercel, and deploys are batched.
+**Updated:** 2026-11-21 21:00 (handoff run, Mac). Project facts are from the 19 Nov check; git state re-checked 21 Nov. This file lives on branch `status-handoff`, not `main`: pushing `main` deploys Vercel, and deploys are batched. Local `main` has no commits origin lacks.
 
 | | |
 |---|---|

@@ -1,6 +1,6 @@
 # 58 Diamonds: status
 
-**Updated:** 2026-11-24 17:25 CET (handoff run, Mac). Git state checked today; no change since 19 Nov. This file lives on branch `status-handoff`, not `main`: pushing `main` deploys Vercel, and deploys are batched. The project's CLAUDE.md asks for STATUS.md on `main`; this handoff keeps `main` untouched because each push deploys.
+**Updated:** 2026-11-24 17:25 CET (handoff run, Mac). Git state checked today; no change since 19 Nov. This file lives on branch `status-handoff`, not `main`: pushing `main` deploys Vercel, and deploys are batched. The project's own rules ask for STATUS.md on `main`; this copy stays off `main` because every push to `main` deploys.
 
 | | |
 |---|---|

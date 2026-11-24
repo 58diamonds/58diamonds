@@ -1,6 +1,6 @@
 # 58 Diamonds: status
 
-**Updated:** 2026-11-21 21:00 (handoff run, Mac). Project facts are from the 19 Nov check; git state re-checked 21 Nov. This file lives on branch `status-handoff`, not `main`: pushing `main` deploys Vercel, and deploys are batched. Local `main` has no commits origin lacks.
+**Updated:** 2026-11-24 17:25 CET (handoff run, Mac). Git state checked today; no change since 19 Nov. This file lives on branch `status-handoff`, not `main`: pushing `main` deploys Vercel, and deploys are batched. The project's CLAUDE.md asks for STATUS.md on `main`; this handoff keeps `main` untouched because each push deploys.
 
 | | |
 |---|---|
@@ -11,11 +11,11 @@
 `origin/main` is at 7359200 and the local `main` matches it. Nothing is waiting to deploy. WhatsApp messages were abandoned on 14 Nov: PR #75 closed without merging, migration 0016 never run, no Meta setup needed from Farah.
 
 ## In progress
-- Open PR #76 (branch `status-handoff-2026-11-16`, title "Update STATUS.md") carries only the old handoff file from 16 Nov. It is not a feature and has nothing to merge.
-- Local branch `whatsapp-notifications` has diverged from its remote after the 14 Nov history rewrite. It is kept for reference only. Do not push it. `status-handoff-2026-11-16` exists locally too; it matches the PR.
+- Open PR #76 (branch `status-handoff-2026-11-16`, title "Update STATUS.md") carries only an old handoff file from 16 Nov. It is not a feature and has nothing to merge.
+- Local branch `whatsapp-notifications` has diverged from its remote after the 14 Nov history rewrite. Kept for reference only; do not push it.
 
 ## Needs Sacha
-1. Decide whether to close PR #76. It only carries the old handoff file; nothing merges to `main` without him.
+1. Decide whether to close PR #76. Nothing merges to `main` without him.
 2. From the other account: confirm Farah's devices are set up on the Office 365 mailbox sales@58diamonds.com (message to Paul, 13 Oct).
 3. DeepL check: in Admin > Pieces, test "Translate from English" (do not save).
 
@@ -27,5 +27,4 @@
 ## Watch out
 - Ask before sending mail or messages, publishing, deleting, spending money or live Stripe writes.
 - Farah is the client. Extra features are priced separately: flag anything beyond the agreed scope.
-- Local `main` matches `origin/main` at this check (19 Nov 19:27), so nothing unpushed is at risk.
 - Worktree branches are never pushed as they are: rename or merge first.

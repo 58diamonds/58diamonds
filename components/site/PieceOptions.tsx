@@ -71,10 +71,21 @@ export function usePieceChoice(): Choice {
 }
 
 /** The price line: the chosen option's own price once one is picked, else the server's text ("From ..."). */
-export function PiecePrice({ text, basePrice, showsPrice, className }: { text: string; basePrice: number | null; showsPrice: boolean; className: string }) {
+export function PiecePrice({ text, basePrice, oldPrice = null, showsPrice, className }: { text: string; basePrice: number | null; oldPrice?: number | null; showsPrice: boolean; className: string }) {
   const { currency, locale } = useSite();
   const { options, optionId } = usePieceChoice();
   const chosen = options.find((o) => o.id === optionId);
   const price = chosen && showsPrice ? (chosen.price ?? basePrice) : null;
-  return <p className={className}>{price != null ? formatPrice(price, currency, locale) : text}</p>;
+  // On sale: the normal price crossed out, unless the chosen option has its own price.
+  const old = showsPrice && oldPrice != null && chosen?.price == null ? oldPrice : null;
+  return (
+    <p className={className}>
+      {old != null && (
+        <>
+          <s className="text-[var(--color-stone)] opacity-70">{formatPrice(old, currency, locale)}</s>{' '}
+        </>
+      )}
+      <span className={old != null ? 'text-[var(--color-gold)]' : undefined}>{price != null ? formatPrice(price, currency, locale) : text}</span>
+    </p>
+  );
 }

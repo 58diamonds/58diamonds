@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeFilterCount, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
+import { activeFilterCount, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
 import type { Piece, Section } from './types';
 
 const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, cover_url: null, position: 0, visible: true, show_prices: true };
@@ -123,5 +123,21 @@ describe('option prices', () => {
   });
   it('is a single price without options', () => {
     expect(priceRange(piece('q', { price: 500 }))).toEqual({ min: 500, max: 500 });
+  });
+});
+
+describe('onSale', () => {
+  it('uses the sale price while on sale and keeps the normal price as old_price', () => {
+    expect(onSale({ price: 1200, sale_price: 900, on_sale: true })).toMatchObject({ price: 900, old_price: 1200 });
+  });
+  it('ignores the sale price when the switch is off', () => {
+    expect(onSale({ price: 1200, sale_price: 900, on_sale: false })).toMatchObject({ price: 1200, old_price: null });
+  });
+  it('ignores a missing or higher sale price', () => {
+    expect(onSale({ price: 1200, sale_price: null, on_sale: true })).toMatchObject({ price: 1200, old_price: null });
+    expect(onSale({ price: 1200, sale_price: 1500, on_sale: true })).toMatchObject({ price: 1200, old_price: null });
+  });
+  it('reads database numerics given as strings', () => {
+    expect(onSale({ price: '1200.00' as unknown as number, sale_price: '950.50' as unknown as number, on_sale: true })).toMatchObject({ price: 950.5, old_price: 1200 });
   });
 });

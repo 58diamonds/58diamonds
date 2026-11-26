@@ -107,6 +107,7 @@ export default async function PiecePage({ params }: Props) {
             <PiecePrice
               text={view.priceText}
               basePrice={piece.price == null ? null : Number(piece.price)}
+              oldPrice={view.oldPriceText ? (piece.old_price ?? null) : null}
               showsPrice={view.status === 'available'}
               className={`mt-4 text-[0.78rem] uppercase tracking-[0.24em] ${view.status === 'available' ? 'text-[var(--color-ink)]' : 'text-[var(--color-gold)]'}`}
             />

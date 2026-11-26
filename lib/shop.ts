@@ -13,6 +13,19 @@ export function pieceStock(piece: Pick<Piece, 'stock' | 'piece_variants'>): numb
   return Math.max(0, piece.stock);
 }
 
+/**
+ * A piece as the public site and checkout price it: while "On sale" is on and
+ * the sale price is lower, the sale price becomes its price and the normal
+ * price is kept as old_price (shown crossed out). Options with their own price
+ * keep it.
+ */
+export function onSale<P extends Pick<Piece, 'price' | 'sale_price' | 'on_sale'>>(piece: P): P & { old_price: number | null } {
+  const price = piece.price == null ? null : Number(piece.price);
+  const sale = piece.sale_price == null ? null : Number(piece.sale_price);
+  if (piece.on_sale && price != null && sale != null && sale < price) return { ...piece, price: sale, old_price: price };
+  return { ...piece, price, old_price: null };
+}
+
 /** Does the visitor see a price? */
 export function priceVisible(
   piece: Pick<Piece, 'price' | 'show_price'>,

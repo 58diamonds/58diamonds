@@ -14,6 +14,8 @@ export interface PieceView {
   imageAlt: string;
   hoverImage: string | null;
   priceText: string;
+  /** The normal price, crossed out, while the piece is on sale. */
+  oldPriceText: string | null;
   status: 'available' | 'sold' | 'request';
   purchasable: boolean;
 }
@@ -35,6 +37,7 @@ export function pieceView(piece: Piece, sections: Section[], settings: Settings,
     imageAlt: tr(first?.alt, locale) || title,
     hoverImage: (worn && worn !== first ? worn : second)?.url ?? null,
     priceText: soldOut ? t('shop.sold_out') : showsPrice ? priceLabel(piece, settings.currency, locale, t) : t('shop.on_request'),
+    oldPriceText: !soldOut && showsPrice && piece.old_price != null ? formatPrice(piece.old_price, settings.currency, locale) : null,
     status: soldOut ? 'sold' : showsPrice ? 'available' : 'request',
     purchasable: purchasable(piece, section, settings.shop_enabled),
   };

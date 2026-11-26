@@ -9,6 +9,7 @@ import { getRequestUser } from '@/lib/server-auth';
 import { getStripe, publishableKey as stripePublishableKey, toCents } from '@/lib/stripe';
 import { getServiceDb } from '@/lib/supabase';
 import { deliveryCountries } from '@/lib/shipping';
+import { onSale } from '@/lib/shop';
 import { makeT } from '@/lib/t';
 import type { Piece, Section } from '@/lib/types';
 
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
   const visibleSections = (sections ?? []) as Section[];
   const live = ((pieces ?? []) as Piece[])
     .filter((p) => !p.section_id || visibleSections.some((s) => s.id === p.section_id))
-    .map((p) => ({ ...p, piece_images: [...p.piece_images].sort((a, b) => a.position - b.position) }));
+    .map((p) => ({ ...onSale(p), piece_images: [...p.piece_images].sort((a, b) => a.position - b.position) }));
 
   if (!settings.shop_enabled) return NextResponse.json({ error: 'closed' }, { status: 409 });
 

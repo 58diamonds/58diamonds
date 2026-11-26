@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   DeleteZone,
+  FilePicker,
   L10nField,
   Loading,
   NumberField,
@@ -50,7 +51,6 @@ export default function PieceEditor() {
   // The address follows the name until the piece is first shown on the site.
   const [autoAddr, setAutoAddr] = useState(false);
   const removed = useRef<{ images: string[]; variants: string[] }>({ images: [], variants: [] });
-  const file = useRef<HTMLInputElement>(null);
   const { state, run, setState } = useSave();
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function PieceEditor() {
       ]);
       if (!isNew && !p.data) return router.replace('/pieces');
       const row = (p.data as Piece | null) ?? blankPiece(new URLSearchParams(window.location.search).get('section') || (s.data?.[0]?.id as string | undefined) || null);
-      setPiece({ ...row, price: row.price == null ? null : Number(row.price), weight_g: row.weight_g == null ? null : Number(row.weight_g) });
+      setPiece({ ...row, price: row.price == null ? null : Number(row.price), sale_price: row.sale_price == null ? null : Number(row.sale_price), weight_g: row.weight_g == null ? null : Number(row.weight_g) });
       setAutoAddr(isPlaceholderSlug(row.slug) || (!row.visible && row.slug === slugify(row.title.en ?? '')));
       setImages([...row.piece_images].sort((x, y) => x.position - y.position));
       setVariants([...row.piece_variants].sort((x, y) => x.position - y.position).map((v) => ({ ...v, price: v.price == null ? null : Number(v.price) })));
@@ -74,11 +74,11 @@ export default function PieceEditor() {
   if (!piece) return <Loading />;
   const set = (patch: Partial<Piece>) => setPiece((p) => (p ? { ...p, ...patch } : p));
 
-  async function addPhotos(files: FileList | null) {
-    if (!files?.length) return;
+  async function addPhotos(files: File[]) {
+    if (!files.length) return;
     setUploading(true);
     try {
-      for (const f of Array.from(files)) {
+      for (const f of files) {
         const url = await uploadImage(f, `pieces/${piece!.id}`);
         setImages((imgs) => [...imgs, { id: crypto.randomUUID(), url, alt: {}, position: imgs.length, worn: false, metal_id: null, isNew: true }]);
       }
@@ -86,7 +86,6 @@ export default function PieceEditor() {
       setState({ error: e instanceof Error ? e.message : 'Upload failed.' });
     }
     setUploading(false);
-    if (file.current) file.current.value = '';
   }
 
   async function save() {
@@ -109,6 +108,8 @@ export default function PieceEditor() {
           weight_g: p.weight_g != null && p.weight_g > 0 ? p.weight_g : null,
           price: p.price,
           show_price: p.show_price,
+          sale_price: p.sale_price ?? null,
+          on_sale: p.on_sale === true,
           for_sale: p.for_sale,
           stock: Math.max(0, Math.floor(p.stock || 0)),
           visible: p.visible,
@@ -244,12 +245,11 @@ export default function PieceEditor() {
             ))}
           </ul>
           <div className="mt-4 flex items-center gap-3">
-            <Button onClick={() => file.current?.click()} disabled={uploading}>
+            <FilePicker accept="image/*" multiple disabled={uploading} onFiles={addPhotos}>
               {uploading ? 'Uploading...' : 'Add photos'}
-            </Button>
+            </FilePicker>
             <span className="text-xs text-[var(--color-stone)]">The first photo is the main one. Tick the worn photo: the collection shows it on hover and the homepage squares use it. Large photos are made smaller automatically. When the piece comes in several gold colours, choose which colour a photo shows: the site switches to those photos when a customer picks that colour.</span>
           </div>
-          <input ref={file} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addPhotos(e.target.files)} />
         </Card>
 
         <Card title="Where it shows">
@@ -308,7 +308,28 @@ export default function PieceEditor() {
 
         <Card title={SHOP_LIVE ? 'Price and stock' : 'Price'}>
           <div className="grid gap-5 sm:grid-cols-2">
-            <NumberField label="Price in euro, VAT included" value={piece.price} onChange={(v) => set({ price: v })} step={0.01} />
+            <div className="space-y-4">
+              <NumberField label="Price in euro, VAT included" value={piece.price} onChange={(v) => set({ price: v })} step={0.01} />
+              <div className="border border-[var(--color-line)] bg-[var(--color-pearl)] p-4">
+                <Toggle
+                  label="On sale"
+                  checked={piece.on_sale === true}
+                  onChange={(v) => set({ on_sale: v })}
+                  hint="For Black Friday and other sales. On: the site shows the price above crossed out, the sale price next to it, and charges the sale price. Off: back to normal; the sale price is kept for next time."
+                />
+                {piece.on_sale && (
+                  <div className="mt-3">
+                    <NumberField label="Sale price in euro, VAT included" value={piece.sale_price ?? null} onChange={(v) => set({ sale_price: v })} step={0.01} />
+                    {(piece.sale_price == null || piece.price == null || Number(piece.sale_price) >= Number(piece.price)) && (
+                      <p className="mt-1 text-xs text-red-800">Type a sale price lower than the price above, or the piece shows its normal price.</p>
+                    )}
+                    {variants.some((v) => v.price != null) && (
+                      <p className="mt-1 text-xs text-[var(--color-stone)]">Options with their own price below keep that price.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="space-y-2 pt-5">
               <Toggle label="Show the price" checked={piece.show_price} onChange={(v) => set({ show_price: v })} hint="Off: the site says “Price on request”." />
               {SHOP_LIVE ? (

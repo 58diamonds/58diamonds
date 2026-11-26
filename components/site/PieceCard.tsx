@@ -29,7 +29,12 @@ export function PieceCard({ piece, eager = false }: { piece: PieceView; eager?: 
               piece.status === 'sold' ? 'text-[var(--color-gold)]' : 'text-[var(--color-stone)]'
             }`}
           >
-            {piece.priceText}
+            {piece.oldPriceText && (
+              <>
+                <s className="text-[var(--color-stone)] opacity-70">{piece.oldPriceText}</s>{' '}
+              </>
+            )}
+            <span className={piece.oldPriceText ? 'text-[var(--color-gold)]' : undefined}>{piece.priceText}</span>
           </p>
         </div>
       </Link>

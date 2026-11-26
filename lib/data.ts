@@ -13,6 +13,7 @@ import {
   DEMO_SETTINGS,
 } from './demo';
 import type { L10n } from './i18n';
+import { onSale } from './shop';
 import { getPublicDb } from './supabase';
 import { TEXTS, type TextKey } from './texts';
 import type { Attribute, EventItem, InstagramPost, MenuItem, Page, Piece, PressArticle, Section, Settings } from './types';
@@ -94,8 +95,7 @@ export const getAttributes = cached('attributes', async (): Promise<Attribute[]>
 
 function tidy(p: Piece): Piece {
   return {
-    ...p,
-    price: p.price == null ? null : Number(p.price),
+    ...onSale(p),
     piece_images: [...(p.piece_images ?? [])].sort((a, b) => a.position - b.position),
     piece_variants: [...(p.piece_variants ?? [])].sort((a, b) => a.position - b.position),
   };
@@ -105,7 +105,7 @@ function tidy(p: Piece): Piece {
 export const getPieces = cached('pieces', async (): Promise<Piece[]> => {
   const sections = await getSections();
   const shown = (p: Piece) => p.visible && (!p.section_id || sections.some((s) => s.id === p.section_id));
-  if (!HAS_DATABASE) return DEMO_PIECES.filter(shown);
+  if (!HAS_DATABASE) return DEMO_PIECES.filter(shown).map(tidy);
   const list = await rows(
     db().from('pieces').select('*, piece_images(*), piece_variants(*)').eq('visible', true).order('position'),
     [] as Piece[],

@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PasswordInput } from '@/components/PasswordInput';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { LOCALES, LOCALE_NAMES, type L10n, type Locale } from '@/lib/i18n';
@@ -344,6 +344,46 @@ export function UpDown({ index, count, onMove }: { index: number; count: number;
 }
 
 /** Pick a photo, see it, replace or remove it. Uploads straight to storage. */
+/**
+ * A button that opens the file picker. It is a <label> around a visually hidden
+ * <input type="file">, so the browser opens the picker natively on a tap: some
+ * phone and in-app browsers ignore a scripted click on a display:none input.
+ */
+export function FilePicker({
+  children,
+  accept,
+  multiple,
+  disabled,
+  onFiles,
+}: {
+  children: React.ReactNode;
+  accept: string;
+  multiple?: boolean;
+  disabled?: boolean;
+  onFiles: (files: File[]) => void;
+}) {
+  return (
+    <label
+      className={`relative inline-flex min-h-10 min-w-10 cursor-pointer items-center justify-center gap-2 border border-[var(--color-line)] bg-white px-4 text-[0.72rem] uppercase tracking-[0.14em] transition hover:border-[var(--color-ink)] focus-within:border-[var(--color-ink)] ${disabled ? 'pointer-events-none opacity-30' : ''}`}
+    >
+      {children}
+      <input
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        disabled={disabled}
+        className="sr-only"
+        onChange={(e) => {
+          // Copy the files first: clearing the input empties its FileList.
+          const files = Array.from(e.target.files ?? []);
+          e.target.value = '';
+          onFiles(files);
+        }}
+      />
+    </label>
+  );
+}
+
 export function ImageField({
   label,
   value,
@@ -359,7 +399,6 @@ export function ImageField({
   aspect?: string;
   hint?: string;
 }) {
-  const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -373,7 +412,6 @@ export function ImageField({
       setError(e instanceof Error ? e.message : 'Upload failed.');
     } finally {
       setBusy(false);
-      if (input.current) input.current.value = '';
     }
   }
 
@@ -384,9 +422,9 @@ export function ImageField({
         {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-xs text-[var(--color-stone)]">No photo</div>}
       </div>
       <div className="mt-2 flex gap-2">
-        <Button onClick={() => input.current?.click()} disabled={busy}>
+        <FilePicker accept="image/*" disabled={busy} onFiles={(files) => pick(files[0])}>
           {busy ? 'Uploading...' : value ? 'Replace' : 'Upload'}
-        </Button>
+        </FilePicker>
         {value && (
           <Button onClick={() => onChange(null)} tone="danger">
             Remove
@@ -394,7 +432,6 @@ export function ImageField({
         )}
       </div>
       {hint && <span className="mt-1 block text-xs text-[var(--color-stone)]">{hint}</span>}
-      <input ref={input} type="file" accept="image/*" className="hidden" onChange={(e) => pick(e.target.files?.[0])} />
       {error && <p className="mt-1 text-xs text-red-800">{error}</p>}
     </div>
   );
@@ -402,9 +439,19 @@ export function ImageField({
 
 /** Upload any file (a PDF of an article); shows a link to the current one. */
 export function FileField({ label, value, onChange, folder, accept = 'application/pdf,image/*' }: { label: string; value: string | null; onChange: (url: string | null) => void; folder: string; accept?: string }) {
-  const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  async function pick(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      onChange(await uploadFile(file, folder));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed.');
+    }
+    setBusy(false);
+  }
   return (
     <div>
       <span className="text-sm">{label}</span>
@@ -414,33 +461,15 @@ export function FileField({ label, value, onChange, folder, accept = 'applicatio
             Open current file
           </a>
         )}
-        <Button onClick={() => input.current?.click()} disabled={busy}>
+        <FilePicker accept={accept} disabled={busy} onFiles={(files) => pick(files[0])}>
           {busy ? 'Uploading...' : value ? 'Replace' : 'Upload'}
-        </Button>
+        </FilePicker>
         {value && (
           <Button tone="danger" onClick={() => onChange(null)}>
             Remove
           </Button>
         )}
       </div>
-      <input
-        ref={input}
-        type="file"
-        accept={accept}
-        className="hidden"
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          setBusy(true);
-          setError(null);
-          try {
-            onChange(await uploadFile(file, folder));
-          } catch (err) {
-            setError(err instanceof Error ? err.message : 'Upload failed.');
-          }
-          setBusy(false);
-        }}
-      />
       {error && <p className="mt-1 text-xs text-red-800">{error}</p>}
     </div>
   );

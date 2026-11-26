@@ -145,6 +145,12 @@ export interface Piece {
   price: number | null;
   show_price: boolean;
   for_sale: boolean;
+  /** Sale price in euro, VAT included; used only while on_sale is on. */
+  sale_price?: number | null;
+  /** "On sale" switch in Admin > Pieces. */
+  on_sale?: boolean;
+  /** Set by onSale() on the public site: the normal price, shown crossed out. */
+  old_price?: number | null;
   stock: number;
   metal_id: string | null;
   /** First of stone_ids, kept for older readers. */

@@ -6,11 +6,33 @@ import type { Piece, PieceVariant, Section, Settings } from './types';
  * Pure functions, so they are easy to test (lib/shop.test.ts).
  */
 
-/** Stock a piece can still sell: the sum of its sizes when it has sizes. */
-export function pieceStock(piece: Pick<Piece, 'stock' | 'piece_variants'>): number {
+type StockOf = { stock: number; order_stock?: number };
+type MadeToOrder = Pick<Piece, 'made_to_order'>;
+
+/**
+ * What one piece (without sizes) or one size can still sell. Real stock comes
+ * first; once it is 0 and "Still sell when out of stock" is on, the pieces
+ * Farah allowed to be made to order (order_stock) are sold instead.
+ */
+export function sellable(piece: MadeToOrder, item: StockOf): { stock: number; toOrder: boolean } {
+  const stock = Math.max(0, Number(item.stock) || 0);
+  if (stock > 0) return { stock, toOrder: false };
+  const order = piece.made_to_order ? Math.max(0, Math.floor(Number(item.order_stock) || 0)) : 0;
+  return { stock: order, toOrder: order > 0 };
+}
+
+/** Stock a piece can still sell: the sum of its sizes when it has sizes. Made-to-order pieces count. */
+export function pieceStock(piece: Pick<Piece, 'stock' | 'piece_variants'> & Partial<MadeToOrder> & { order_stock?: number }): number {
   const variants = piece.piece_variants ?? [];
-  if (variants.length) return variants.reduce((sum, v) => sum + Math.max(0, v.stock), 0);
-  return Math.max(0, piece.stock);
+  if (variants.length) return variants.reduce((sum, v) => sum + sellable(piece, v).stock, 0);
+  return sellable(piece, piece).stock;
+}
+
+/** Only made to order is left (nothing in real stock): the site adds "Delivery between 7-14 days". */
+export function pieceToOrder(piece: Pick<Piece, 'stock' | 'piece_variants'> & Partial<MadeToOrder> & { order_stock?: number }): boolean {
+  const variants = piece.piece_variants ?? [];
+  if (variants.length) return variants.every((v) => sellable(piece, v).stock === 0 || sellable(piece, v).toOrder) && variants.some((v) => sellable(piece, v).toOrder);
+  return sellable(piece, piece).toOrder;
 }
 
 /**
@@ -62,7 +84,7 @@ export function priceRange(piece: Pick<Piece, 'price' | 'piece_variants'>): { mi
 
 /** Can it go in the bag? A visible price, for sale, and something left. */
 export function purchasable(
-  piece: Pick<Piece, 'price' | 'show_price' | 'for_sale' | 'stock' | 'piece_variants'>,
+  piece: Pick<Piece, 'price' | 'show_price' | 'for_sale' | 'stock' | 'piece_variants' | 'made_to_order' | 'order_stock'>,
   section: Pick<Section, 'show_prices'> | null | undefined,
   shopEnabled = true,
 ): boolean {

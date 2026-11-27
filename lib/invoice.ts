@@ -257,7 +257,8 @@ export async function invoicePdf(order: Order, items: OrderItem[], settings: Set
     y -= 15;
   };
   sum(t('cart.subtotal'), money(order.subtotal));
-  sum(t('cart.shipping'), order.shipping ? money(order.shipping) : t('cart.free'));
+  if (order.delivery === 'pickup') sum(t('cart.pickup'), t('cart.pickup_free'));
+  else sum(t('cart.shipping'), order.shipping ? money(order.shipping) : t('cart.free'));
   const rate = order.vat_rate ?? Number(settings.vat_rate);
   if (order.vat_scheme === 'export') {
     sum(t('invoice.excl_vat'), money(order.total));

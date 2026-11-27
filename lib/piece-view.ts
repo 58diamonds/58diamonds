@@ -1,7 +1,7 @@
 import { formatPrice } from './format';
 import { tr, type Locale } from './i18n';
 import { href } from './routes';
-import { pieceStock, priceRange, priceVisible, purchasable } from './shop';
+import { fromPrice, pieceStock, priceRange, priceVisible, purchasable } from './shop';
 import type { T } from './t';
 import type { Piece, Section, Settings } from './types';
 
@@ -28,6 +28,7 @@ export function pieceView(piece: Piece, sections: Section[], settings: Settings,
   const worn = wornPhoto(piece.piece_images);
   const showsPrice = priceVisible(piece, section);
   const soldOut = piece.for_sale && pieceStock(piece) === 0;
+  const from = fromPrice(piece, section);
   return {
     id: piece.id,
     slug: piece.slug,
@@ -36,7 +37,7 @@ export function pieceView(piece: Piece, sections: Section[], settings: Settings,
     image: first?.url ?? null,
     imageAlt: tr(first?.alt, locale) || title,
     hoverImage: (worn && worn !== first ? worn : second)?.url ?? null,
-    priceText: soldOut ? t('shop.sold_out') : showsPrice ? priceLabel(piece, settings.currency, locale, t) : t('shop.on_request'),
+    priceText: soldOut ? t('shop.sold_out') : showsPrice ? priceLabel(piece, settings.currency, locale, t) : from != null ? t('piece.from', { price: formatPrice(from, settings.currency, locale) }) : t('shop.on_request'),
     oldPriceText: !soldOut && showsPrice && piece.old_price != null ? formatPrice(piece.old_price, settings.currency, locale) : null,
     status: soldOut ? 'sold' : showsPrice ? 'available' : 'request',
     purchasable: purchasable(piece, section, settings.shop_enabled),

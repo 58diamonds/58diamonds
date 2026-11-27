@@ -197,12 +197,17 @@ function CheckoutForm({ pending, countries, locale, pickupAddress }: { pending: 
           name: a.value.name,
           address: { ...a.value.address, line2: a.value.address.line2 || null },
         };
+      } else {
+        // Without a delivery address Stripe's tax reads the billing address,
+        // which must then be set before paying, not passed to confirm().
+        const b = await checkout.updateBillingAddress(contact(billing));
+        if (b.type === 'error') return fail(b.error.message);
       }
       const r = await Promise.race([
         checkout.confirm({
           ...(fixedEmail ? {} : { email: email.trim() }),
           phoneNumber: withCountryCode(phoneCountry, phone),
-          billingAddress: sameBilling && shippingAddress ? shippingAddress : contact(billing),
+          ...(pickup ? {} : { billingAddress: sameBilling && shippingAddress ? shippingAddress : contact(billing) }),
         }),
         timeout,
       ]);

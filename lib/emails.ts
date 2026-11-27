@@ -130,7 +130,7 @@ export function adminNewOrder(order: Order, items: OrderItem[], oversold: boolea
   const warn = oversold
     ? `<p style="background:#f6e7d8;padding:12px;border-left:3px solid #a8834e"><strong>Attention:</strong> a piece in this order was already sold out when the payment came in. Contact the client before shipping.</p>`
     : '';
-  const list = items.map((i) => `${esc(i.title)}${i.variant ? ` (size ${esc(i.variant)})` : ''} × ${i.quantity}`).join('<br>');
+  const list = items.map((i) => `${esc(i.title)}${i.variant ? ` (size ${esc(i.variant)})` : ''} × ${i.quantity}${i.made_to_order ? ' <strong>(made to order, delivery 7-14 days)</strong>' : ''}`).join('<br>');
   const gift = order.gift_wrap ? `<p><strong>Gift wrap</strong>${order.gift_message ? `<br>Card: “${nl2br(order.gift_message)}”` : ''}</p>` : '';
   const html = layout(subject, `${warn}<p>${list}</p>${gift}<p>${order.delivery === 'pickup' ? `<strong>Pickup in Antwerp</strong>: contact the client to arrange a time.<br>${esc(order.name)}` : `<strong>Ship to</strong><br>${address(order)}`}<br>${esc(order.email)}${order.phone ? `<br>${esc(order.phone)}` : ''}</p>${button(`${ADMIN_URL}/orders/${order.id}`, 'Open in admin')}`);
   return { subject, html, text: `${subject}\n${items.map((i) => `${i.title} x${i.quantity}`).join('\n')}\n${ADMIN_URL}/orders/${order.id}` };

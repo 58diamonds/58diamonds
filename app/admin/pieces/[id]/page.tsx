@@ -113,6 +113,8 @@ export default function PieceEditor() {
           on_sale: p.on_sale === true,
           for_sale: p.for_sale,
           stock: Math.max(0, Math.floor(p.stock || 0)),
+          made_to_order: p.made_to_order === true,
+          order_stock: Math.max(0, Math.floor(p.order_stock || 0)),
           visible: p.visible,
           featured: p.featured,
           seo_title: p.seo_title,
@@ -138,7 +140,7 @@ export default function PieceEditor() {
       }
       const varRows = variants
         .filter((v) => v.label.trim() || v.metal_id)
-        .map((v, position) => ({ id: v.id, piece_id: p.id, label: v.label.trim(), metal_id: v.metal_id ?? null, price: v.price == null || Number.isNaN(Number(v.price)) ? null : Number(v.price), stock: Math.max(0, Math.floor(v.stock || 0)), position }));
+        .map((v, position) => ({ id: v.id, piece_id: p.id, label: v.label.trim(), metal_id: v.metal_id ?? null, price: v.price == null || Number.isNaN(Number(v.price)) ? null : Number(v.price), stock: Math.max(0, Math.floor(v.stock || 0)), order_stock: Math.max(0, Math.floor(v.order_stock || 0)), position }));
       if (varRows.length) {
         const r = await db.from('piece_variants').upsert(varRows);
         if (r.error) return r;
@@ -401,6 +403,12 @@ export default function PieceEditor() {
                         <input type="number" min={0} value={v.stock} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, stock: Number(e.target.value) } : x)))} className={`${inputCls} !mt-0 w-20`} />
                       </label>
                     )}
+                    {SHOP_LIVE && piece.made_to_order && (
+                      <label className="flex items-center gap-2 text-sm">
+                        to order
+                        <input type="number" min={0} value={v.order_stock ?? 0} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, order_stock: Number(e.target.value) } : x)))} className={`${inputCls} !mt-0 w-20`} aria-label="Pieces that can be sold made to order when out of stock" />
+                      </label>
+                    )}
                     <UpDown index={i} count={variants.length} onMove={(d) => setVariants(move(variants, i, d))} />
                     <button
                       type="button"
@@ -417,8 +425,25 @@ export default function PieceEditor() {
               </ul>
             )}
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', metal_id: null, price: null, stock: 1, position: variants.length, isNew: true }])}>Add an option</Button>
+              <Button onClick={() => setVariants([...variants, { id: crypto.randomUUID(), label: '', metal_id: null, price: null, stock: 1, order_stock: 0, position: variants.length, isNew: true }])}>Add an option</Button>
             </div>
+            {SHOP_LIVE && piece.for_sale && (
+              <div className="mt-5 border border-[var(--color-line)] bg-[var(--color-pearl)] p-4">
+                <Toggle
+                  label="Still sell when out of stock (made to order)"
+                  checked={piece.made_to_order === true}
+                  onChange={(v) => set({ made_to_order: v })}
+                  hint="When the stock is 0, the piece can still be bought. The site shows the number of pieces you type here, with “Delivery between 7-14 days”. Real stock is always sold first."
+                />
+                {piece.made_to_order && (variants.length > 0 ? (
+                  <p className="mt-3 text-sm text-[var(--color-stone)]">Type the number of pieces per option in “to order” on each line above.</p>
+                ) : (
+                  <div className="mt-3 max-w-56">
+                    <NumberField label="Pieces to sell made to order" value={piece.order_stock ?? 0} onChange={(v) => set({ order_stock: v ?? 0 })} />
+                  </div>
+                ))}
+              </div>
+            )}
             {SHOP_LIVE &&
               (variants.length > 0 ? (
                 <p className="mt-3 text-sm text-[var(--color-stone)]">Total in stock: {sizeStock}</p>
@@ -561,6 +586,8 @@ function blankPiece(section_id: string | null): Piece {
     show_price: false,
     for_sale: true,
     stock: 1,
+    made_to_order: false,
+    order_stock: 0,
     metal_id: null,
     stone_id: null,
     stone_ids: [],

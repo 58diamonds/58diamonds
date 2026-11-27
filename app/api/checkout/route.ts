@@ -109,6 +109,7 @@ export async function POST(req: Request) {
     image_url: l.image,
     unit_price: l.unitPrice,
     quantity: l.quantity,
+    made_to_order: l.madeToOrder,
   }));
   const { error: itemsError } = await db.from('order_items').insert(items);
   if (itemsError) {

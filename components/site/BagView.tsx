@@ -49,7 +49,8 @@ export function BagView({
       if (!item) return null;
       const variant = l.variantId ? item.variants.find((v) => v.id === l.variantId) : null;
       const max = variant ? variant.stock : item.variants.length ? 0 : item.stock;
-      return { line: l, item, variant, max: Math.max(max, 0) };
+      const toOrder = variant ? variant.toOrder === true : !item.variants.length && item.toOrder;
+      return { line: l, item, variant, max: Math.max(max, 0), toOrder };
     })
     .filter((r): r is NonNullable<typeof r> => r !== null);
 
@@ -124,7 +125,7 @@ export function BagView({
       )}
       <div className="mt-14 grid gap-14 lg:grid-cols-[3fr_2fr]">
         <ul className="border-t border-[var(--color-line)]">
-          {rows.map(({ line, item, variant, max }) => {
+          {rows.map(({ line, item, variant, max, toOrder }) => {
             const ok = item.purchasable && max > 0;
             return (
               <li key={`${line.pieceId}${line.variantId}`} className="grid grid-cols-[6rem_1fr] gap-5 border-b border-[var(--color-line)] py-6 sm:grid-cols-[7.5rem_1fr]">
@@ -146,6 +147,7 @@ export function BagView({
                     <p className="whitespace-nowrap">{ok ? money((variant?.price ?? item.price ?? 0) * Math.min(line.quantity, max)) : ''}</p>
                   </div>
                   {!ok && <p className="mt-2 text-sm text-[var(--color-gold)]">{t('shop.sold_out')}</p>}
+                  {ok && toOrder && <p className="mt-2 text-sm text-[var(--color-gold)]">{t('piece.delivery_to_order')}</p>}
                   <div className="mt-auto flex items-center gap-6 pt-4 text-sm">
                     {ok && max > 1 && (
                       <label className="flex items-center gap-2">

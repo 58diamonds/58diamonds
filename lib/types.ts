@@ -134,6 +134,8 @@ export interface PieceVariant {
   /** Own price in euro, VAT included; null = the piece's price. */
   price: number | null;
   stock: number;
+  /** Made to order: how many can still be sold once stock is 0 (used while the piece's made_to_order is on). */
+  order_stock?: number;
   position: number;
 }
 
@@ -156,6 +158,10 @@ export interface Piece {
   /** Set by onSale() on the public site: the normal price, shown crossed out. */
   old_price?: number | null;
   stock: number;
+  /** "Still sell when out of stock" in Admin > Pieces: made to order, delivery 7-14 days. */
+  made_to_order?: boolean;
+  /** How many can be sold made to order once stock is 0 (pieces without sizes; sizes have their own). */
+  order_stock?: number;
   metal_id: string | null;
   /** First of stone_ids, kept for older readers. */
   stone_id: string | null;
@@ -242,6 +248,8 @@ export interface OrderItem {
   image_url: string | null;
   unit_price: number;
   quantity: number;
+  /** Sold while out of stock: made to order, delivery 7-14 days. */
+  made_to_order?: boolean;
 }
 
 export type Delivery = 'ship' | 'pickup';

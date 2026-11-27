@@ -110,6 +110,8 @@ export const TEXTS = {
   'piece.colour': t('Piece page', 'Gold colour label', 'Gold colour', 'Goudkleur', "Couleur de l'or"),
   'piece.choose_colour': t('Piece page', 'Choose a gold colour', 'Choose a gold colour', 'Kies een goudkleur', "Choisissez une couleur d'or"),
   'piece.choose_size': t('Piece page', 'Choose a size', 'Choose a size', 'Kies een maat', 'Choisissez une taille'),
+  'piece.available': t('Piece page', 'Made to order: pieces available ({n} is the number)', '{n} available', '{n} beschikbaar', '{n} disponible(s)'),
+  'piece.delivery_to_order': t('Piece page', 'Made to order: delivery time', 'Delivery between 7-14 days', 'Levering binnen 7-14 dagen', 'Livraison sous 7 à 14 jours'),
   'piece.left': t('Piece page', 'Few left ({n} is the number)', 'Only {n} left', 'Nog {n} beschikbaar', 'Plus que {n}'),
   'piece.ask': t('Piece page', 'WhatsApp button', 'Ask about this piece', 'Vraag naar dit juweel', 'Une question sur ce bijou'),
   'piece.ask_message': t('Piece page', 'WhatsApp message ({piece} is the name)', 'Hello 58 Diamonds, I would like to know more about {piece}.', 'Hallo 58 Diamonds, ik wil graag meer weten over {piece}.', "Bonjour 58 Diamonds, j'aimerais en savoir plus sur {piece}."),

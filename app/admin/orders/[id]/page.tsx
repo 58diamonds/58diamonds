@@ -94,6 +94,7 @@ export default function OrderAdmin() {
                     <p className="font-display text-xl">{i.title}</p>
                     <p className="text-xs text-[var(--color-stone)]">
                       {i.variant && <>Size {i.variant} · </>}
+                      {i.made_to_order && <>Made to order (delivery 7-14 days) · </>}
                       {i.quantity} × {money(i.unit_price)}
                     </p>
                   </div>

@@ -12,6 +12,8 @@ export interface OptionView {
   metal: string | null;
   name: string;
   stock: number;
+  /** Sold made to order (stock is 0): delivery 7-14 days. */
+  toOrder?: boolean;
   /** Own price; null = the piece's price. */
   price: number | null;
 }

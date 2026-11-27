@@ -91,7 +91,7 @@ export default function PiecesAdmin() {
       ) : (
         <ul className="divide-y divide-[var(--color-line)] border border-[var(--color-line)] bg-white">
           {shown.map((p, i) => {
-            const stock = pieceStock(p);
+            const stock = pieceStock({ ...p, made_to_order: false });
             return (
               <li key={p.id} className={`flex items-center gap-4 p-3 ${p.visible ? '' : 'opacity-55'}`}>
                 <Link href={`/pieces/${p.id}`} className="h-16 w-14 shrink-0 overflow-hidden bg-[var(--color-pearl)]">
@@ -104,6 +104,7 @@ export default function PiecesAdmin() {
                     {!p.show_price && <Badge>{p.price_from && p.price != null ? 'From' : 'On request'}</Badge>}
                     {p.for_sale && p.show_price && p.price != null && <span>· {stock} in stock</span>}
                     {p.for_sale && stock === 0 && <Badge tone="warn">Sold out</Badge>}
+                    {p.for_sale && p.made_to_order && <Badge tone="warn">Made to order</Badge>}
                     {p.featured && <Badge tone="gold">Homepage</Badge>}
                     {!p.visible && <Badge>Hidden</Badge>}
                     {section === 'all' && <span>· {show(sections.find((s) => s.id === p.section_id)?.name) || 'No section'}</span>}

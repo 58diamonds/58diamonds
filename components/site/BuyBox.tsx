@@ -17,6 +17,7 @@ export function BuyBox({
   purchasable,
   stock,
   toOrder = false,
+  delivery = { min: 7, max: 14 },
 }: {
   pieceId: string;
   title: string;
@@ -24,6 +25,8 @@ export function BuyBox({
   stock: number;
   /** Piece without sizes, sold made to order. */
   toOrder?: boolean;
+  /** Delivery time in days when made to order. */
+  delivery?: { min: number; max: number };
 }) {
   const { locale, t, whatsapp } = useSite();
   const lines = cart.use();
@@ -127,7 +130,7 @@ export function BuyBox({
 
       {purchasable && madeToOrder && left != null && left > 0 && (
         <p className="mb-4 text-sm text-[var(--color-gold)]">
-          {t('piece.available', { n: left })} · {t('piece.delivery_to_order')}
+          {t('piece.available', { n: left })} · {t('piece.delivery_to_order', delivery)}
         </p>
       )}
       {purchasable && !madeToOrder && left != null && left > 0 && left <= 2 && (

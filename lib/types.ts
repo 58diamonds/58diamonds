@@ -160,6 +160,9 @@ export interface Piece {
   stock: number;
   /** "Still sell when out of stock" in Admin > Pieces: made to order, delivery 7-14 days. */
   made_to_order?: boolean;
+  /** Delivery time shown for made-to-order sales, in days (default 7 to 14). */
+  delivery_min_days?: number;
+  delivery_max_days?: number;
   /** How many can be sold made to order once stock is 0 (pieces without sizes; sizes have their own). */
   order_stock?: number;
   metal_id: string | null;

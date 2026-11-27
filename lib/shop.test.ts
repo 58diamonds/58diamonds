@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeFilterCount, fromPrice, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, pieceToOrder, sellable, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
+import { activeFilterCount, fromPrice, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, deliveryDays, pieceStock, pieceToOrder, sellable, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
 import type { Piece, Section } from './types';
 
 const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, cover_url: null, position: 0, visible: true, show_prices: true };
@@ -172,5 +172,15 @@ describe('made to order', () => {
     const v = (stock: number, order_stock: number) => ({ id: 'x', piece_id: 'p', label: '52', metal_id: null, price: null, stock, order_stock, position: 0 });
     expect(pieceStock({ ...base, piece_variants: [v(1, 5), v(0, 2)] })).toBe(3);
     expect(sellable(base, v(0, 4))).toEqual({ stock: 4, toOrder: true });
+  });
+});
+
+describe('deliveryDays', () => {
+  it('defaults to 7 to 14 days', () => {
+    expect(deliveryDays({})).toEqual({ min: 7, max: 14 });
+  });
+  it('uses what was typed and never lets the end come before the start', () => {
+    expect(deliveryDays({ delivery_min_days: 7, delivery_max_days: 21 })).toEqual({ min: 7, max: 21 });
+    expect(deliveryDays({ delivery_min_days: 10, delivery_max_days: 5 })).toEqual({ min: 10, max: 10 });
   });
 });

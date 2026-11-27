@@ -28,6 +28,13 @@ export function pieceStock(piece: Pick<Piece, 'stock' | 'piece_variants'> & Part
   return sellable(piece, piece).stock;
 }
 
+/** Delivery time for made-to-order sales, in days: what Farah typed on the piece, else 7 to 14. */
+export function deliveryDays(piece: Partial<Pick<Piece, 'delivery_min_days' | 'delivery_max_days'>>): { min: number; max: number } {
+  const num = (v: unknown, d: number) => (v == null || !Number.isFinite(Number(v)) ? d : Math.max(0, Math.floor(Number(v))));
+  const min = num(piece.delivery_min_days, 7);
+  return { min, max: Math.max(min, num(piece.delivery_max_days, 14)) };
+}
+
 /** Only made to order is left (nothing in real stock): the site adds "Delivery between 7-14 days". */
 export function pieceToOrder(piece: Pick<Piece, 'stock' | 'piece_variants'> & Partial<MadeToOrder> & { order_stock?: number }): boolean {
   const variants = piece.piece_variants ?? [];

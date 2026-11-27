@@ -13,6 +13,8 @@ import { AuthForms } from './AuthForms';
 import { downloadInvoice, useAccount } from './useAccount';
 
 const STEPS: Order['status'][] = ['paid', 'processing', 'shipped', 'delivered'];
+// Picked up in Antwerp: nothing is shipped, and the last step reads "Picked up".
+const PICKUP_STEPS: Order['status'][] = ['paid', 'processing', 'delivered'];
 
 /** One order: items, payment, delivery with tracking, and the invoice. */
 export function OrderDetail({ number }: { number: number }) {
@@ -36,7 +38,9 @@ export function OrderDetail({ number }: { number: number }) {
   if (order === null) return <p className="py-20 text-center text-[var(--color-stone)]">{t('notfound.text')}</p>;
 
   const money = (n: number) => formatPrice(Number(n), order.currency, locale);
-  const step = STEPS.indexOf(order.status);
+  const pickup = order.delivery === 'pickup';
+  const steps = pickup ? PICKUP_STEPS : STEPS;
+  const step = steps.indexOf(order.status);
   const a = order.shipping_address ?? {};
 
   return (
@@ -46,16 +50,16 @@ export function OrderDetail({ number }: { number: number }) {
       </Link>
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <h1 className="page-title">{t('account.order', { number: `#${order.number}` })}</h1>
-        <StatusBadge status={order.status} />
+        <StatusBadge status={order.status} delivery={order.delivery} />
       </div>
       <p className="mt-2 text-[var(--color-stone)]">{t('account.ordered_on', { date: formatDate(order.created_at, locale) })}</p>
 
       {step >= 0 && (
-        <ol className="mt-10 grid grid-cols-4 gap-2" aria-label={t('account.delivery')}>
-          {STEPS.map((s, i) => (
+        <ol className={`mt-10 grid ${pickup ? 'grid-cols-3' : 'grid-cols-4'} gap-2`} aria-label={t('account.delivery')}>
+          {steps.map((s, i) => (
             <li key={s} className="text-center">
               <span className={`block h-0.5 ${i <= step ? 'bg-[var(--color-gold)]' : 'bg-[var(--color-line)]'}`} />
-              <span className={`mt-3 block text-[0.65rem] uppercase tracking-[0.16em] ${i <= step ? '' : 'text-[var(--color-stone)]'}`}>{t(`status.${s}`)}</span>
+              <span className={`mt-3 block text-[0.65rem] uppercase tracking-[0.16em] ${i <= step ? '' : 'text-[var(--color-stone)]'}`}>{t(pickup && s === 'delivered' ? 'status.picked_up' : `status.${s}`)}</span>
             </li>
           ))}
         </ol>
@@ -99,7 +103,7 @@ export function OrderDetail({ number }: { number: number }) {
                 {order.payment_method && <span className="text-[var(--color-stone)]"> · {order.payment_method}</span>}
               </p>
             ) : (
-              <StatusBadge status={order.status} />
+              <StatusBadge status={order.status} delivery={order.delivery} />
             )}
             {order.invoice_number && (
               <button type="button" onClick={() => downloadInvoice(order.id, order.invoice_number!)} className="mt-4 text-sm underline underline-offset-4 hover:text-[var(--color-gold)]">

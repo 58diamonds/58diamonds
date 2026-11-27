@@ -61,6 +61,16 @@ export function BagView({
 
   async function checkout() {
     setState('busy');
+    // An unfinished checkout from this tab still holds its pieces: release it
+    // first, or the pieces would look sold out to this very buyer.
+    try {
+      const earlier = sessionStorage.getItem(CHECKOUT_KEY);
+      if (earlier) {
+        const { clientSecret } = JSON.parse(earlier) as PendingCheckout;
+        await fetch('/api/checkout', { method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ clientSecret }) }).catch(() => null);
+        sessionStorage.removeItem(CHECKOUT_KEY);
+      }
+    } catch {}
     let token: string | undefined;
     if (HAS_DATABASE) {
       const { getBrowserDb } = await import('@/lib/supabase');

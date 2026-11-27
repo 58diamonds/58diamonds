@@ -16,11 +16,14 @@ export function BuyBox({
   title,
   purchasable,
   stock,
+  toOrder = false,
 }: {
   pieceId: string;
   title: string;
   purchasable: boolean;
   stock: number;
+  /** Piece without sizes, sold made to order. */
+  toOrder?: boolean;
 }) {
   const { locale, t, whatsapp } = useSite();
   const lines = cart.use();
@@ -50,6 +53,8 @@ export function BuyBox({
   const max = variants.length ? chosen?.stock ?? 0 : stock;
   const inBag = lines.find((l) => l.pieceId === pieceId && l.variantId === (variants.length ? variantId : null))?.quantity ?? 0;
   const left = variants.length ? chosen?.stock : stock;
+  // Out of stock but made to order: say how many, and the delivery time.
+  const madeToOrder = variants.length ? chosen?.toOrder === true : toOrder;
   const wa = whatsappLink(whatsapp, t('piece.ask_message', { piece: title }));
 
   function add() {
@@ -120,7 +125,12 @@ export function BuyBox({
         </p>
       )}
 
-      {purchasable && left != null && left > 0 && left <= 2 && (
+      {purchasable && madeToOrder && left != null && left > 0 && (
+        <p className="mb-4 text-sm text-[var(--color-gold)]">
+          {t('piece.available', { n: left })} · {t('piece.delivery_to_order')}
+        </p>
+      )}
+      {purchasable && !madeToOrder && left != null && left > 0 && left <= 2 && (
         <p className="mb-4 text-sm text-[var(--color-gold)]">{t('piece.left', { n: left })}</p>
       )}
 

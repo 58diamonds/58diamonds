@@ -1,5 +1,5 @@
 import { tr, type Locale } from './i18n';
-import { optionPrice, pieceStock, purchasable, shippingFor } from './shop';
+import { optionPrice, purchasable, sellable, shippingFor } from './shop';
 import type { Attribute, Piece, Section, Settings } from './types';
 import { variantName } from './variant';
 
@@ -17,6 +17,8 @@ export interface PricedLine {
   image: string | null;
   unitPrice: number;
   quantity: number;
+  /** Out of stock, sold made to order (delivery 7-14 days). */
+  madeToOrder: boolean;
 }
 
 export interface PricedBag {
@@ -67,7 +69,8 @@ export function priceBag(
       problems.push(raw);
       continue;
     }
-    const stock = variant ? variant.stock : pieceStock(piece);
+    // Real stock first; once it is 0, what may be made to order.
+    const { stock, toOrder } = sellable(piece, variant ?? piece);
     const available = Math.max(0, stock - (reserved.get(variant?.id ?? piece.id) ?? 0));
     const take = Math.min(quantity, available);
     if (take < quantity) problems.push(raw);
@@ -81,6 +84,7 @@ export function priceBag(
       image: piece.piece_images?.[0]?.url ?? null,
       unitPrice: optionPrice(piece, variant) ?? Number(piece.price),
       quantity: take,
+      madeToOrder: toOrder,
     });
   }
 

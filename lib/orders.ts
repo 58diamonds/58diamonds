@@ -6,6 +6,7 @@ import { adminNewOrder, orderConfirmation, orderShipped } from './emails';
 import { fill, isLocale, tr, type Locale } from './i18n';
 import { invoicePdf, withdrawalPdf } from './invoice';
 import { pageVars } from './site';
+import { getStripe } from './stripe';
 import { getServiceDb } from './supabase';
 import { makeT } from './t';
 import { HOME_COUNTRY, vatForSale } from './vat';
@@ -94,6 +95,9 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
 
   const order = await loadOrder(orderId);
   if (!order) return;
+  // The number is given on payment: show it on the payment in Stripe too.
+  const intent = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
+  if (intent) await getStripe()?.paymentIntents.update(intent, { metadata: { order_number: String(order.number) } }).catch(() => null);
   const [{ t, locale }, settings, form] = await Promise.all([translatorFor(order.locale), getSettings(), getPage('withdrawal')]);
   const pdf = await invoicePdf(order, order.order_items, settings, t, locale);
   const vars = pageVars(settings);

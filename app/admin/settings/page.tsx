@@ -51,6 +51,7 @@ export default function SettingsAdmin() {
           newsletter_enabled: v.newsletter_enabled,
           gift_wrap_enabled: v.gift_wrap_enabled,
           gift_wrap_price: v.gift_wrap_price ?? 0,
+          pickup_enabled: v.pickup_enabled !== false,
           company_name: v.company_name?.trim() || null,
           legal_name: v.legal_name?.trim() || null,
           company_address: v.company_address?.trim() || null,
@@ -106,11 +107,19 @@ export default function SettingsAdmin() {
         </Card>
 
         {SHOP_LIVE && (
-        <Card title="Gift wrap">
+        <Card title="Pickup and gift wrap">
           <p className="mb-4 text-sm text-[var(--color-stone)]">
             Shipping prices per country are under <Link href="/shipping" className="underline underline-offset-4">Shipping</Link>.
           </p>
           <div className="grid gap-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Toggle
+                label="Offer pickup in Antwerp"
+                checked={s.pickup_enabled !== false}
+                onChange={(pickup_enabled) => set({ pickup_enabled })}
+                hint="The bag offers “Pick up in Antwerp” (free) next to shipping. The payment page then shows the address for appointments above."
+              />
+            </div>
             <Toggle label="Offer gift wrap" checked={s.gift_wrap_enabled} onChange={(gift_wrap_enabled) => set({ gift_wrap_enabled })} />
             <NumberField label="Gift wrap price (€)" value={s.gift_wrap_price} onChange={(v) => set({ gift_wrap_price: v ?? 0 })} step={0.01} hint="0 for free." />
           </div>

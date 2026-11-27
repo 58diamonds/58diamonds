@@ -52,7 +52,7 @@ function itemsTable(order: Order, items: OrderItem[], t: T, locale: Locale): str
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0"><tr><td style="padding-bottom:8px;border-bottom:1px solid #8a6a3b">${label(t('invoice.piece'))}</td><td align="right" style="padding-bottom:8px;border-bottom:1px solid #8a6a3b">${label(t('invoice.price'))}</td></tr>${rows}
 <tr><td style="padding-top:12px"></td><td></td></tr>
 ${line(t('cart.subtotal'), money(order.subtotal))}
-${line(t('cart.shipping'), order.shipping ? money(order.shipping) : esc(t('cart.free')))}
+${order.delivery === 'pickup' ? line(t('cart.pickup'), esc(t('cart.pickup_free'))) : line(t('cart.shipping'), order.shipping ? money(order.shipping) : esc(t('cart.free')))}
 <tr><td style="padding:12px 0 0;border-top:1px solid #8a6a3b">${label(t('cart.total'))}</td><td align="right" style="padding:8px 0 0;border-top:1px solid #8a6a3b;font-family:${SERIF};font-size:22px">${money(order.total)}</td></tr>
 </table><p style="color:#8a7f72;font-size:12px;margin:6px 0 0;text-align:right">${esc(t('cart.vat'))}</p>`;
 }
@@ -85,13 +85,15 @@ export function orderConfirmation(order: Order, items: OrderItem[], t: T, locale
   const subject = t('email.order_subject', { number: order.number });
   const url = `${SITE_URL}${href.order(locale, order.number)}`;
   const withdrawal = withdrawalBlock(legal, t, locale);
+  const pickup = order.delivery === 'pickup';
+  const next = pickup ? 'email.pickup_next' : 'email.order_next';
   const gift = order.gift_wrap || order.gift_message
     ? `<p style="margin:18px 0 0">${esc(t('cart.gift_wrap'))}${order.gift_message ? `<br><em>“${nl2br(order.gift_message)}”</em>` : ''}</p>`
     : '';
   const html = layout(subject, `<p>${nl2br(t('email.order_intro'))}</p>${itemsTable(order, items, t, locale)}${gift}
-<p style="margin:26px 0 0">${label(t('account.delivery'))}<br>${address(order, locale)}</p>
-<p style="margin:22px 0 0">${nl2br(t('email.order_next'))}</p>${button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>${withdrawal.html}`);
-  const text = `${subject}\n\n${t('email.order_intro')}\n\n${items.map((i) => `- ${i.title}${i.variant ? ` (${i.variant})` : ''} x${i.quantity}`).join('\n')}\n\n${t('cart.total')}: ${formatPrice(order.total, order.currency, locale)}\n\n${t('email.order_next')}\n${url}\n\n${t('email.sign_off')}\n\n${withdrawal.text}`;
+${pickup ? `<p style="margin:26px 0 0">${label(t('cart.pickup'))}</p>` : `<p style="margin:26px 0 0">${label(t('account.delivery'))}<br>${address(order, locale)}</p>`}
+<p style="margin:22px 0 0">${nl2br(t(next))}</p>${button(url, t('email.view_order'))}<p>${nl2br(t('email.sign_off'))}</p>${withdrawal.html}`);
+  const text = `${subject}\n\n${t('email.order_intro')}\n\n${items.map((i) => `- ${i.title}${i.variant ? ` (${i.variant})` : ''} x${i.quantity}`).join('\n')}\n\n${t('cart.total')}: ${formatPrice(order.total, order.currency, locale)}\n\n${t(next)}\n${url}\n\n${t('email.sign_off')}\n\n${withdrawal.text}`;
   return { subject, html, text };
 }
 
@@ -124,13 +126,13 @@ export function newsletterConfirm(confirmUrl: string, t: T) {
 
 /** To Farah. Always in English: it is her own notification. */
 export function adminNewOrder(order: Order, items: OrderItem[], oversold: boolean) {
-  const subject = `New order ${order.number}: ${formatPrice(order.total, order.currency, 'en')}`;
+  const subject = `New order ${order.number}: ${formatPrice(order.total, order.currency, 'en')}${order.delivery === 'pickup' ? ' (pickup in Antwerp)' : ''}`;
   const warn = oversold
     ? `<p style="background:#f6e7d8;padding:12px;border-left:3px solid #a8834e"><strong>Attention:</strong> a piece in this order was already sold out when the payment came in. Contact the client before shipping.</p>`
     : '';
   const list = items.map((i) => `${esc(i.title)}${i.variant ? ` (size ${esc(i.variant)})` : ''} × ${i.quantity}`).join('<br>');
   const gift = order.gift_wrap ? `<p><strong>Gift wrap</strong>${order.gift_message ? `<br>Card: “${nl2br(order.gift_message)}”` : ''}</p>` : '';
-  const html = layout(subject, `${warn}<p>${list}</p>${gift}<p><strong>Ship to</strong><br>${address(order)}<br>${esc(order.email)}${order.phone ? `<br>${esc(order.phone)}` : ''}</p>${button(`${ADMIN_URL}/orders/${order.id}`, 'Open in admin')}`);
+  const html = layout(subject, `${warn}<p>${list}</p>${gift}<p>${order.delivery === 'pickup' ? `<strong>Pickup in Antwerp</strong>: contact the client to arrange a time.<br>${esc(order.name)}` : `<strong>Ship to</strong><br>${address(order)}`}<br>${esc(order.email)}${order.phone ? `<br>${esc(order.phone)}` : ''}</p>${button(`${ADMIN_URL}/orders/${order.id}`, 'Open in admin')}`);
   return { subject, html, text: `${subject}\n${items.map((i) => `${i.title} x${i.quantity}`).join('\n')}\n${ADMIN_URL}/orders/${order.id}` };
 }
 

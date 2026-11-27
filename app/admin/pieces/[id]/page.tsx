@@ -12,6 +12,7 @@ import {
   DeleteZone,
   FilePicker,
   L10nField,
+  CountField,
   Loading,
   NumberField,
   PageTitle,
@@ -114,6 +115,8 @@ export default function PieceEditor() {
           for_sale: p.for_sale,
           stock: Math.max(0, Math.floor(p.stock || 0)),
           made_to_order: p.made_to_order === true,
+          delivery_min_days: Math.max(0, Math.floor(p.delivery_min_days ?? 7)),
+          delivery_max_days: Math.max(Math.max(0, Math.floor(p.delivery_min_days ?? 7)), Math.floor(p.delivery_max_days ?? 14)),
           order_stock: Math.max(0, Math.floor(p.order_stock || 0)),
           visible: p.visible,
           featured: p.featured,
@@ -406,7 +409,7 @@ export default function PieceEditor() {
                     {SHOP_LIVE && piece.made_to_order && (
                       <label className="flex items-center gap-2 text-sm">
                         to order
-                        <input type="number" min={0} value={v.order_stock ?? 0} onChange={(e) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, order_stock: Number(e.target.value) } : x)))} className={`${inputCls} !mt-0 w-20`} aria-label="Pieces that can be sold made to order when out of stock" />
+                        <CountField value={v.order_stock ?? 0} onChange={(n) => setVariants(variants.map((x) => (x.id === v.id ? { ...x, order_stock: n } : x)))} className="!mt-0 w-24" ariaLabel="Pieces that can be sold made to order when out of stock" />
                       </label>
                     )}
                     <UpDown index={i} count={variants.length} onMove={(d) => setVariants(move(variants, i, d))} />
@@ -439,9 +442,21 @@ export default function PieceEditor() {
                   <p className="mt-3 text-sm text-[var(--color-stone)]">Type the number of pieces per option in “to order” on each line above.</p>
                 ) : (
                   <div className="mt-3 max-w-56">
-                    <NumberField label="Pieces to sell made to order" value={piece.order_stock ?? 0} onChange={(v) => set({ order_stock: v ?? 0 })} />
+                    <CountField label="Pieces to sell made to order" value={piece.order_stock ?? 0} onChange={(n) => set({ order_stock: n })} />
                   </div>
                 ))}
+                {piece.made_to_order && (
+                  <div className="mt-4">
+                    <p className="text-sm">Delivery time shown to clients (days)</p>
+                    <div className="mt-1 flex items-center gap-3">
+                      <CountField value={piece.delivery_min_days ?? 7} onChange={(n) => set({ delivery_min_days: n })} className="!mt-0 w-24" ariaLabel="Delivery from (days)" />
+                      <span className="text-sm">to</span>
+                      <CountField value={piece.delivery_max_days ?? 14} onChange={(n) => set({ delivery_max_days: n })} className="!mt-0 w-24" ariaLabel="Delivery up to (days)" />
+                      <span className="text-sm">days</span>
+                    </div>
+                    <p className="mt-1 text-xs text-[var(--color-stone)]">The site says “Delivery between {piece.delivery_min_days ?? 7}-{Math.max(piece.delivery_min_days ?? 7, piece.delivery_max_days ?? 14)} days”.</p>
+                  </div>
+                )}
               </div>
             )}
             {SHOP_LIVE &&
@@ -587,6 +602,8 @@ function blankPiece(section_id: string | null): Piece {
     for_sale: true,
     stock: 1,
     made_to_order: false,
+    delivery_min_days: 7,
+    delivery_max_days: 14,
     order_stock: 0,
     metal_id: null,
     stone_id: null,

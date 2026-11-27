@@ -1,5 +1,6 @@
 import { tr, type Locale } from './i18n';
-import type { Attribute, PieceVariant } from './types';
+import { sellable } from './shop';
+import type { Attribute, Piece, PieceVariant } from './types';
 
 /** What the customer sees for one option: "Rose gold", "52" or "Rose gold, 52". */
 export function variantName(v: Pick<PieceVariant, 'label' | 'metal_id'>, attributes: Attribute[], locale: Locale): string {
@@ -8,7 +9,7 @@ export function variantName(v: Pick<PieceVariant, 'label' | 'metal_id'>, attribu
 }
 
 /** The options as the piece page and the bag need them. */
-export function variantViews(variants: PieceVariant[], attributes: Attribute[], locale: Locale) {
+export function variantViews(variants: PieceVariant[], attributes: Attribute[], locale: Locale, piece?: Pick<Piece, 'made_to_order'>) {
   return [...variants]
     .sort((a, b) => a.position - b.position)
     .map((v) => {
@@ -18,7 +19,9 @@ export function variantViews(variants: PieceVariant[], attributes: Attribute[], 
         label: v.label.trim(),
         metal: metal ? tr(metal.label, locale) : null,
         name: variantName(v, attributes, locale),
-        stock: v.stock,
+        // Real stock, or what may be made to order once it is 0.
+        stock: piece ? sellable(piece, v).stock : v.stock,
+        toOrder: piece ? sellable(piece, v).toOrder : false,
         /** Own price, if it differs from the piece's. */
         price: v.price == null ? null : Number(v.price),
       };

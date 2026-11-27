@@ -9,7 +9,7 @@ import { href } from '@/lib/routes';
 import { getBrowserDb } from '@/lib/supabase';
 import type { Address, Customer, Order } from '@/lib/types';
 
-export function StatusBadge({ status }: { status: Order['status'] }) {
+export function StatusBadge({ status, delivery }: { status: Order['status']; delivery?: Order['delivery'] }) {
   const { t } = useSite();
   const tone =
     status === 'delivered' || status === 'shipped'
@@ -17,7 +17,7 @@ export function StatusBadge({ status }: { status: Order['status'] }) {
       : status === 'cancelled' || status === 'refunded'
         ? 'bg-[var(--color-line)] text-[var(--color-stone)]'
         : 'bg-[var(--color-gold-soft)]/50 text-[var(--color-ink)]';
-  return <span className={`inline-block px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.18em] ${tone}`}>{t(`status.${status}`)}</span>;
+  return <span className={`inline-block px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.18em] ${tone}`}>{t(status === 'delivered' && delivery === 'pickup' ? 'status.picked_up' : `status.${status}`)}</span>;
 }
 
 export function AccountHome({ session }: { session: Session }) {
@@ -76,7 +76,7 @@ export function AccountHome({ session }: { session: Session }) {
                     <span className="text-sm text-[var(--color-stone)]">{t('account.ordered_on', { date: formatDate(o.created_at, locale) })}</span>
                   </span>
                   <span className="flex items-center gap-5">
-                    <StatusBadge status={o.status} />
+                    <StatusBadge status={o.status} delivery={o.delivery} />
                     <span>{formatPrice(Number(o.total), o.currency, locale)}</span>
                   </span>
                 </Link>

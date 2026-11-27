@@ -12,7 +12,7 @@ import { paragraphs } from '@/lib/format';
 import { tr } from '@/lib/i18n';
 import { pieceView } from '@/lib/piece-view';
 import { href } from '@/lib/routes';
-import { pieceStock, pieceToOrder, priceVisible } from '@/lib/shop';
+import { deliveryDays, pieceStock, pieceToOrder, priceVisible } from '@/lib/shop';
 import { pieceSpecs } from '@/lib/specs';
 import { variantViews } from '@/lib/variant';
 import { alternates, site } from '@/lib/site';
@@ -125,6 +125,7 @@ export default async function PiecePage({ params }: Props) {
               purchasable={view.purchasable}
               stock={pieceStock({ ...piece, piece_variants: [] })}
               toOrder={!piece.piece_variants.length && pieceToOrder(piece)}
+              delivery={deliveryDays(piece)}
             />
 
             {(details || specs.metal || specs.weight || specs.stones) && (

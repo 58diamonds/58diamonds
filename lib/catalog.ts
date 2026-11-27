@@ -2,7 +2,7 @@ import 'server-only';
 import { getAttributes, getPieces } from './data';
 import type { Locale } from './i18n';
 import { pieceView } from './piece-view';
-import { pieceStock, pieceToOrder } from './shop';
+import { deliveryDays, pieceStock, pieceToOrder } from './shop';
 import type { T } from './t';
 import type { Section, Settings } from './types';
 import { variantViews } from './variant';
@@ -15,6 +15,7 @@ export async function catalogFor(locale: Locale, t: T, settings: Settings, secti
     price: p.price == null ? null : Number(p.price),
     stock: pieceStock({ ...p, piece_variants: [] }),
     toOrder: pieceToOrder(p),
+    delivery: deliveryDays(p),
     variants: variantViews(p.piece_variants, attributes, locale, p),
   }));
 }

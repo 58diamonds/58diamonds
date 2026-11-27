@@ -47,6 +47,7 @@ export const DEMO_SETTINGS: Settings = {
   shipping_rates: {},
   gift_wrap_enabled: true,
   gift_wrap_price: 0,
+  pickup_enabled: true,
   wishlist_enabled: true,
   newsletter_enabled: true,
   company_name: '58 Diamonds',

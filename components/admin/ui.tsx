@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PasswordInput } from '@/components/PasswordInput';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { translateText, uploadFile, uploadImage } from '@/lib/admin-client';
 import { slugify } from '@/lib/format';
 import { LOCALES, LOCALE_NAMES, type L10n, type Locale } from '@/lib/i18n';
@@ -96,6 +96,60 @@ export function NumberField({ label, value, onChange, hint, step = 1, min = 0 }:
         onChange={(e) => onChange(e.target.value === '' ? null : Number(e.target.value))}
         className={inputCls}
       />
+      {hint && <span className="mt-1 block text-xs text-[var(--color-stone)]">{hint}</span>}
+    </label>
+  );
+}
+
+/**
+ * A whole number you can type, clear and retype, with the browser's up/down
+ * arrows. It keeps what is being typed (even empty) until you leave the box,
+ * and only passes valid numbers up.
+ */
+export function CountField({
+  label,
+  value,
+  onChange,
+  hint,
+  min = 0,
+  className = '',
+  ariaLabel,
+}: {
+  label?: string;
+  value: number;
+  onChange: (v: number) => void;
+  hint?: string;
+  min?: number;
+  className?: string;
+  ariaLabel?: string;
+}) {
+  const [text, setText] = useState(String(value));
+  useEffect(() => {
+    // Follow outside changes, but never fight what is being typed.
+    setText((t) => (t !== '' && Number(t) === value ? t : String(value)));
+  }, [value]);
+  const input = (
+    <input
+      type="number"
+      inputMode="numeric"
+      step={1}
+      min={min}
+      value={text}
+      aria-label={ariaLabel ?? label}
+      onChange={(e) => {
+        setText(e.target.value);
+        const n = Math.floor(Number(e.target.value));
+        if (e.target.value !== '' && Number.isFinite(n)) onChange(Math.max(min, n));
+      }}
+      onBlur={() => setText(String(value))}
+      className={`${inputCls} ${className}`}
+    />
+  );
+  if (!label) return input;
+  return (
+    <label className="block">
+      <span className="text-sm">{label}</span>
+      {input}
       {hint && <span className="mt-1 block text-xs text-[var(--color-stone)]">{hint}</span>}
     </label>
   );

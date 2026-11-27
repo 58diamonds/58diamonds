@@ -43,7 +43,10 @@ export default function OrderAdmin() {
 
   if (!order) return <Loading />;
   const money = (n: number) => formatPrice(Number(n), order.currency);
+  const pickup = order.delivery === 'pickup';
   const a = order.shipping_address ?? {};
+  // Pickup orders have no delivery address: show where the invoice goes.
+  const shown = pickup ? order.billing_address ?? {} : a;
 
   async function setStatus(status: OrderStatus, extra: Partial<Order> = {}) {
     setBusy(true);
@@ -100,7 +103,7 @@ export default function OrderAdmin() {
             </ul>
             <dl className="mt-3 space-y-1 border-t border-[var(--color-line)] pt-3 text-sm">
               <div className="flex justify-between"><dt>Subtotal</dt><dd>{money(order.subtotal)}</dd></div>
-              <div className="flex justify-between"><dt>Shipping</dt><dd>{money(order.shipping)}</dd></div>
+              <div className="flex justify-between"><dt>{pickup ? 'Pickup in Antwerp' : 'Shipping'}</dt><dd>{money(order.shipping)}</dd></div>
               {Number(order.total) - Number(order.subtotal) - Number(order.shipping) > 0 && (
                 <div className="flex justify-between"><dt>Gift wrapping</dt><dd>{money(Number(order.total) - Number(order.subtotal) - Number(order.shipping))}</dd></div>
               )}
@@ -114,7 +117,17 @@ export default function OrderAdmin() {
             )}
           </Card>
 
-          {(order.status === 'paid' || order.status === 'processing' || order.status === 'shipped') && (
+          {pickup && (order.status === 'paid' || order.status === 'processing') && (
+            <Card title="Pickup in Antwerp">
+              <p className="text-sm">The client chose to pick up in Antwerp. Contact them to arrange a time.</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button tone="dark" disabled={busy} onClick={() => setStatus('delivered', { delivered_at: new Date().toISOString() })}>Mark picked up</Button>
+                {order.status === 'paid' && <Button disabled={busy} onClick={() => setStatus('processing')}>Mark as being prepared</Button>}
+              </div>
+            </Card>
+          )}
+
+          {!pickup && (order.status === 'paid' || order.status === 'processing' || order.status === 'shipped') && (
             <Card title="Shipping">
               <div className="grid gap-4 sm:grid-cols-2">
                 <SelectField label="Carrier" value={carrier} onChange={setCarrier} options={[...CARRIERS.map((c) => ({ value: c.name, label: c.name })), { value: 'Other', label: 'Other' }]} />
@@ -153,8 +166,10 @@ export default function OrderAdmin() {
             <p>{order.name || '-'}</p>
             <p className="text-sm"><a href={`mailto:${order.email}`} className="underline underline-offset-4">{order.email}</a></p>
             {order.phone && <p className="text-sm"><a href={`tel:${order.phone}`} className="underline underline-offset-4">{order.phone}</a></p>}
+            {pickup && <p className="mt-3"><Badge tone="gold">Pickup in Antwerp</Badge></p>}
             <p className="mt-3 text-sm leading-relaxed">
-              {[a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country].filter(Boolean).map((l, i) => <span key={i} className="block">{l}</span>)}
+              {pickup && (shown.line1 || shown.country) && <span className="block text-xs text-[var(--color-stone)]">Billing address</span>}
+              {[shown.line1, shown.line2, [shown.postal_code, shown.city].filter(Boolean).join(' '), shown.country].filter(Boolean).map((l, i) => <span key={i} className="block">{l}</span>)}
             </p>
             <p className="mt-3 text-xs text-[var(--color-stone)]">{order.customer_id ? 'Has an account' : 'Ordered as a guest'} · language {order.locale.toUpperCase()}</p>
           </Card>

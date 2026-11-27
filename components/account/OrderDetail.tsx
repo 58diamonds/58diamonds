@@ -79,7 +79,7 @@ export function OrderDetail({ number }: { number: number }) {
           </ul>
           <dl className="mt-6 space-y-2">
             <div className="flex justify-between"><dt className="text-[var(--color-stone)]">{t('cart.subtotal')}</dt><dd>{money(order.subtotal)}</dd></div>
-            <div className="flex justify-between"><dt className="text-[var(--color-stone)]">{t('cart.shipping')}</dt><dd>{Number(order.shipping) ? money(order.shipping) : t('cart.free')}</dd></div>
+            <div className="flex justify-between"><dt className="text-[var(--color-stone)]">{t(order.delivery === 'pickup' ? 'cart.pickup' : 'cart.shipping')}</dt><dd>{order.delivery === 'pickup' ? t('cart.pickup_free') : Number(order.shipping) ? money(order.shipping) : t('cart.free')}</dd></div>
             <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-lg"><dt>{t('cart.total')}</dt><dd>{money(order.total)}</dd></div>
           </dl>
           {order.gift_wrap && (
@@ -108,8 +108,9 @@ export function OrderDetail({ number }: { number: number }) {
             )}
           </div>
           <div>
-            <h2 className="eyebrow mb-3">{t('account.delivery')}</h2>
-            <p className="leading-relaxed">
+            <h2 className="eyebrow mb-3">{t(order.delivery === 'pickup' ? 'cart.pickup' : 'account.delivery')}</h2>
+            {order.delivery === 'pickup' && <p className="leading-relaxed text-[var(--color-stone)]">{t('cart.pickup_note')}</p>}
+            <p className={`leading-relaxed ${order.delivery === 'pickup' ? 'hidden' : ''}`}>
               {[order.name, a.line1, a.line2, [a.postal_code, a.city].filter(Boolean).join(' '), a.country].filter(Boolean).map((l, i) => (
                 <span key={i} className="block">{l}</span>
               ))}

@@ -22,10 +22,21 @@ export function CheckoutSuccess() {
     const order = params.get('order');
     const session = params.get('session');
     if (!order || !session) return;
-    fetch(`/api/order?order=${encodeURIComponent(order)}&session=${encodeURIComponent(session)}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { number?: number } | null) => d?.number && setNumber(d.number))
-      .catch(() => undefined);
+    // The number is given when Stripe confirms the payment, which can take a few seconds.
+    let tries = 0;
+    let stop = false;
+    const ask = () =>
+      fetch(`/api/order?order=${encodeURIComponent(order)}&session=${encodeURIComponent(session)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { number?: number | null } | null) => {
+          if (d?.number) setNumber(d.number);
+          else if (!stop && ++tries < 8) setTimeout(ask, 2000);
+        })
+        .catch(() => undefined);
+    ask();
+    return () => {
+      stop = true;
+    };
   }, [params]);
 
   return (

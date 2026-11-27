@@ -130,8 +130,9 @@ export async function POST(req: Request) {
       wallet_options: { link: { display: 'never' } },
       locale: STRIPE_LOCALE[locale],
       client_reference_id: order.id,
-      metadata: { order_id: order.id, order_number: String(order.number), delivery },
-      payment_intent_data: { metadata: { order_id: order.id, order_number: String(order.number) } },
+      // The order number is only given on payment (lib/orders.ts adds it to the payment then).
+      metadata: { order_id: order.id, delivery },
+      payment_intent_data: { metadata: { order_id: order.id } },
       customer_email: user?.email || undefined,
       customer_creation: 'if_required',
       billing_address_collection: 'required',

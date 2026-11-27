@@ -22,10 +22,13 @@ export function BagView({
   catalog,
   shipping,
   giftWrap,
+  pickup = false,
 }: {
   catalog: CatalogItem[];
   shipping: { flat: number; freeFrom: number | null; rates: ShippingRates; countries: string[] };
   giftWrap: number | null;
+  /** Offer pickup in Antwerp next to shipping. */
+  pickup?: boolean;
 }) {
   const { locale, t, currency, features } = useSite();
   const lines = cart.use();
@@ -35,6 +38,8 @@ export function BagView({
   const [message, setMessage] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [country, setCountry] = useState(shipping.countries.includes('BE') ? 'BE' : (shipping.countries[0] ?? ''));
+  const [delivery, setDelivery] = useState<'ship' | 'pickup'>('ship');
+  const pickingUp = pickup && delivery === 'pickup';
   const [state, setState] = useState<'idle' | 'busy' | 'unavailable' | 'error' | 'off'>('idle');
   const money = (n: number) => formatPrice(n, currency, locale);
 
@@ -50,7 +55,7 @@ export function BagView({
 
   const buyable = rows.filter((r) => r.item.purchasable && r.max > 0);
   const subtotal = buyable.reduce((s, r) => s + (r.variant?.price ?? r.item.price ?? 0) * Math.min(r.line.quantity, r.max), 0);
-  const ship = shippingFor(subtotal, { shipping_flat: shipping.flat, free_shipping_from: shipping.freeFrom, shipping_rates: shipping.rates }, country);
+  const ship = pickingUp ? 0 : shippingFor(subtotal, { shipping_flat: shipping.flat, free_shipping_from: shipping.freeFrom, shipping_rates: shipping.rates }, country);
   const wrapCost = wrap && giftWrap ? giftWrap : 0;
   const total = subtotal + (ship ?? 0) + wrapCost;
 
@@ -64,11 +69,11 @@ export function BagView({
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message, acceptTerms: accepted, country }),
+      body: JSON.stringify({ lines, locale, giftWrap: wrap, giftMessage: message, acceptTerms: accepted, country, delivery: pickingUp ? 'pickup' : 'ship' }),
     }).catch(() => null);
     const json = (await res?.json().catch(() => ({}))) as Partial<PendingCheckout> & { error?: string; fixed?: typeof lines };
     if (res?.ok && json.clientSecret && json.publishableKey) {
-      const pending: PendingCheckout = { clientSecret: json.clientSecret, publishableKey: json.publishableKey, country: json.country ?? country };
+      const pending: PendingCheckout = { clientSecret: json.clientSecret, publishableKey: json.publishableKey, country: json.country ?? country, delivery: json.delivery ?? (pickingUp ? 'pickup' : 'ship') };
       try {
         sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify(pending));
       } catch {
@@ -177,25 +182,44 @@ export function BagView({
               )}
             </div>
           )}
-          <label className="mb-6 block">
-            <span className="eyebrow">{t('cart.country')}</span>
-            <select value={country} onChange={(e) => setCountry(e.target.value)} className="field">
-              {shipping.countries
-                .map((c) => [c, countryName(c, locale)] as const)
-                .sort((a, b) => a[1].localeCompare(b[1], locale))
-                .map(([c, name]) => (
-                  <option key={c} value={c}>{name}</option>
+          {pickup && (
+            <fieldset className="mb-6">
+              <legend className="eyebrow">{t('cart.delivery')}</legend>
+              <div className="mt-3 space-y-3">
+                {(['ship', 'pickup'] as const).map((d) => (
+                  <label key={d} className="flex cursor-pointer items-start gap-3">
+                    <input type="radio" name="delivery" value={d} checked={delivery === d} onChange={() => setDelivery(d)} className="mt-1 h-4 w-4 accent-[var(--color-ink)]" />
+                    <span>
+                      {t(d === 'ship' ? 'cart.ship' : 'cart.pickup')}
+                      {d === 'pickup' && <span className="text-[var(--color-stone)]"> ({t('cart.pickup_free')})</span>}
+                    </span>
+                  </label>
                 ))}
-            </select>
-          </label>
+              </div>
+              {pickingUp && <p className="mt-3 text-sm text-[var(--color-stone)]">{t('cart.pickup_note')}</p>}
+            </fieldset>
+          )}
+          {!pickingUp && (
+            <label className="mb-6 block">
+              <span className="eyebrow">{t('cart.country')}</span>
+              <select value={country} onChange={(e) => setCountry(e.target.value)} className="field">
+                {shipping.countries
+                  .map((c) => [c, countryName(c, locale)] as const)
+                  .sort((a, b) => a[1].localeCompare(b[1], locale))
+                  .map(([c, name]) => (
+                    <option key={c} value={c}>{name}</option>
+                  ))}
+              </select>
+            </label>
+          )}
           <dl className="space-y-3">
             <div className="flex justify-between">
               <dt className="text-[var(--color-stone)]">{t('cart.subtotal')}</dt>
               <dd>{money(subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-[var(--color-stone)]">{t('cart.shipping')}</dt>
-              <dd>{ship === null ? '-' : ship ? money(ship) : t('cart.free')}</dd>
+              <dt className="text-[var(--color-stone)]">{t(pickingUp ? 'cart.pickup' : 'cart.shipping')}</dt>
+              <dd>{pickingUp ? t('cart.pickup_free') : ship === null ? '-' : ship ? money(ship) : t('cart.free')}</dd>
             </div>
             {wrapCost > 0 && (
               <div className="flex justify-between">
@@ -232,7 +256,7 @@ export function BagView({
           {state === 'unavailable' && <p className="mt-4 text-sm text-red-800" role="alert">{t('cart.unavailable')}</p>}
           {state === 'error' && <p className="mt-4 text-sm text-red-800" role="alert">{t('cart.error')}</p>}
           {state === 'off' && <p className="mt-4 text-sm text-red-800" role="alert">{t('checkout.unavailable_preview')}</p>}
-          <p className="mt-6 text-xs leading-relaxed text-[var(--color-stone)]">{t('cart.insured')} {t('cart.secure')}</p>
+          <p className="mt-6 text-xs leading-relaxed text-[var(--color-stone)]">{pickingUp ? '' : `${t('cart.insured')} `}{t('cart.secure')}</p>
         </aside>
       </div>
     </div>

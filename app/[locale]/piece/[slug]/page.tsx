@@ -12,7 +12,7 @@ import { paragraphs } from '@/lib/format';
 import { tr } from '@/lib/i18n';
 import { pieceView } from '@/lib/piece-view';
 import { href } from '@/lib/routes';
-import { pieceStock, priceVisible } from '@/lib/shop';
+import { pieceStock, pieceToOrder, priceVisible } from '@/lib/shop';
 import { pieceSpecs } from '@/lib/specs';
 import { variantViews } from '@/lib/variant';
 import { alternates, site } from '@/lib/site';
@@ -92,7 +92,7 @@ export default async function PiecePage({ params }: Props) {
           )}
         </nav>
 
-        <PieceOptions options={variantViews(piece.piece_variants, attributes, locale)}>
+        <PieceOptions options={variantViews(piece.piece_variants, attributes, locale, piece)}>
         <div className="mt-8 grid gap-12 md:grid-cols-2 md:gap-16">
           <Gallery
             title={title}
@@ -123,7 +123,8 @@ export default async function PiecePage({ params }: Props) {
               pieceId={piece.id}
               title={title}
               purchasable={view.purchasable}
-              stock={pieceStock(piece)}
+              stock={pieceStock({ ...piece, piece_variants: [] })}
+              toOrder={!piece.piece_variants.length && pieceToOrder(piece)}
             />
 
             {(details || specs.metal || specs.weight || specs.stones) && (

@@ -4,7 +4,7 @@ import { getServiceDb } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 /**
- * For the thank-you page: the order number and status of the order just paid.
+ * For the thank-you page: the order number (once paid) and status of the order just paid.
  * Needs both the order id and its Stripe session id, so it cannot be guessed.
  */
 export async function GET(req: Request) {
@@ -19,5 +19,6 @@ export async function GET(req: Request) {
     .eq('stripe_session_id', session)
     .maybeSingle();
   if (!data) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
-  return NextResponse.json(data);
+  // Unpaid orders only have a temporary number; the real one comes with payment.
+  return NextResponse.json({ status: data.status, number: data.status === 'pending' || data.status === 'cancelled' ? null : data.number });
 }

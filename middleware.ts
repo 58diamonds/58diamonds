@@ -1,7 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { SHOP_LIVE, SHOP_PATHS } from './lib/config';
 import { isLocale, negotiateLocale } from './lib/i18n';
 import { PREVIEW_COOKIE, PREVIEW_PARAM, isSiteHidden, previewToken } from './lib/preview';
+import { recordVisit } from './lib/visitors';
 
 const under = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`);
 
@@ -18,8 +19,11 @@ const under = (pathname: string, base: string) => pathname === base || pathname.
  *
  * While the whole site is hidden (Admin > Settings), every public address shows
  * only the logo, except for people who opened the private preview link.
+ *
+ * Each public page opened is noted for the unique visitor counter in Admin
+ * (lib/visitors.ts), after the page is on its way.
  */
-export async function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest, event: NextFetchEvent) {
   const { pathname } = req.nextUrl;
   if (!SHOP_LIVE && SHOP_PATHS.api.some((p) => under(pathname, p))) return NextResponse.json({ error: 'not found' }, { status: 404 });
   if (pathname.startsWith('/api')) return NextResponse.next();
@@ -60,6 +64,7 @@ export async function middleware(req: NextRequest) {
       // Any address the site does not have shows the language's own "not found" page.
       return NextResponse.rewrite(new URL(`/${first}/_not-found-shop`, req.url), { status: 404 });
     }
+    event.waitUntil(recordVisit(req.headers));
     const res = NextResponse.next();
     if (req.cookies.get('locale')?.value !== first) {
       res.cookies.set('locale', first, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });

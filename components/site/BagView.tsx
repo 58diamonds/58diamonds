@@ -147,7 +147,7 @@ export function BagView({
                     <p className="whitespace-nowrap">{ok ? money((variant?.price ?? item.price ?? 0) * Math.min(line.quantity, max)) : ''}</p>
                   </div>
                   {!ok && <p className="mt-2 text-sm text-[var(--color-gold)]">{t('shop.sold_out')}</p>}
-                  {ok && toOrder && <p className="mt-2 text-sm text-[var(--color-gold)]">{t('piece.delivery_to_order')}</p>}
+                  {ok && toOrder && <p className="mt-2 text-sm text-[var(--color-gold)]">{t('piece.delivery_to_order', item.delivery)}</p>}
                   <div className="mt-auto flex items-center gap-6 pt-4 text-sm">
                     {ok && max > 1 && (
                       <label className="flex items-center gap-2">

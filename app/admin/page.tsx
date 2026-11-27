@@ -122,7 +122,7 @@ function ShopOverview() {
   const paid = data.orders.filter((o) => o.status !== 'refunded');
   const month = paid.filter((o) => new Date(o.created_at) >= monthStart);
   const sum = (list: Order[]) => list.reduce((s, o) => s + Number(o.total), 0);
-  const low = data.pieces.filter((p) => p.for_sale && p.show_price && p.price != null && pieceStock(p) <= 1);
+  const low = data.pieces.filter((p) => p.for_sale && p.show_price && p.price != null && pieceStock({ ...p, made_to_order: false }) <= 1);
 
   return (
     <div>
@@ -168,7 +168,7 @@ function ShopOverview() {
                 <li key={p.id}>
                   <Link href={`/pieces/${p.id}`} className="flex justify-between py-2.5 text-sm hover:text-[var(--color-gold)]">
                     <span>{show(p.title)}</span>
-                    <span>{pieceStock(p) === 0 ? 'Sold out' : '1 left'}</span>
+                    <span>{pieceStock({ ...p, made_to_order: false }) === 0 ? 'Sold out' : '1 left'}</span>
                   </Link>
                 </li>
               ))}

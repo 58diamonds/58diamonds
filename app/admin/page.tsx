@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAdminRole } from '@/components/admin/AdminShell';
 import { OrderStatusBadge } from '@/components/admin/orders';
+import { VisitorsCard } from '@/components/admin/Visitors';
 import { Card, Loading, PageTitle, show } from '@/components/admin/ui';
 import { SHOP_LIVE } from '@/lib/config';
 import { formatPrice } from '@/lib/format';
@@ -62,6 +63,7 @@ function SiteOverview() {
       </div>
 
       <div className="grid gap-6">
+        <VisitorsCard />
         {canOpen(role, '/requests') && <Card title="Newest requests">
           {data.requests.length === 0 ? (
             <p className="text-[var(--color-stone)]">No open requests.</p>
@@ -142,6 +144,7 @@ function ShopOverview() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        <VisitorsCard className="lg:col-span-2" />
         <Card title="Orders to ship">
           {toShip.length === 0 ? (
             <p className="text-sm text-[var(--color-stone)]">All shipped.</p>

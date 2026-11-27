@@ -64,6 +64,7 @@ export default function OrdersAdmin() {
                 </span>
                 <span className="text-xs text-[var(--color-stone)]">{formatDate(o.created_at, 'en', true)}</span>
                 <OrderStatusBadge status={o.status} />
+                {o.delivery === 'pickup' && <Badge tone="gold">Pickup</Badge>}
                 {o.gift_wrap && <Badge tone="gold">Gift</Badge>}
                 <span className="w-24 text-right">{formatPrice(Number(o.total), o.currency)}</span>
               </Link>

@@ -9,6 +9,7 @@ import { getRequestUser } from '@/lib/server-auth';
 import { getStripe, publishableKey as stripePublishableKey, toCents } from '@/lib/stripe';
 import { getServiceDb } from '@/lib/supabase';
 import { deliveryCountries } from '@/lib/shipping';
+import { HOME_COUNTRY } from '@/lib/vat';
 import { onSale } from '@/lib/shop';
 import { makeT } from '@/lib/t';
 import type { Piece, Section } from '@/lib/types';
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     giftMessage?: string;
     acceptTerms?: boolean;
     country?: string;
+    delivery?: string;
   } | null;
   const locale: Locale = isLocale(body?.locale) ? body.locale : 'en';
   const bag = Array.isArray(body?.lines) ? body.lines.slice(0, 30) : [];
@@ -60,12 +62,16 @@ export async function POST(req: Request) {
 
   if (!settings.shop_enabled) return NextResponse.json({ error: 'closed' }, { status: 409 });
 
-  // The bag asks for the delivery country first: shipping depends on it.
-  const country = String(body?.country ?? '').toUpperCase();
-  if (!deliveryCountries(settings).includes(country)) return NextResponse.json({ error: 'country' }, { status: 400 });
+  // Pickup in Antwerp, when offered: free, and the sale happens in Belgium.
+  const pickup = body?.delivery === 'pickup' && settings.pickup_enabled !== false;
+  if (body?.delivery === 'pickup' && !pickup) return NextResponse.json({ error: 'pickup' }, { status: 400 });
+  const delivery = pickup ? 'pickup' : 'ship';
+  // Otherwise the bag asks for the delivery country first: shipping depends on it.
+  const country = pickup ? HOME_COUNTRY : String(body?.country ?? '').toUpperCase();
+  if (!pickup && !deliveryCountries(settings).includes(country)) return NextResponse.json({ error: 'country' }, { status: 400 });
 
   const giftMessage = (body?.giftMessage ?? '').toString().trim().slice(0, 300) || null;
-  const priced = priceBag(bag, live, visibleSections, settings, reserved, { giftWrap: Boolean(body?.giftWrap), locale, country, attributes });
+  const priced = priceBag(bag, live, visibleSections, settings, reserved, { giftWrap: Boolean(body?.giftWrap), locale, country, attributes, pickup });
   if (priced.shipping === null) return NextResponse.json({ error: 'country' }, { status: 400 });
   if (priced.problems.length || !priced.lines.length) {
     return NextResponse.json({ error: 'unavailable', fixed: priced.fixed }, { status: 409 });
@@ -84,6 +90,7 @@ export async function POST(req: Request) {
       currency: settings.currency,
       subtotal: priced.subtotal,
       shipping: priced.shipping,
+      delivery,
       total: priced.total,
       gift_wrap: Boolean(body?.giftWrap) && settings.gift_wrap_enabled,
       gift_message: settings.gift_wrap_enabled ? giftMessage : null,
@@ -123,7 +130,7 @@ export async function POST(req: Request) {
       wallet_options: { link: { display: 'never' } },
       locale: STRIPE_LOCALE[locale],
       client_reference_id: order.id,
-      metadata: { order_id: order.id, order_number: String(order.number) },
+      metadata: { order_id: order.id, order_number: String(order.number), delivery },
       payment_intent_data: { metadata: { order_id: order.id, order_number: String(order.number) } },
       customer_email: user?.email || undefined,
       customer_creation: 'if_required',
@@ -131,19 +138,24 @@ export async function POST(req: Request) {
       phone_number_collection: { enabled: true },
       // Business buyers can add their VAT number; it goes on the invoice.
       tax_id_collection: { enabled: true },
-      shipping_address_collection: {
-        // Only the country the shipping was priced for.
-        allowed_countries: [country] as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
-      },
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            display_name: makeT(await getTexts(), locale)('cart.shipping'),
-            fixed_amount: { amount: toCents(priced.shipping), currency },
+      // Picked up in Antwerp: no delivery address, no shipping line.
+      ...(pickup
+        ? {}
+        : {
+          shipping_address_collection: {
+            // Only the country the shipping was priced for.
+            allowed_countries: [country] as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[],
           },
-        },
-      ],
+          shipping_options: [
+            {
+              shipping_rate_data: {
+                type: 'fixed_amount',
+                display_name: makeT(await getTexts(), locale)('cart.shipping'),
+                fixed_amount: { amount: toCents(priced.shipping), currency },
+              },
+            },
+          ],
+          }),
       line_items: [
         ...priced.lines.map((l) => ({
           quantity: l.quantity,
@@ -165,7 +177,7 @@ export async function POST(req: Request) {
       return_url: `${SITE_URL}/${locale}/checkout/success?order=${order.id}&session={CHECKOUT_SESSION_ID}`,
     });
     await db.from('orders').update({ stripe_session_id: session.id }).eq('id', order.id);
-    return NextResponse.json({ clientSecret: session.client_secret, publishableKey, country });
+    return NextResponse.json({ clientSecret: session.client_secret, publishableKey, country, delivery });
   } catch (e) {
     console.error('Stripe checkout failed:', e);
     await db.from('orders').update({ status: 'cancelled' }).eq('id', order.id);

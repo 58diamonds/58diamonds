@@ -26,7 +26,7 @@ export interface PricedBag {
   /** The bag as it can be bought, to put back in the browser after problems. */
   fixed: BagLine[];
   subtotal: number;
-  /** null: the country cannot be shipped to. */
+  /** null: the country cannot be shipped to. 0 when picked up. */
   shipping: number | null;
   giftWrap: number;
   total: number;
@@ -43,7 +43,7 @@ export function priceBag(
   sections: Section[],
   settings: Settings,
   reserved: Map<string, number>,
-  opts: { giftWrap: boolean; locale: Locale; country?: string | null; attributes?: Attribute[] },
+  opts: { giftWrap: boolean; locale: Locale; country?: string | null; attributes?: Attribute[]; pickup?: boolean },
 ): PricedBag {
   const lines: PricedLine[] = [];
   const problems: BagLine[] = [];
@@ -85,7 +85,8 @@ export function priceBag(
   }
 
   const subtotal = round(lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0));
-  const shipping = shippingFor(subtotal, settings, opts.country);
+  // Picked up in Antwerp: nothing to ship, nothing to pay for it.
+  const shipping = opts.pickup ? 0 : shippingFor(subtotal, settings, opts.country);
   const giftWrap = opts.giftWrap && settings.gift_wrap_enabled && lines.length ? Number(settings.gift_wrap_price) || 0 : 0;
   return { lines, problems, fixed, subtotal, shipping, giftWrap, total: round(subtotal + (shipping ?? 0) + giftWrap) };
 }

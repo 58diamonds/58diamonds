@@ -32,6 +32,8 @@ export interface Settings {
   shipping_rates: ShippingRates;
   gift_wrap_enabled: boolean;
   gift_wrap_price: number;
+  /** The bag offers pickup in Antwerp next to shipping (free). */
+  pickup_enabled?: boolean;
   wishlist_enabled: boolean;
   newsletter_enabled: boolean;
   company_name: string | null;
@@ -242,6 +244,8 @@ export interface OrderItem {
   quantity: number;
 }
 
+export type Delivery = 'ship' | 'pickup';
+
 export interface Order {
   id: string;
   number: number;
@@ -250,6 +254,8 @@ export interface Order {
   name: string;
   phone: string | null;
   shipping_address: Address;
+  /** Shipped, or picked up in Antwerp (no shipping address then). */
+  delivery?: Delivery;
   locale: string;
   status: OrderStatus;
   currency: string;

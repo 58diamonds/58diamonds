@@ -21,6 +21,7 @@ export default async function BagPage({ params }: Props) {
         catalog={catalog}
         shipping={{ flat: settings.shipping_flat, freeFrom: settings.free_shipping_from, rates: settings.shipping_rates, countries: deliveryCountries(settings) }}
         giftWrap={settings.gift_wrap_enabled ? settings.gift_wrap_price : null}
+        pickup={settings.pickup_enabled !== false}
       />
     </Suspense>
   );

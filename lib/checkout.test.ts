@@ -18,6 +18,11 @@ describe('pricing a bag', () => {
     expect(r.lines[0]).toMatchObject({ unitPrice: 5600, variantLabel: '52', quantity: 1 });
     expect(r).toMatchObject({ subtotal: 5600, shipping: 25, giftWrap: 10, total: 5635 });
   });
+  it('charges nothing for pickup in Antwerp, even to a country without shipping', () => {
+    const bag = [{ pieceId: pear.id, variantId: size52.id, quantity: 1 }];
+    const r = priceBag(bag, DEMO_PIECES, DEMO_SECTIONS, settings, new Map(), { giftWrap: false, locale: 'en', country: 'US', pickup: true });
+    expect(r).toMatchObject({ subtotal: 5600, shipping: 0, total: 5600 });
+  });
   it('ships free above the threshold', () => {
     expect(run([{ pieceId: stack.id, variantId: null, quantity: 1 }]).shipping).toBe(0);
   });

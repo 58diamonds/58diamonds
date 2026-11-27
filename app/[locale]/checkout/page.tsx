@@ -15,7 +15,7 @@ export default async function CheckoutPage({ params }: Props) {
   const { settings } = await site(params);
   return (
     <Suspense>
-      <CheckoutView countries={deliveryCountries(settings)} />
+      <CheckoutView countries={deliveryCountries(settings)} pickupAddress={settings.address} />
     </Suspense>
   );
 }

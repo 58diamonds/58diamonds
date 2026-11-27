@@ -64,8 +64,10 @@ export async function completePaidSession(session: Stripe.Checkout.Session, paym
   const db = getServiceDb();
   const shipping = session.collected_information?.shipping_details;
   const details = session.customer_details;
-  const address = addressFrom(shipping?.address ?? details?.address);
-  const vat = await vatForOrder(orderId, address.country);
+  // Picked up in Antwerp: no delivery address, and the sale happens in Belgium.
+  const pickup = session.metadata?.delivery === 'pickup';
+  const address = pickup ? {} : addressFrom(shipping?.address ?? details?.address);
+  const vat = await vatForOrder(orderId, pickup ? HOME_COUNTRY : address.country);
   await db
     .from('orders')
     .update({

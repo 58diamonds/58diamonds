@@ -9,7 +9,7 @@ import { CHECKOUT_KEY, type PendingCheckout } from '@/lib/checkout-session';
 import type { Locale } from '@/lib/i18n';
 import { DEFAULT_DIAL_COUNTRY, DIAL_COUNTRIES, withCountryCode } from '@/lib/phone';
 import { href } from '@/lib/routes';
-import { countryName } from '@/lib/shipping';
+import { COUNTRY_NAMES, countryName } from '@/lib/shipping';
 import { PhoneField } from './PhoneField';
 import { useSite } from './SiteProvider';
 
@@ -45,7 +45,7 @@ const stripes = new Map<string, Promise<Stripe | null>>();
  * fields, only the payment box comes from Stripe. The bag starts the Stripe
  * session and leaves its secret in this tab's sessionStorage.
  */
-export function CheckoutView({ countries }: { countries: string[] }) {
+export function CheckoutView({ countries, pickupAddress = null }: { countries: string[]; pickupAddress?: string | null }) {
   const { locale, t } = useSite();
   const [pending, setPending] = useState<PendingCheckout | null | undefined>(undefined);
 
@@ -74,7 +74,7 @@ export function CheckoutView({ countries }: { countries: string[] }) {
         stripe={stripe}
         options={{ clientSecret: pending.clientSecret, elementsOptions: { appearance, fonts }, adaptivePricing: { allowed: false } }}
       >
-        <CheckoutForm pending={pending} countries={countries} locale={locale} />
+        <CheckoutForm pending={pending} countries={countries} locale={locale} pickupAddress={pickupAddress} />
       </CheckoutElementsProvider>
     </div>
   );
@@ -96,7 +96,7 @@ function Closed() {
 type Address = { name: string; line1: string; line2: string; postal: string; city: string; country: string };
 const emptyAddress = (country: string): Address => ({ name: '', line1: '', line2: '', postal: '', city: '', country });
 
-function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout; countries: string[]; locale: Locale }) {
+function CheckoutForm({ pending, countries, locale, pickupAddress }: { pending: PendingCheckout; countries: string[]; locale: Locale; pickupAddress: string | null }) {
   const { t } = useSite();
   const router = useRouter();
   const result = useCheckoutElements();
@@ -106,7 +106,9 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
   const [phoneCountry, setPhoneCountry] = useState(() =>
     DIAL_COUNTRIES.some((c) => c.code === pending.country) ? pending.country : DEFAULT_DIAL_COUNTRY,
   );
-  const [sameBilling, setSameBilling] = useState(true);
+  // Picked up in Antwerp: no delivery address, so the billing address is asked for.
+  const pickup = pending.delivery === 'pickup';
+  const [sameBilling, setSameBilling] = useState(!pickup);
   const [billing, setBilling] = useState<Address>(() => emptyAddress(pending.country));
   const [business, setBusiness] = useState(false);
   const [company, setCompany] = useState('');
@@ -187,17 +189,20 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
       }
       // Stripe's address form marks what it still needs and gives us the address.
       await checkout.validateElements().catch(() => null);
-      const a = await addressForm.current?.getValue();
-      if (!a?.complete) return fail(t('checkout.delivery_missing'));
-      const shippingAddress = {
-        name: a.value.name,
-        address: { ...a.value.address, line2: a.value.address.line2 || null },
-      };
+      let shippingAddress: ReturnType<typeof contact> | null = null;
+      if (!pickup) {
+        const a = await addressForm.current?.getValue();
+        if (!a?.complete) return fail(t('checkout.delivery_missing'));
+        shippingAddress = {
+          name: a.value.name,
+          address: { ...a.value.address, line2: a.value.address.line2 || null },
+        };
+      }
       const r = await Promise.race([
         checkout.confirm({
           ...(fixedEmail ? {} : { email: email.trim() }),
           phoneNumber: withCountryCode(phoneCountry, phone),
-          billingAddress: sameBilling ? shippingAddress : contact(billing),
+          billingAddress: sameBilling && shippingAddress ? shippingAddress : contact(billing),
         }),
         timeout,
       ]);
@@ -239,14 +244,24 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         </section>
 
         <section>
-          <h2 className="font-display text-3xl">{t('checkout.delivery')}</h2>
-          <div className="mt-6">
-            <ShippingAddressElement options={{ display: { name: 'full' } }} onReady={(el) => (addressForm.current = el as unknown as StripeAddressElement)} />
-          </div>
-          <label className="mt-6 flex cursor-pointer items-start gap-3 text-base">
-            <input type="checkbox" checked={sameBilling} onChange={(e) => setSameBilling(e.target.checked)} className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />
-            <span>{t('checkout.billing_same')}</span>
-          </label>
+          {pickup ? (
+            <>
+              <h2 className="font-display text-3xl">{t('cart.pickup')}</h2>
+              <p className="mt-4 text-[var(--color-stone)]">{t('cart.pickup_note')}</p>
+              {pickupAddress && <p className="mt-3 whitespace-pre-line">{pickupAddress}</p>}
+            </>
+          ) : (
+            <>
+              <h2 className="font-display text-3xl">{t('checkout.delivery')}</h2>
+              <div className="mt-6">
+                <ShippingAddressElement options={{ display: { name: 'full' } }} onReady={(el) => (addressForm.current = el as unknown as StripeAddressElement)} />
+              </div>
+              <label className="mt-6 flex cursor-pointer items-start gap-3 text-base">
+                <input type="checkbox" checked={sameBilling} onChange={(e) => setSameBilling(e.target.checked)} className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />
+                <span>{t('checkout.billing_same')}</span>
+              </label>
+            </>
+          )}
           <label className="mt-3 flex cursor-pointer items-start gap-3 text-base">
             <input type="checkbox" checked={business} onChange={(e) => setBusiness(e.target.checked)} className="mt-1.5 h-4 w-4 accent-[var(--color-ink)]" />
             <span>{t('checkout.business')}</span>
@@ -262,7 +277,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         {!sameBilling && (
           <section>
             <h2 className="font-display text-3xl">{t('checkout.billing')}</h2>
-            <AddressFields value={billing} onChange={setBilling} section="billing" tried={tried} countries={countries} locale={locale} />
+            <AddressFields value={billing} onChange={setBilling} section="billing" tried={tried} countries={pickup ? [...new Set([...countries, ...Object.keys(COUNTRY_NAMES)])] : countries} locale={locale} />
           </section>
         )}
 
@@ -289,8 +304,8 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
         </ul>
         <dl className="mt-6 space-y-3 border-t border-[var(--color-line)] pt-5">
           <div className="flex justify-between">
-            <dt className="text-[var(--color-stone)]">{t('cart.shipping')}</dt>
-            <dd>{checkout.total.shippingRate.minorUnitsAmount ? checkout.total.shippingRate.amount : t('cart.free')}</dd>
+            <dt className="text-[var(--color-stone)]">{t(pickup ? 'cart.pickup' : 'cart.shipping')}</dt>
+            <dd>{pickup ? t('cart.pickup_free') : checkout.total.shippingRate?.minorUnitsAmount ? checkout.total.shippingRate.amount : t('cart.free')}</dd>
           </div>
           <div className="flex justify-between border-t border-[var(--color-line)] pt-4 text-lg">
             <dt>{t('cart.total')}</dt>
@@ -306,7 +321,7 @@ function CheckoutForm({ pending, countries, locale }: { pending: PendingCheckout
             {error}
           </p>
         )}
-        <p className="mt-6 text-xs leading-relaxed text-[var(--color-stone)]">{t('cart.insured')}</p>
+        {!pickup && <p className="mt-6 text-xs leading-relaxed text-[var(--color-stone)]">{t('cart.insured')}</p>}
         <button type="button" onClick={back} className="mt-6 text-sm underline underline-offset-4 hover:text-[var(--color-gold)]">
           {t('checkout.back')}
         </button>

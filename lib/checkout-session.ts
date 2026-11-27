@@ -6,4 +6,6 @@ export interface PendingCheckout {
   publishableKey: string;
   /** The delivery country the shipping was priced for. */
   country: string;
+  /** Picked up in Antwerp: no delivery address to ask for. */
+  delivery?: 'ship' | 'pickup';
 }

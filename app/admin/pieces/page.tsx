@@ -101,7 +101,7 @@ export default function PiecesAdmin() {
                   <span className="font-display block truncate text-xl">{show(p.title) || '(no title)'}</span>
                   <span className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-stone)]">
                     {p.price != null ? formatPrice(Number(p.price), 'EUR') : 'No price'}
-                    {!p.show_price && <Badge>On request</Badge>}
+                    {!p.show_price && <Badge>{p.price_from && p.price != null ? 'From' : 'On request'}</Badge>}
                     {p.for_sale && p.show_price && p.price != null && <span>· {stock} in stock</span>}
                     {p.for_sale && stock === 0 && <Badge tone="warn">Sold out</Badge>}
                     {p.featured && <Badge tone="gold">Homepage</Badge>}

@@ -145,6 +145,8 @@ export interface Piece {
   price: number | null;
   show_price: boolean;
   for_sale: boolean;
+  /** While the price is hidden: show "From €price" instead of "Price on request". */
+  price_from?: boolean;
   /** Sale price in euro, VAT included; used only while on_sale is on. */
   sale_price?: number | null;
   /** "On sale" switch in Admin > Pieces. */

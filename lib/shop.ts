@@ -34,6 +34,19 @@ export function priceVisible(
   return piece.price != null && piece.show_price && (section ? section.show_prices : true);
 }
 
+/**
+ * "From €X" instead of "Price on request": the price stays hidden (the piece
+ * cannot be bought online), but the visitor sees a starting price. Uses the
+ * lowest price over the piece's options.
+ */
+export function fromPrice(
+  piece: Pick<Piece, 'price' | 'show_price' | 'price_from' | 'piece_variants'>,
+  section: Pick<Section, 'show_prices'> | null | undefined,
+): number | null {
+  if (!piece.price_from || piece.price == null || priceVisible(piece, section)) return null;
+  return priceRange(piece)?.min ?? Number(piece.price);
+}
+
 /** The price of one option: its own, or the piece's. */
 export function optionPrice(piece: Pick<Piece, 'price'>, variant?: Pick<PieceVariant, 'price'> | null): number | null {
   if (variant?.price != null) return Number(variant.price);

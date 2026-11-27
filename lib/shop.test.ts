@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeFilterCount, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
+import { activeFilterCount, fromPrice, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
 import type { Piece, Section } from './types';
 
 const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, cover_url: null, position: 0, visible: true, show_prices: true };
@@ -139,5 +139,20 @@ describe('onSale', () => {
   });
   it('reads database numerics given as strings', () => {
     expect(onSale({ price: '1200.00' as unknown as number, sale_price: '950.50' as unknown as number, on_sale: true })).toMatchObject({ price: 950.5, old_price: 1200 });
+  });
+});
+
+describe('fromPrice', () => {
+  const base = { price: 1200, show_price: false, price_from: true, piece_variants: [] };
+  it('gives the price while it is hidden and "From" is on', () => {
+    expect(fromPrice(base, section)).toBe(1200);
+  });
+  it('is off when the switch is off, there is no price, or the price is shown', () => {
+    expect(fromPrice({ ...base, price_from: false }, section)).toBeNull();
+    expect(fromPrice({ ...base, price: null }, section)).toBeNull();
+    expect(fromPrice({ ...base, show_price: true }, section)).toBeNull();
+  });
+  it('also works where the section hides prices', () => {
+    expect(fromPrice({ ...base, show_price: true }, { show_prices: false })).toBe(1200);
   });
 });

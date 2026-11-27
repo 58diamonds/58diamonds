@@ -14,11 +14,11 @@ export async function GET(req: Request) {
   if (!/^[0-9a-f-]{36}$/i.test(id) || !session.startsWith('cs_')) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
   const { data } = await getServiceDb()
     .from('orders')
-    .select('number, status')
+    .select('number, status, delivery')
     .eq('id', id)
     .eq('stripe_session_id', session)
     .maybeSingle();
   if (!data) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
   // Unpaid orders only have a temporary number; the real one comes with payment.
-  return NextResponse.json({ status: data.status, number: data.status === 'pending' || data.status === 'cancelled' ? null : data.number });
+  return NextResponse.json({ status: data.status, delivery: data.delivery ?? 'ship', number: data.status === 'pending' || data.status === 'cancelled' ? null : data.number });
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeFilterCount, fromPrice, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
+import { activeFilterCount, fromPrice, onSale, optionPrice, priceRange, filterPieces, parseShopQuery, pieceStock, pieceToOrder, sellable, purchasable, shippingFor, shopQueryString, sizesOf, vatIncluded } from './shop';
 import type { Piece, Section } from './types';
 
 const section: Section = { id: 's', slug: 'rings', name: {}, description: {}, cover_url: null, position: 0, visible: true, show_prices: true };
@@ -154,5 +154,23 @@ describe('fromPrice', () => {
   });
   it('also works where the section hides prices', () => {
     expect(fromPrice({ ...base, show_price: true }, { show_prices: false })).toBe(1200);
+  });
+});
+
+describe('made to order', () => {
+  const base = { stock: 0, order_stock: 3, made_to_order: true, piece_variants: [] as never[] };
+  it('sells the made-to-order number once stock is 0', () => {
+    expect(pieceStock(base)).toBe(3);
+    expect(pieceToOrder(base)).toBe(true);
+  });
+  it('sells real stock first, and ignores order_stock while the box is off', () => {
+    expect(pieceStock({ ...base, stock: 2 })).toBe(2);
+    expect(pieceToOrder({ ...base, stock: 2 })).toBe(false);
+    expect(pieceStock({ ...base, made_to_order: false })).toBe(0);
+  });
+  it('counts per size', () => {
+    const v = (stock: number, order_stock: number) => ({ id: 'x', piece_id: 'p', label: '52', metal_id: null, price: null, stock, order_stock, position: 0 });
+    expect(pieceStock({ ...base, piece_variants: [v(1, 5), v(0, 2)] })).toBe(3);
+    expect(sellable(base, v(0, 4))).toEqual({ stock: 4, toOrder: true });
   });
 });

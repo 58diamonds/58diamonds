@@ -13,6 +13,7 @@ export function CheckoutSuccess() {
   const { locale, t } = useSite();
   const params = useSearchParams();
   const [number, setNumber] = useState<number | null>(null);
+  const [pickup, setPickup] = useState(false);
 
   useEffect(() => {
     cart.set([]);
@@ -28,7 +29,8 @@ export function CheckoutSuccess() {
     const ask = () =>
       fetch(`/api/order?order=${encodeURIComponent(order)}&session=${encodeURIComponent(session)}`)
         .then((r) => (r.ok ? r.json() : null))
-        .then((d: { number?: number | null } | null) => {
+        .then((d: { number?: number | null; delivery?: string } | null) => {
+          if (d?.delivery === 'pickup') setPickup(true);
           if (d?.number) setNumber(d.number);
           else if (!stop && ++tries < 8) setTimeout(ask, 2000);
         })
@@ -43,7 +45,7 @@ export function CheckoutSuccess() {
     <div className="mx-auto max-w-xl px-5 py-28 text-center">
       <p className="eyebrow">58 Diamonds</p>
       <h1 className="font-display mt-3 text-5xl">{t('checkout.thanks_title')}</h1>
-      <p className="mt-6 text-lg leading-relaxed text-[var(--color-stone)]">{t('checkout.thanks_text', { number: number ? `#${number}` : '' }).replace(/\s+/g, ' ')}</p>
+      <p className="mt-6 text-lg leading-relaxed text-[var(--color-stone)]">{t(pickup ? 'checkout.thanks_pickup' : 'checkout.thanks_text', { number: number ? `#${number}` : '' }).replace(/\s+/g, ' ')}</p>
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         <Link href={href.account(locale)} className="btn btn-dark">
           {t('account.orders')}

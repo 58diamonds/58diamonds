@@ -108,6 +108,7 @@ export default function PieceEditor() {
           weight_g: p.weight_g != null && p.weight_g > 0 ? p.weight_g : null,
           price: p.price,
           show_price: p.show_price,
+          price_from: p.price_from === true,
           sale_price: p.sale_price ?? null,
           on_sale: p.on_sale === true,
           for_sale: p.for_sale,
@@ -332,6 +333,14 @@ export default function PieceEditor() {
             </div>
             <div className="space-y-2 pt-5">
               <Toggle label="Show the price" checked={piece.show_price} onChange={(v) => set({ show_price: v })} hint="Off: the site says “Price on request”." />
+              {!piece.show_price && (
+                <Toggle
+                  label="Say “From” instead"
+                  checked={piece.price_from === true}
+                  onChange={(v) => set({ price_from: v })}
+                  hint={piece.price == null ? 'Type a price above first.' : 'The site says “From” followed by the price above, instead of “Price on request”. The piece still cannot be bought online.'}
+                />
+              )}
               {SHOP_LIVE ? (
                 <Toggle label="Can be bought online" checked={piece.for_sale} onChange={(v) => set({ for_sale: v })} hint="Off: only “Book a viewing”." />
               ) : (
